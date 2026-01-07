@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SREC Social Platform Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+    body { background: #e9ebee; font-family: 'Segoe UI', Arial, sans-serif; margin: 0;}
+    .main-row { display: flex; gap: 20px; justify-content: center;}
+    .profile-card {
+        background: #fff; border-radius: 13px; box-shadow: 0 2px 7px #b2cde6;
+        width: 170px; padding: 25px 15px; height: fit-content; margin-top: 28px;
+        display:flex; flex-direction: column; align-items: center;
+    }
+    .profile-avatar {
+        background: #f7c068; color: #fff; font-weight: 700;
+        width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+        font-size: 2em; margin-bottom: 10px;
+    }
+    .profile-user { color: #1560c0; font-weight: 600; margin-bottom:8px;}
+    .profile-meta{ color:#8c96ad; font-size:1em;}
+    .events-box {
+        background: #fff; border-radius: 13px; box-shadow: 0 2px 7px #cdd6e7;
+        padding: 18px 18px; margin: 28px 0 19px 0; width:100%; max-width: 440px;
+    }
+    .events-title{color:#1877f2;font-size:1.09em;font-weight:600;margin-bottom:5px;}
+    .event-item{margin-bottom:8px; color:#222;}
+    .event-title{font-weight:550;}
+    .dashboard-container { max-width: 520px; }
+    /* --- your existing feed/post/card CSS here --- */
+    .post-form { background: #fff; border-radius: 14px; padding: 25px 18px 18px 18px; margin-bottom: 28px; box-shadow: 0 2px 8px #cdd6e7; display: flex; flex-direction: column; gap: 10px;}
+    .post-form .avatar { background: #f7c068; color: #fff; font-weight: 700; width: 42px; height: 42px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 1.4em; margin-right: 9px;}
+    #post-input { border: 1px solid #dbe4f6; border-radius: 12px; padding: 12px 14px; font-size: 1.07em; background: #f2f4fa; margin: 3px 0 13px 0; resize: none;}
+    #post-btn { background: #1877f2; color: #fff; border: none; padding: 10px 0; border-radius: 10px; font-size: 1.0em; font-weight: 600; transition: background .13s; cursor: pointer;}
+    #post-btn:hover { background: #135aaa; }
+    .wall-header { font-size: 1.09em; margin: 13px 0 12px 4px; color: #2162c7; font-weight: 600; letter-spacing: 0.3px;}
+    .card-feed { display: flex; flex-direction: column; gap: 19px;}
+    .wall-post { background: #fff; border-radius: 14px; box-shadow: 0 2px 8px #cdd6e7; padding: 16px 18px 10px 18px; position: relative; min-height: 54px;}
+    .wall-post-top { display: flex; align-items: center; gap: 11px; margin-bottom: 7px;}
+    .wall-post .avatar { background: #7dafff; color: #fff; font-weight: 700; width: 37px; height: 37px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 1.1em;}
+    .wall-post .username { font-weight: 620; color: #1560c0; font-size: 0.98em; letter-spacing: 0.1px;}
+    .wall-post .date { color: #8c96ad; font-size: 0.98em; margin-left: 7px; font-style: italic;}
+    .wall-post .content { margin: 8px 0 10px 0; font-size: 1.1em; color: #23272e;}
+    .actions { display: flex; gap: 19px; padding-left: 4px; margin-top: 10px;}
+    .action-btn { background: none; border: none; color: #2162c7; font-size: 1.02em; cursor: pointer; padding: 0 8px; display: flex; align-items: center; gap: 4px; opacity: 0.76; transition: opacity 0.14s, color 0.14s;}
+    .action-btn:hover { opacity: 1; color: #094e9c;}
+    .comment-section { margin:10px 0 0 17px; }
+    .comment-form { display: flex; gap: 7px; margin: 9px 0 0 0;}
+    .comment-input { padding:8px 13px; border-radius:7px; border:1px solid #dbe4f6; width:60%; }
+    .comment-btn { background:#188d38;color:#fff;border:none; border-radius:7px;padding:7px 16px;cursor:pointer;}
+    .comment-btn:hover{background:#145c22;}
+    .comment-list{margin:3px 0 0 0; font-size:0.97em;}
+    .comment-user{color:#1c68c5;font-weight:500;}
+    .comment-date{color:#979ba8;font-size:0.91em; margin-left:8px;}
+    .comment-text{margin-right:6px;}
+    .delete-btn { background: #e53935; color: #fff; border: none; border-radius: 7px; padding: 6px 13px; font-size: 0.93em; margin-left: 10px; margin-top: 7px; cursor:pointer;}
+    .delete-btn:hover { background: #c62828; }
+    @media (max-width: 800px) { .main-row { flex-direction: column;} .profile-card { width: 97vw; margin-top: 18px;}
+      .dashboard-container { max-width:98vw;padding:1vw;} .events-box {max-width:98vw;} }
+    #chatbot-avatar { position: fixed; bottom: 22px; right: 32px; z-index: 999; cursor: pointer;background: #fff; border-radius: 50%; box-shadow: 0 2px 20px #b3e2c9; transition: box-shadow 0.2s; }
+    #chatbot-avatar:hover { box-shadow: 0 4px 24px #1976d2;}
+    #chatbot-popup { display: none; position: fixed; bottom: 80px; right: 32px; z-index: 1001; width: 350px; height: 410px; background: white; border-radius: 18px; box-shadow: 0 6px 24px #ccc;}
+    #chatbot-popup iframe { border: none; border-radius: 15px;}
+    #chatbot-popup button { position: absolute; top: 13px; right: 12px; font-size: 20px; border: none; background: transparent; cursor: pointer;}
+    </style>
+</head>
+<body>
+<div class="header-bar">
+    <div>Welcome, {{user}}<span style="font-size:0.92em;font-weight:400;"> | Role: {{role}}</span></div>
+    <a href="/logout">Logout</a>
+</div>
+<div class="main-row">
+    <div class="profile-card">
+        <div class="profile-avatar">{{user[0]|upper}}</div>
+        <div class="profile-user">{{user}}</div>
+        <div class="profile-meta">Posts: {{post_count}}</div>
+        <div class="profile-meta">Role: {{role}}</div>
+    </div>
+    <div style="width:100%;">
+        <div class="events-box">
+            <div class="events-title"><i class="fas fa-bell"></i> Events & Notifications</div>
+            {% for event in events %}
+            <div class="event-item">
+                <span class="event-title">{{event.title}}:</span> {{event.desc}}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="dashboard-container">
+            <form class="post-form" id="add-post-form">
+                <div style="display:flex;align-items:center;">
+                    <span class="avatar">{{user[0]|upper}}</span>
+                    <textarea id="post-input" rows="2" placeholder="What's on your mind?" required autocomplete="off"></textarea>
+                </div>
+                <button type="submit" id="post-btn"><i class="fas fa-paper-plane"></i> Post</button>
+                <div id="post-msg"></div>
+            </form>
+            <div class="wall-header">News Feed</div>
+            <div class="card-feed">
+                {% for key, post in posts.items() %}
+                <div class="wall-post" data-postid="{{key}}">
+                    <div class="wall-post-top">
+                        <span class="avatar">{{post.user[0]|upper}}</span>
+                        <span class="username">{{post.user}}</span>
+                        <span class="date">{{post.timestamp}}</span>
+                    </div>
+                    <div class="content">{{post.content}}</div>
+                    <div class="actions">
+                        <button class="action-btn" onclick="likePost('{{key}}', this)">
+                            <i class="far fa-thumbs-up"></i> Like <span class="like-count">{{post.likes|length if post.likes else 0}}</span>
+                        </button>
+                        <button class="action-btn" onclick="toggleCommentBox('{{key}}')">
+                            <i class="far fa-comment"></i> Comment
+                        </button>
+                        {% if post.user == user or role == "admin" %}
+                        <button class="delete-btn" onclick="deletePost('{{key}}', this)">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                        {% endif %}
+                    </div>
+                    <div class="comment-section" id="comment-section-{{key}}" style="display:none;">
+                        <form class="comment-form" onsubmit="commentPost('{{key}}', event)">
+                            <input type="text" class="comment-input" placeholder="Write a comment..." required>
+                            <button type="submit" class="comment-btn">Add</button>
+                        </form>
+                        <div class="comment-list">
+                            {% if post.comments %}
+                                {% for c in post.comments %}
+                                    <div>
+                                        <span class="comment-user">{{c.user}}</span>
+                                        <span class="comment-date">{{c.timestamp}}</span>
+                                        <span class="comment-text">{{c.comment}}</span>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div style="padding:14px 0 7px 4px;color:#888;">No posts yet!</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Chatbot avatar and popup as before -->
+<div id="chatbot-avatar" onclick="showChatbotPopup()">
+    <img src="https://cdn-icons-png.flaticon.com/512/4712/4712024.png" alt="Chatbot Avatar"
+    style="width:55px; height:55px; border-radius:50%; box-shadow:0 1px 8px #bbb;">
+</div>
+<div id="chatbot-popup">
+    <button onclick="closeChatbotPopup()">&times;</button>
+    <iframe src="/widget" width="100%" height="95%"></iframe>
+</div>
+<script>
+function showChatbotPopup() { document.getElementById('chatbot-popup').style.display = 'block'; }
+function closeChatbotPopup() { document.getElementById('chatbot-popup').style.display = 'none'; }
+document.getElementById('add-post-form').onsubmit = function(e){
+    e.preventDefault();
+    var content = document.getElementById('post-input').value;
+    fetch('/add_post', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({content: content, timestamp: new Date().toLocaleString()})
+    })
+    .then(r=>r.json())
+    .then(data => {
+        document.getElementById('post-msg').innerText = data.success ? "Posted!" : data.msg;
+        if(data.success) setTimeout(()=>window.location.reload(),600);
+    });
+}
+function likePost(postID, btn) {
+    fetch('/like_post', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({post_id: postID})
+    })
+    .then(r=>r.json())
+    .then(data => {
+        if(data.success) {
+            btn.querySelector('.like-count').innerText = data.likes;
+        }
+    });
+}
+function toggleCommentBox(postID) {
+    var sec = document.getElementById('comment-section-' + postID);
+    sec.style.display = sec.style.display === 'none' ? 'block' : 'none';
+}
+function commentPost(postID, event) {
+    event.preventDefault();
+    var inp = event.target.querySelector('.comment-input');
+    var comment = inp.value;
+    fetch('/comment_post', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({post_id: postID, comment: comment, timestamp: new Date().toLocaleString()})
+    })
+    .then(r=>r.json())
+    .then(data => {
+        if(data.success) window.location.reload();
+    });
+}
+function deletePost(postID, btn){
+    if(confirm("Delete this post permanently?")) {
+        fetch('/delete_post', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({post_id: postID})
+        })
+        .then(r=>r.json())
+        .then(data=>{
+            if(data.success) window.location.reload();
+            else alert(data.msg || "Delete failed");
+        });
+    }
+}
+</script>
+</body>
+</html>

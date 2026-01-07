@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login - SREC Social Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial; background:#eaf6fa; display:flex; align-items:center; justify-content:center; height:100vh; }
+    .box { background:white; border-radius:10px; box-shadow:0 2px 12px #90caf9; padding:38px; min-width:340px; text-align:center; }
+    h2 { color:#1976d2; margin-bottom:19px;}
+    input { width:95%; padding:12px; margin-bottom:14px; border-radius:7px; border:1px solid #b6cae4; font-size:1em;}
+    button { background:#1976d2; color:white; border:none; padding:12px 28px; border-radius:18px; font-size:1em; cursor:pointer;}
+    button:hover { background: #1565c0; }
+    #error { color:#e53935; margin:12px 0 14px 0;}
+    .info { font-size:0.92em; margin-top:15px; color:#1976d2;}
+    a { color:#1565c0; text-decoration: underline; }
+    #chatbot-avatar { position: fixed; bottom: 22px; right: 32px; z-index: 999; cursor: pointer; background: #fff; border-radius: 50%;
+      box-shadow: 0 2px 20px #b3e2c9; transition: box-shadow 0.2s; }
+    #chatbot-avatar:hover { box-shadow: 0 4px 24px #1976d2; }
+    #chatbot-popup { display: none; position: fixed; bottom: 80px; right: 32px; z-index: 1001; width: 350px; height: 410px; background: white; border-radius: 18px; box-shadow: 0 6px 24px #ccc; }
+    #chatbot-popup iframe { border: none; border-radius: 15px; }
+    #chatbot-popup button { position: absolute; top: 13px; right: 12px; font-size: 20px; border: none; background: transparent; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>SREC Social Platform Login</h2>
+    <form method="post" autocomplete="off">
+      <input name="userid" type="text" placeholder="Enter SREC Email" required>
+      <input name="password" type="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+    <div id="error">{% if error %}{{error}}{% endif %}</div>
+    <div class="info">
+      Only registered students/staff can login.<br>
+      <a href="/signup">Don't have an account? Sign up here</a>
+    </div>
+  </div>
+  <!-- Chatbot widget, as before -->
+  <div id="chatbot-avatar" onclick="showChatbotPopup()">
+    <img src="https://cdn-icons-png.flaticon.com/512/4712/4712024.png" alt="Chatbot Avatar"
+         style="width:55px; height:55px; border-radius:50%; box-shadow:0 1px 8px #bbb;">
+  </div>
+  <div id="chatbot-popup">
+    <button onclick="closeChatbotPopup()">&times;</button>
+    <iframe src="/widget" width="100%" height="95%"></iframe>
+  </div>
+  <script>
+    function showChatbotPopup() {
+      document.getElementById('chatbot-popup').style.display = 'block';
+    }
+    function closeChatbotPopup() {
+      document.getElementById('chatbot-popup').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

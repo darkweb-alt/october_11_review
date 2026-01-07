@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Signup - SREC Social Platform</title>
+<style>
+body { font-family: Arial; background:#eaf6fa; display:flex; align-items:center; justify-content:center; height:100vh;}
+.box { background:white; border-radius:8px; box-shadow:0 2px 12px #90caf9; padding:38px; min-width:350px;}
+h2 {color:#1976d2;}
+input,select { width:95%;padding:11px;margin-bottom:13px;border-radius:7px;}
+#error { color:red;margin:12px 0;}
+button { background:#1976d2;color:white;border:none;padding:12px 28px;border-radius:18px;font-size:1em;}
+</style>
+</head>
+<body>
+<div class="box">
+    <h2>Sign Up</h2>
+    <form method="post">
+      <input name="userid" type="text" placeholder="Email" required>
+      <input name="password" type="password" placeholder="Password" required>
+      <select name="role">
+        <option value="student">Student</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button type="submit">Sign Up</button>
+    </form>
+    <div id="error">{% if error %}{{error}}{% endif %}</div>
+    <a href="/">Already have an account? Login</a>
+</div>
+</body>
+</html>

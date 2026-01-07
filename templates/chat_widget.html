@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SREC Bot Chat Widget</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0; background: #eef2fb;
+    }
+    .chatbot-window {
+      width: 350px;
+      height: 440px;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 7px 28px #c2d4fd99;
+      margin: 24px auto 0 auto;
+      display: flex; flex-direction: column;
+      position: relative;
+      border: 1.5px solid #d4e0f6;
+    }
+    .chatbot-header {
+      display: flex; align-items: center;
+      background: #2162c7;
+      color: #fff;
+      padding: 15px 16px;
+      border-radius: 17px 17px 0 0;
+      font-size: 1.14em;
+      font-weight: 600;
+    }
+    .chatbot-avatar {
+      background: #fff;
+      width: 37px; height: 37px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-right: 12px;
+      box-shadow: 0 1px 7px #90caf9;
+    }
+    .chatbot-avatar img {
+      width: 26px; height: 26px;
+    }
+    .chatbot-close {
+      margin-left: auto; font-size: 1.24em; color: #fff; background: transparent;
+      border: none; cursor: pointer;
+      opacity: 0.82; transition: opacity 0.21s;
+    }
+    .chatbot-close:hover { opacity: 1; color: #ebebec; }
+    .chat-body {
+      padding: 13px;
+      flex: 1;
+      overflow-y: auto;
+      background: #f6fafd;
+      display: flex; flex-direction: column;
+    }
+    .bubble {
+      max-width: 77%;
+      padding: 11px 16px;
+      margin-bottom: 11px;
+      border-radius: 16px 16px 8px 16px;
+      box-shadow: 0 1.5px 7px #e6edfa68;
+      word-break:break-word;
+      font-size: 1em;
+      line-height: 1.55em;
+      position: relative;
+    }
+    .bot.bubble {
+      margin-left: 0;
+      margin-right: auto;
+      background: #dbe8fd;
+      color: #123c85;
+      font-weight: 540;
+    }
+    .user.bubble {
+      background: #f1f3f5;
+      color: #036;
+      margin-left: auto;
+      margin-right: 0;
+      border-radius: 16px 16px 16px 8px;
+    }
+    .chat-form-area {
+      background: #f9fafd;
+      border-top: 1.5px solid #e2eaf4;
+      display: flex; align-items: center;
+      padding: 10px 14px;
+      border-radius: 0 0 18px 18px;
+      gap: 8px;
+    }
+    .input-box {
+      flex: 1;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.06em;
+      background: #eef2fb;
+      padding: 11px 11px;
+      margin-right: 8px;
+      outline: none;
+    }
+    .send-btn {
+      background: #2162c7;
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      font-size: 1em;
+      font-weight: 600;
+      padding: 7px 22px;
+      cursor: pointer;
+      transition: background 0.13s;
+    }
+    .send-btn:hover { background: #1456ad; }
+    @media (max-width: 500px) {
+      .chatbot-window { width: 96vw; height: 92vw; }
+    }
+    .typing-dot {
+      display:inline-block; width:7px; height:7px; margin-right:3px; background:#bbb; border-radius:50%; animation: blink 1s infinite alternate;}
+    .typing-dot:nth-child(2) { animation-delay: .2s; }
+    .typing-dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink { from { opacity:.3 } to { opacity:1 } }
+  </style>
+</head>
+<body>
+<div class="chatbot-window" id="chat-root">
+  <div class="chatbot-header">
+    <div class="chatbot-avatar"><img src="https://cdn-icons-png.flaticon.com/512/4712/4712024.png" alt="Bot"></div>
+    SREC Bot
+    <button class="chatbot-close" title="Close chat" onclick="window.parent.document.getElementById('chatbot-popup').style.display='none';">×</button>
+  </div>
+  <div class="chat-body" id="chatbox">
+    <div class="bubble bot"><b>SREC Bot:</b> Welcome! Ask me about SREC.</div>
+  </div>
+  <form class="chat-form-area" autocomplete="off" onsubmit="sendMsg(event)">
+    <input id="userInput" class="input-box" type="text" placeholder="Type here..." required />
+    <button type="submit" class="send-btn">Send</button>
+  </form>
+</div>
+<script>
+function addMsg(txt, isUser=false) {
+  let cbox=document.getElementById('chatbox'), div=document.createElement('div');
+  div.className=(isUser?'user':'bot')+" bubble";
+  div.innerHTML=isUser?`<b>You:</b> ${txt}`:`<b>SREC Bot:</b> ${txt}`;
+  cbox.appendChild(div); cbox.scrollTop=cbox.scrollHeight;
+}
+function showTyping(){
+  let cbox=document.getElementById('chatbox');
+  let dotDiv=document.createElement('div');
+  dotDiv.className='bot bubble';
+  dotDiv.innerHTML='<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+  dotDiv.id='typing-ind';
+  cbox.appendChild(dotDiv);
+  cbox.scrollTop=cbox.scrollHeight;
+}
+function removeTyping(){
+  let d=document.getElementById('typing-ind');
+  if(d) d.remove();
+}
+function sendMsg(e){
+  e.preventDefault();
+  let inp=document.getElementById('userInput'), msg=inp.value;
+  if (!msg.trim()) return;
+  addMsg(msg,true); inp.value='';
+  showTyping();
+  fetch('/chat', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({message:msg})
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    removeTyping();
+    addMsg(data.response,false);
+  })
+  .catch(()=>{ removeTyping(); addMsg('Sorry, I encountered an error.',false); });
+}
+</script>
+</body>
+</html>

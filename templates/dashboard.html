@@ -1,217 +1,1476 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="light">
 <head>
-    <title>SREC Social Platform Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <style>
-    body { background: #e9ebee; font-family: 'Segoe UI', Arial, sans-serif; margin: 0;}
-    .main-row { display: flex; gap: 20px; justify-content: center;}
-    .profile-card {
-        background: #fff; border-radius: 13px; box-shadow: 0 2px 7px #b2cde6;
-        width: 170px; padding: 25px 15px; height: fit-content; margin-top: 28px;
-        display:flex; flex-direction: column; align-items: center;
-    }
-    .profile-avatar {
-        background: #f7c068; color: #fff; font-weight: 700;
-        width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-        font-size: 2em; margin-bottom: 10px;
-    }
-    .profile-user { color: #1560c0; font-weight: 600; margin-bottom:8px;}
-    .profile-meta{ color:#8c96ad; font-size:1em;}
-    .events-box {
-        background: #fff; border-radius: 13px; box-shadow: 0 2px 7px #cdd6e7;
-        padding: 18px 18px; margin: 28px 0 19px 0; width:100%; max-width: 440px;
-    }
-    .events-title{color:#1877f2;font-size:1.09em;font-weight:600;margin-bottom:5px;}
-    .event-item{margin-bottom:8px; color:#222;}
-    .event-title{font-weight:550;}
-    .dashboard-container { max-width: 520px; }
-    /* --- your existing feed/post/card CSS here --- */
-    .post-form { background: #fff; border-radius: 14px; padding: 25px 18px 18px 18px; margin-bottom: 28px; box-shadow: 0 2px 8px #cdd6e7; display: flex; flex-direction: column; gap: 10px;}
-    .post-form .avatar { background: #f7c068; color: #fff; font-weight: 700; width: 42px; height: 42px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 1.4em; margin-right: 9px;}
-    #post-input { border: 1px solid #dbe4f6; border-radius: 12px; padding: 12px 14px; font-size: 1.07em; background: #f2f4fa; margin: 3px 0 13px 0; resize: none;}
-    #post-btn { background: #1877f2; color: #fff; border: none; padding: 10px 0; border-radius: 10px; font-size: 1.0em; font-weight: 600; transition: background .13s; cursor: pointer;}
-    #post-btn:hover { background: #135aaa; }
-    .wall-header { font-size: 1.09em; margin: 13px 0 12px 4px; color: #2162c7; font-weight: 600; letter-spacing: 0.3px;}
-    .card-feed { display: flex; flex-direction: column; gap: 19px;}
-    .wall-post { background: #fff; border-radius: 14px; box-shadow: 0 2px 8px #cdd6e7; padding: 16px 18px 10px 18px; position: relative; min-height: 54px;}
-    .wall-post-top { display: flex; align-items: center; gap: 11px; margin-bottom: 7px;}
-    .wall-post .avatar { background: #7dafff; color: #fff; font-weight: 700; width: 37px; height: 37px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 1.1em;}
-    .wall-post .username { font-weight: 620; color: #1560c0; font-size: 0.98em; letter-spacing: 0.1px;}
-    .wall-post .date { color: #8c96ad; font-size: 0.98em; margin-left: 7px; font-style: italic;}
-    .wall-post .content { margin: 8px 0 10px 0; font-size: 1.1em; color: #23272e;}
-    .actions { display: flex; gap: 19px; padding-left: 4px; margin-top: 10px;}
-    .action-btn { background: none; border: none; color: #2162c7; font-size: 1.02em; cursor: pointer; padding: 0 8px; display: flex; align-items: center; gap: 4px; opacity: 0.76; transition: opacity 0.14s, color 0.14s;}
-    .action-btn:hover { opacity: 1; color: #094e9c;}
-    .comment-section { margin:10px 0 0 17px; }
-    .comment-form { display: flex; gap: 7px; margin: 9px 0 0 0;}
-    .comment-input { padding:8px 13px; border-radius:7px; border:1px solid #dbe4f6; width:60%; }
-    .comment-btn { background:#188d38;color:#fff;border:none; border-radius:7px;padding:7px 16px;cursor:pointer;}
-    .comment-btn:hover{background:#145c22;}
-    .comment-list{margin:3px 0 0 0; font-size:0.97em;}
-    .comment-user{color:#1c68c5;font-weight:500;}
-    .comment-date{color:#979ba8;font-size:0.91em; margin-left:8px;}
-    .comment-text{margin-right:6px;}
-    .delete-btn { background: #e53935; color: #fff; border: none; border-radius: 7px; padding: 6px 13px; font-size: 0.93em; margin-left: 10px; margin-top: 7px; cursor:pointer;}
-    .delete-btn:hover { background: #c62828; }
-    @media (max-width: 800px) { .main-row { flex-direction: column;} .profile-card { width: 97vw; margin-top: 18px;}
-      .dashboard-container { max-width:98vw;padding:1vw;} .events-box {max-width:98vw;} }
-    #chatbot-avatar { position: fixed; bottom: 22px; right: 32px; z-index: 999; cursor: pointer;background: #fff; border-radius: 50%; box-shadow: 0 2px 20px #b3e2c9; transition: box-shadow 0.2s; }
-    #chatbot-avatar:hover { box-shadow: 0 4px 24px #1976d2;}
-    #chatbot-popup { display: none; position: fixed; bottom: 80px; right: 32px; z-index: 1001; width: 350px; height: 410px; background: white; border-radius: 18px; box-shadow: 0 6px 24px #ccc;}
-    #chatbot-popup iframe { border: none; border-radius: 15px;}
-    #chatbot-popup button { position: absolute; top: 13px; right: 12px; font-size: 20px; border: none; background: transparent; cursor: pointer;}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusConnect – SREC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+/* ===== CSS VARIABLES ===== */
+:root {
+  --bg: #f0f2f8;
+  --surface: #ffffff;
+  --surface2: #f7f8fc;
+  --border: #e2e6f0;
+  --primary: #3b5bdb;
+  --primary-light: #e8edff;
+  --primary-dark: #2f4ac0;
+  --accent: #f03e3e;
+  --accent2: #f59f00;
+  --accent3: #2fb86e;
+  --text: #1a1d2e;
+  --text2: #5a6075;
+  --text3: #9da3b8;
+  --shadow: 0 2px 12px rgba(59,91,219,0.08);
+  --shadow-lg: 0 8px 32px rgba(59,91,219,0.13);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --header-h: 62px;
+  --sidebar-w: 260px;
+  --transition: 0.18s ease;
+}
+[data-theme="dark"] {
+  --bg: #0f1117;
+  --surface: #1a1d2e;
+  --surface2: #1f2235;
+  --border: #2a2f4a;
+  --primary: #5c7cfa;
+  --primary-light: #1e2540;
+  --primary-dark: #4c6ef5;
+  --text: #e8ecf8;
+  --text2: #9da3c0;
+  --text3: #5a6075;
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; transition: background var(--transition), color var(--transition); }
+a { color: var(--primary); text-decoration: none; }
+button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
+input, textarea, select { font-family: var(--font); outline: none; }
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+/* ===== HEADER ===== */
+.header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px;
+  gap: 16px;
+  box-shadow: var(--shadow);
+  transition: background var(--transition);
+}
+.header-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1.18em; font-weight: 800; color: var(--primary);
+  white-space: nowrap;
+}
+.header-logo .dot { color: var(--accent); }
+
+.header-search {
+  flex: 1; max-width: 400px;
+  display: flex; align-items: center;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 99px;
+  padding: 8px 16px; gap: 8px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.header-search:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+.header-search input {
+  background: transparent; border: none; flex: 1;
+  color: var(--text); font-size: 0.9em;
+}
+.header-search input::placeholder { color: var(--text3); }
+.header-search i { color: var(--text3); font-size: 0.85em; }
+
+.header-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+.icon-btn {
+  width: 38px; height: 38px; border-radius: 99px;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text2); font-size: 0.95em; transition: all var(--transition);
+  position: relative;
+}
+.icon-btn:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+.badge {
+  position: absolute; top: -4px; right: -4px;
+  background: var(--accent); color: #fff;
+  font-size: 0.6em; font-weight: 700;
+  width: 16px; height: 16px; border-radius: 99px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 12px 5px 5px;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 99px; cursor: pointer;
+  transition: all var(--transition);
+}
+.user-chip:hover { border-color: var(--primary); background: var(--primary-light); }
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 99px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff; font-size: 0.8em; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.user-chip span { font-size: 0.82em; font-weight: 600; color: var(--text); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ===== LAYOUT ===== */
+.layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr 280px;
+  gap: 20px;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: calc(var(--header-h) + 20px) 16px 40px;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  position: sticky;
+  top: calc(var(--header-h) + 20px);
+  height: fit-content;
+}
+
+.profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+  text-align: center;
+}
+.profile-big-avatar {
+  width: 72px; height: 72px; border-radius: 99px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff; font-size: 1.9em; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px;
+  box-shadow: 0 4px 16px rgba(59,91,219,0.3);
+}
+.profile-name { font-weight: 700; font-size: 1.05em; margin-bottom: 3px; }
+.profile-email { color: var(--text3); font-size: 0.78em; margin-bottom: 12px; word-break: break-all; }
+.profile-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 14px;
+}
+.stat-box {
+  background: var(--surface2); border-radius: var(--radius-sm);
+  padding: 10px 6px; text-align: center;
+  border: 1px solid var(--border);
+}
+.stat-box .num { font-weight: 800; font-size: 1.3em; color: var(--primary); display: block; }
+.stat-box .lbl { font-size: 0.7em; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
+.role-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--primary-light); color: var(--primary);
+  font-size: 0.75em; font-weight: 700; padding: 4px 10px;
+  border-radius: 99px; text-transform: capitalize;
+}
+
+.nav-menu {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; color: var(--text2);
+  font-size: 0.9em; font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  transition: all var(--transition); cursor: pointer;
+  background: transparent; width: 100%; text-align: left;
+}
+.nav-item:last-child { border-bottom: none; }
+.nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); }
+.nav-item i { width: 18px; text-align: center; }
+
+/* ===== FEED AREA ===== */
+.feed-area {}
+
+/* ANNOUNCEMENT BANNER */
+.announcement-banner {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white; border-radius: var(--radius);
+  padding: 14px 18px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--shadow-lg);
+  animation: slideDown 0.4s ease;
+}
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.announcement-banner i { font-size: 1.2em; opacity: 0.9; }
+.announcement-banner .ann-text { flex: 1; font-size: 0.88em; font-weight: 600; }
+.ann-close { background: rgba(255,255,255,0.2); border: none; color: white; width: 24px; height: 24px; border-radius: 99px; display: flex; align-items: center; justify-content: center; font-size: 0.85em; cursor: pointer; }
+
+/* POST COMPOSER */
+.composer {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px;
+  box-shadow: var(--shadow); margin-bottom: 16px;
+}
+.composer-top { display: flex; gap: 12px; margin-bottom: 14px; }
+.composer-avatar {
+  width: 40px; height: 40px; border-radius: 99px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff; font-weight: 700; font-size: 0.9em;
+  display: flex; align-items: center; justify-content: center;
+}
+.composer textarea {
+  flex: 1; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 14px; background: var(--surface2); color: var(--text);
+  resize: none; font-size: 0.93em; line-height: 1.5;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  min-height: 80px;
+}
+.composer textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.composer textarea::placeholder { color: var(--text3); }
+
+.composer-actions { display: flex; align-items: center; gap: 8px; }
+.composer-action-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: var(--radius-sm);
+  background: var(--surface2); border: 1.5px solid var(--border);
+  color: var(--text2); font-size: 0.82em; font-weight: 600;
+  transition: all var(--transition);
+}
+.composer-action-btn:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+.composer-action-btn i { font-size: 0.9em; }
+.post-submit-btn {
+  margin-left: auto; padding: 8px 20px;
+  background: var(--primary); color: white;
+  border-radius: 99px; font-weight: 700; font-size: 0.88em;
+  transition: all var(--transition);
+  box-shadow: 0 2px 8px rgba(59,91,219,0.3);
+}
+.post-submit-btn:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(59,91,219,0.4); }
+.post-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.image-preview-area { margin-top: 10px; display: none; }
+.image-preview-area img { max-height: 200px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+.remove-img-btn { background: var(--accent); color: white; border: none; border-radius: 99px; width: 24px; height: 24px; font-size: 0.75em; margin-left: 8px; cursor: pointer; }
+#img-upload { display: none; }
+
+/* FILTER TABS */
+.feed-tabs {
+  display: flex; gap: 4px; margin-bottom: 16px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 99px; padding: 4px;
+  box-shadow: var(--shadow);
+}
+.feed-tab {
+  flex: 1; padding: 8px 12px; border-radius: 99px;
+  font-size: 0.82em; font-weight: 700; text-align: center;
+  background: transparent; color: var(--text2);
+  transition: all var(--transition); cursor: pointer; border: none;
+}
+.feed-tab.active { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(59,91,219,0.3); }
+
+/* POSTS */
+.post-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px;
+  box-shadow: var(--shadow); margin-bottom: 14px;
+  transition: box-shadow var(--transition), transform var(--transition);
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.post-card:hover { box-shadow: var(--shadow-lg); }
+.post-card.pinned { border-left: 3px solid var(--accent2); }
+
+.post-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+.post-avatar {
+  width: 40px; height: 40px; border-radius: 99px; flex-shrink: 0;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff; font-weight: 700; font-size: 0.9em;
+  display: flex; align-items: center; justify-content: center;
+}
+.post-meta { flex: 1; }
+.post-author { font-weight: 700; font-size: 0.93em; margin-bottom: 1px; }
+.post-date { color: var(--text3); font-size: 0.75em; font-family: var(--mono); }
+.post-badges { display: flex; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
+.pinned-badge {
+  background: #fff9e6; color: #b07c00; border: 1px solid #ffd43b;
+  font-size: 0.68em; font-weight: 700; padding: 2px 7px; border-radius: 99px;
+  display: flex; align-items: center; gap: 3px;
+}
+
+/* SENTIMENT BADGES */
+.sentiment-badge {
+  font-size: 0.68em; font-weight: 700; padding: 2px 8px; border-radius: 99px;
+  display: flex; align-items: center; gap: 4px;
+}
+.sentiment-positive { background: #d3f9d8; color: #1a7431; border: 1px solid #8ce99a; }
+.sentiment-negative { background: #ffe3e3; color: #c92a2a; border: 1px solid #ffa8a8; }
+.sentiment-neutral  { background: #e8ecff; color: #3b5bdb; border: 1px solid #bac8ff; }
+
+.post-more-btn {
+  background: transparent; border: none; color: var(--text3);
+  width: 30px; height: 30px; border-radius: 99px; display: flex;
+  align-items: center; justify-content: center;
+  transition: all var(--transition);
+}
+.post-more-btn:hover { background: var(--surface2); color: var(--text); }
+
+.post-content { font-size: 0.93em; line-height: 1.65; color: var(--text); margin-bottom: 12px; word-break: break-word; }
+.post-image { width: 100%; border-radius: var(--radius-sm); margin-bottom: 12px; object-fit: cover; max-height: 320px; border: 1px solid var(--border); }
+
+.post-actions { display: flex; align-items: center; gap: 6px; padding-top: 10px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.action-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 99px;
+  background: transparent; border: 1.5px solid transparent;
+  color: var(--text2); font-size: 0.8em; font-weight: 600;
+  transition: all var(--transition);
+}
+.action-btn:hover { background: var(--surface2); border-color: var(--border); }
+.action-btn.liked { color: var(--accent); }
+.action-btn.liked:hover { background: #fff0f0; border-color: #ffa8a8; }
+.action-btn.bookmarked { color: var(--accent2); }
+.action-btn i { font-size: 0.95em; }
+.delete-btn-sm {
+  margin-left: auto; padding: 5px 12px; border-radius: 99px;
+  background: transparent; border: 1.5px solid var(--border);
+  color: var(--accent); font-size: 0.78em; font-weight: 600;
+  transition: all var(--transition);
+}
+.delete-btn-sm:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* COMMENTS */
+.comments-area { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); display: none; }
+.comment-item { display: flex; gap: 10px; margin-bottom: 10px; }
+.comment-avatar {
+  width: 30px; height: 30px; border-radius: 99px; flex-shrink: 0;
+  background: linear-gradient(135deg, #43e97b, #38f9d7);
+  color: #fff; font-weight: 700; font-size: 0.72em;
+  display: flex; align-items: center; justify-content: center;
+}
+.comment-bubble {
+  background: var(--surface2); border-radius: 10px 10px 10px 3px;
+  padding: 8px 12px; flex: 1;
+}
+.comment-bubble .c-author { font-weight: 700; font-size: 0.78em; margin-bottom: 2px; color: var(--primary); }
+.comment-bubble .c-text { font-size: 0.85em; line-height: 1.5; }
+.comment-form { display: flex; gap: 8px; margin-top: 8px; }
+.comment-form input {
+  flex: 1; padding: 8px 14px; border-radius: 99px;
+  border: 1.5px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.85em;
+  transition: border-color var(--transition);
+}
+.comment-form input:focus { border-color: var(--primary); }
+.comment-form button {
+  padding: 8px 16px; border-radius: 99px;
+  background: var(--primary); color: white; font-size: 0.82em; font-weight: 700;
+  transition: all var(--transition);
+}
+.comment-form button:hover { background: var(--primary-dark); }
+
+/* ===== RIGHT SIDEBAR ===== */
+.right-sidebar { position: sticky; top: calc(var(--header-h) + 20px); height: fit-content; }
+
+.widget {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px;
+  box-shadow: var(--shadow); margin-bottom: 16px;
+}
+.widget-title {
+  font-size: 0.82em; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text3); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.widget-title i { color: var(--primary); font-size: 0.95em; }
+
+/* EVENTS WIDGET */
+.event-item { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+.event-item:last-child { margin-bottom: 0; }
+.event-date-box {
+  background: var(--primary-light); color: var(--primary);
+  border-radius: var(--radius-sm); padding: 6px 10px; text-align: center;
+  min-width: 46px; flex-shrink: 0;
+}
+.event-date-box .eday { font-size: 1.15em; font-weight: 800; display: block; }
+.event-date-box .emon { font-size: 0.65em; font-weight: 700; text-transform: uppercase; }
+.event-info .etitle { font-size: 0.85em; font-weight: 700; margin-bottom: 2px; }
+.event-info .evenue { font-size: 0.75em; color: var(--text3); display: flex; align-items: center; gap: 4px; }
+
+/* LEADERBOARD */
+.leader-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.leader-item:last-child { border-bottom: none; }
+.leader-rank { font-weight: 800; font-family: var(--mono); color: var(--text3); width: 20px; font-size: 0.85em; }
+.leader-rank.gold { color: #f59f00; }
+.leader-rank.silver { color: #868e96; }
+.leader-rank.bronze { color: #c47c39; }
+.leader-avatar {
+  width: 32px; height: 32px; border-radius: 99px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff; font-weight: 700; font-size: 0.78em;
+  display: flex; align-items: center; justify-content: center;
+}
+.leader-info { flex: 1; }
+.leader-name { font-weight: 700; font-size: 0.83em; }
+.leader-likes { color: var(--text3); font-size: 0.73em; display: flex; align-items: center; gap: 3px; }
+.leader-likes i { color: var(--accent); }
+
+/* QUICK LINKS */
+.quick-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: var(--radius-sm);
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text2); font-size: 0.83em; font-weight: 600;
+  margin-bottom: 6px; transition: all var(--transition);
+}
+.quick-link:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); transform: translateX(2px); }
+.quick-link i { color: var(--primary); width: 16px; }
+
+/* ===== NOTIFICATION DROPDOWN ===== */
+.notif-dropdown {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); width: 320px;
+  box-shadow: var(--shadow-lg); z-index: 200; display: none;
+  animation: dropIn 0.2s ease;
+}
+@keyframes dropIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.notif-header { padding: 14px 16px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center; }
+.notif-clear { font-size: 0.75em; color: var(--primary); cursor: pointer; font-weight: 600; }
+.notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-start; transition: background var(--transition); }
+.notif-item:hover { background: var(--surface2); }
+.notif-item:last-child { border-bottom: none; }
+.notif-icon { width: 34px; height: 34px; border-radius: 99px; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 0.85em; flex-shrink: 0; }
+.notif-text { font-size: 0.82em; line-height: 1.5; }
+.notif-time { font-size: 0.72em; color: var(--text3); margin-top: 2px; font-family: var(--mono); }
+.notif-empty { padding: 24px; text-align: center; color: var(--text3); font-size: 0.85em; }
+
+/* ===== EVENTS MODAL ===== */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 300;
+  align-items: center; justify-content: center;
+  animation: fadeOverlay 0.2s ease;
+}
+@keyframes fadeOverlay { from { opacity: 0; } to { opacity: 1; } }
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: var(--radius);
+  width: 90%; max-width: 520px; max-height: 85vh; overflow-y: auto;
+  box-shadow: var(--shadow-lg); animation: modalIn 0.25s ease;
+  padding: 24px;
+}
+@keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title { font-size: 1.1em; font-weight: 800; }
+.modal-close { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); width: 32px; height: 32px; border-radius: 99px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1em; transition: all var(--transition); }
+.modal-close:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+.event-card-modal { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px; }
+.event-card-modal .em-title { font-weight: 700; margin-bottom: 6px; font-size: 0.95em; }
+.event-card-modal .em-meta { color: var(--text2); font-size: 0.8em; display: flex; gap: 14px; flex-wrap: wrap; }
+.event-card-modal .em-meta span { display: flex; align-items: center; gap: 4px; }
+
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 0.8em; font-weight: 700; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%; padding: 10px 14px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--surface2); color: var(--text);
+  font-size: 0.9em; transition: border-color var(--transition);
+}
+.form-group input:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-submit { width: 100%; padding: 11px; border-radius: var(--radius-sm); background: var(--primary); color: white; font-weight: 700; font-size: 0.95em; transition: all var(--transition); }
+.form-submit:hover { background: var(--primary-dark); }
+
+/* ===== PROFILE MODAL ===== */
+.profile-modal-avatar {
+  width: 80px; height: 80px; border-radius: 99px; margin: 0 auto 16px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff; font-size: 2em; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(59,91,219,0.3);
+}
+.profile-modal-name { text-align: center; font-weight: 800; font-size: 1.15em; margin-bottom: 4px; }
+.profile-modal-email { text-align: center; color: var(--text3); font-size: 0.82em; margin-bottom: 16px; }
+.profile-modal-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.profile-modal-stat { background: var(--surface2); border-radius: var(--radius-sm); padding: 12px; text-align: center; border: 1px solid var(--border); }
+.profile-modal-stat .pnum { font-weight: 800; font-size: 1.3em; color: var(--primary); display: block; }
+.profile-modal-stat .plbl { font-size: 0.68em; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ===== DARK MODE TOGGLE ===== */
+.theme-toggle {
+  width: 44px; height: 24px; border-radius: 99px;
+  background: var(--border); position: relative; cursor: pointer;
+  border: none; transition: background 0.3s;
+  display: flex; align-items: center;
+}
+.theme-toggle.on { background: var(--primary); }
+.theme-toggle-thumb {
+  width: 18px; height: 18px; border-radius: 99px;
+  background: white; position: absolute; left: 3px;
+  transition: transform 0.3s; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  pointer-events: none;
+}
+.theme-toggle.on .theme-toggle-thumb { transform: translateX(20px); }
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center; padding: 48px 24px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+.empty-state .empty-icon { font-size: 2.5em; margin-bottom: 12px; }
+.empty-state h3 { font-size: 1em; font-weight: 700; margin-bottom: 6px; }
+.empty-state p { color: var(--text3); font-size: 0.85em; }
+
+/* ===== TOAST ===== */
+#toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 18px;
+  box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px;
+  font-size: 0.88em; font-weight: 600; min-width: 220px;
+  animation: toastIn 0.3s ease;
+}
+@keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+.toast.success { border-left: 4px solid var(--accent3); }
+.toast.error { border-left: 4px solid var(--accent); }
+.toast.info { border-left: 4px solid var(--primary); }
+.toast i { font-size: 1.1em; }
+.toast.success i { color: var(--accent3); }
+.toast.error i { color: var(--accent); }
+.toast.info i { color: var(--primary); }
+
+/* ===== CHATBOT ===== */
+#chatbot-fab {
+  position: fixed; bottom: 28px; right: 28px; z-index: 200;
+  width: 56px; height: 56px; border-radius: 99px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white; font-size: 1.3em;
+  box-shadow: 0 4px 20px rgba(59,91,219,0.45);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all var(--transition);
+  border: none;
+}
+#chatbot-fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(59,91,219,0.55); }
+#chatbot-popup {
+  display: none; position: fixed; bottom: 96px; right: 28px;
+  width: 370px; height: 480px; z-index: 200;
+  border-radius: var(--radius); overflow: hidden;
+  box-shadow: var(--shadow-lg); border: 1px solid var(--border);
+  animation: popIn 0.25s ease;
+}
+@keyframes popIn { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+#chatbot-popup iframe { border: none; width: 100%; height: 100%; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1100px) { .layout { grid-template-columns: var(--sidebar-w) 1fr; } .right-sidebar { display: none; } }
+@media (max-width: 760px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } .header-logo span { display: none; } }
+
+/* ===== LOADING SKELETON ===== */
+.skeleton { background: linear-gradient(90deg, var(--border) 25%, var(--surface2) 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius-sm); }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+</style>
 </head>
+
 <body>
-<div class="header-bar">
-    <div>Welcome, {{user}}<span style="font-size:0.92em;font-weight:400;"> | Role: {{role}}</span></div>
-    <a href="/logout">Logout</a>
-</div>
-<div class="main-row">
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="header-logo">
+    <i class="fas fa-graduation-cap"></i>
+    <span>Campus<span class="dot">Connect</span></span>
+  </div>
+
+  <div class="header-search">
+    <i class="fas fa-search"></i>
+    <input type="text" id="search-input" placeholder="Search posts, people...">
+  </div>
+
+  <div class="header-actions">
+    <!-- Dark Mode -->
+    <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+      <div class="theme-toggle-thumb"></div>
+    </button>
+
+    <!-- Notifications -->
+    <div style="position:relative;">
+      <button class="icon-btn" id="notif-btn" title="Notifications">
+        <i class="fas fa-bell"></i>
+        <span class="badge" id="notif-badge">3</span>
+      </button>
+      <div class="notif-dropdown" id="notif-dropdown">
+        <div class="notif-header">
+          Notifications
+          <span class="notif-clear" onclick="clearNotifs()">Clear all</span>
+        </div>
+        <div id="notif-list">
+          <div class="notif-item">
+            <div class="notif-icon"><i class="fas fa-thumbs-up"></i></div>
+            <div><div class="notif-text">Someone liked your post</div><div class="notif-time">2 min ago</div></div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-icon" style="background:#fff9db;color:#e67700"><i class="fas fa-calendar"></i></div>
+            <div><div class="notif-text">New event: Tech Symposium 2025 added</div><div class="notif-time">1 hr ago</div></div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-icon" style="background:#d3f9d8;color:#1a7431"><i class="fas fa-comment"></i></div>
+            <div><div class="notif-text">New comment on your post</div><div class="notif-time">3 hrs ago</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Events -->
+    <button class="icon-btn" title="Events" onclick="openModal('events-modal')">
+      <i class="fas fa-calendar-alt"></i>
+    </button>
+
+    <!-- Profile -->
+    <div class="user-chip" onclick="openModal('profile-modal')">
+      <div class="user-avatar" id="header-avatar">{{ user[0]|upper }}</div>
+      <span>{{ user }}</span>
+    </div>
+
+    <!-- Logout -->
+    <a href="/logout" class="icon-btn" title="Logout">
+      <i class="fas fa-sign-out-alt"></i>
+    </a>
+  </div>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="layout">
+
+  <!-- ===== LEFT SIDEBAR ===== -->
+  <aside class="sidebar">
     <div class="profile-card">
-        <div class="profile-avatar">{{user[0]|upper}}</div>
-        <div class="profile-user">{{user}}</div>
-        <div class="profile-meta">Posts: {{post_count}}</div>
-        <div class="profile-meta">Role: {{role}}</div>
-    </div>
-    <div style="width:100%;">
-        <div class="events-box">
-            <div class="events-title"><i class="fas fa-bell"></i> Events & Notifications</div>
-            {% for event in events %}
-            <div class="event-item">
-                <span class="event-title">{{event.title}}:</span> {{event.desc}}
-            </div>
-            {% endfor %}
+      <div class="profile-big-avatar" id="sidebar-avatar">{{ user[0]|upper }}</div>
+      <div class="profile-name">{{ user.split('@')[0] | title }}</div>
+      <div class="profile-email">{{ user }}</div>
+      <div class="profile-stats">
+        <div class="stat-box">
+          <span class="num" id="post-count-stat">{{ post_count }}</span>
+          <span class="lbl">Posts</span>
         </div>
-        <div class="dashboard-container">
-            <form class="post-form" id="add-post-form">
-                <div style="display:flex;align-items:center;">
-                    <span class="avatar">{{user[0]|upper}}</span>
-                    <textarea id="post-input" rows="2" placeholder="What's on your mind?" required autocomplete="off"></textarea>
-                </div>
-                <button type="submit" id="post-btn"><i class="fas fa-paper-plane"></i> Post</button>
-                <div id="post-msg"></div>
-            </form>
-            <div class="wall-header">News Feed</div>
-            <div class="card-feed">
-                {% for key, post in posts.items() %}
-                <div class="wall-post" data-postid="{{key}}">
-                    <div class="wall-post-top">
-                        <span class="avatar">{{post.user[0]|upper}}</span>
-                        <span class="username">{{post.user}}</span>
-                        <span class="date">{{post.timestamp}}</span>
-                    </div>
-                    <div class="content">{{post.content}}</div>
-                    <div class="actions">
-                        <button class="action-btn" onclick="likePost('{{key}}', this)">
-                            <i class="far fa-thumbs-up"></i> Like <span class="like-count">{{post.likes|length if post.likes else 0}}</span>
-                        </button>
-                        <button class="action-btn" onclick="toggleCommentBox('{{key}}')">
-                            <i class="far fa-comment"></i> Comment
-                        </button>
-                        {% if post.user == user or role == "admin" %}
-                        <button class="delete-btn" onclick="deletePost('{{key}}', this)">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                        {% endif %}
-                    </div>
-                    <div class="comment-section" id="comment-section-{{key}}" style="display:none;">
-                        <form class="comment-form" onsubmit="commentPost('{{key}}', event)">
-                            <input type="text" class="comment-input" placeholder="Write a comment..." required>
-                            <button type="submit" class="comment-btn">Add</button>
-                        </form>
-                        <div class="comment-list">
-                            {% if post.comments %}
-                                {% for c in post.comments %}
-                                    <div>
-                                        <span class="comment-user">{{c.user}}</span>
-                                        <span class="comment-date">{{c.timestamp}}</span>
-                                        <span class="comment-text">{{c.comment}}</span>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% else %}
-                <div style="padding:14px 0 7px 4px;color:#888;">No posts yet!</div>
-                {% endfor %}
-            </div>
+        <div class="stat-box">
+          <span class="num" id="like-count-stat">0</span>
+          <span class="lbl">Likes</span>
         </div>
+      </div>
+      <div class="role-badge"><i class="fas fa-user-tag"></i> {{ role }}</div>
     </div>
+
+    <nav class="nav-menu">
+      <button class="nav-item active" onclick="filterTab('all')"><i class="fas fa-home"></i> Home Feed</button>
+      <button class="nav-item" onclick="filterTab('my')"><i class="fas fa-user"></i> My Posts</button>
+      <button class="nav-item" onclick="filterTab('bookmarked')"><i class="fas fa-bookmark"></i> Bookmarks</button>
+      <button class="nav-item" onclick="openModal('events-modal')"><i class="fas fa-calendar"></i> Events</button>
+      <button class="nav-item" onclick="openModal('profile-modal')"><i class="fas fa-id-card"></i> My Profile</button>
+      {% if role == 'admin' %}
+      <button class="nav-item" onclick="openModal('events-modal')"><i class="fas fa-tools"></i> Manage Events</button>
+      {% endif %}
+      <a href="/logout" class="nav-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+
+    <div class="widget">
+      <div class="widget-title"><i class="fas fa-link"></i> Quick Links</div>
+      <a href="https://srec.ac.in" target="_blank" class="quick-link"><i class="fas fa-globe"></i> SREC Website</a>
+      <a href="https://srec.ac.in/controllerofexaminations" target="_blank" class="quick-link"><i class="fas fa-file-alt"></i> Exam Results</a>
+      <a href="https://srec.ac.in/facilities/library" target="_blank" class="quick-link"><i class="fas fa-book"></i> Library Portal</a>
+      <a href="https://srec.ac.in/placement" target="_blank" class="quick-link"><i class="fas fa-briefcase"></i> Placement Cell</a>
+      <a href="https://srec.ac.in/news" target="_blank" class="quick-link"><i class="fas fa-newspaper"></i> College News</a>
+    </div>
+  </aside>
+
+  <!-- ===== FEED ===== -->
+  <main class="feed-area">
+
+    <!-- Announcement Banner -->
+    <div class="announcement-banner" id="ann-banner">
+      <i class="fas fa-bullhorn"></i>
+      <div class="ann-text">📢 Welcome to CampusConnect! Share your thoughts, connect with peers & get AI help from the bot 🤖</div>
+      <button class="ann-close" onclick="document.getElementById('ann-banner').style.display='none'">×</button>
+    </div>
+
+    <!-- Composer -->
+    <div class="composer">
+      <div class="composer-top">
+        <div class="composer-avatar" id="composer-avatar">{{ user[0]|upper }}</div>
+        <textarea id="post-input" placeholder="What's on your mind? Share updates, notes, questions... ✍️" maxlength="500"></textarea>
+      </div>
+      <div id="image-preview-area" class="image-preview-area">
+        <img id="preview-img" src="" alt="">
+        <button class="remove-img-btn" onclick="removeImage()" title="Remove image">×</button>
+      </div>
+      <div class="composer-actions">
+        <label class="composer-action-btn" for="img-upload" title="Add image">
+          <i class="fas fa-image"></i> Photo
+        </label>
+        <input type="file" id="img-upload" accept="image/*" onchange="previewImage(event)">
+        <span id="char-count" style="font-size:0.78em;color:var(--text3);margin-left:4px;">0/500</span>
+        <button class="post-submit-btn" id="post-btn" onclick="submitPost()">
+          <i class="fas fa-paper-plane"></i> Post
+        </button>
+      </div>
+    </div>
+
+    <!-- Feed Tabs -->
+    <div class="feed-tabs">
+      <button class="feed-tab active" onclick="filterTab('all',this)">🏠 All Posts</button>
+      <button class="feed-tab" onclick="filterTab('my',this)">👤 My Posts</button>
+      <button class="feed-tab" onclick="filterTab('bookmarked',this)">🔖 Bookmarks</button>
+      <button class="feed-tab" onclick="filterTab('trending',this)">🔥 Trending</button>
+    </div>
+
+    <!-- Posts Feed -->
+    <div id="posts-feed">
+      {% set has_posts = posts|length > 0 %}
+      {% if not has_posts %}
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No posts yet</h3>
+        <p>Be the first one to post something!</p>
+      </div>
+      {% endif %}
+
+      {% for key, post in posts.items()|sort(attribute='1.timestamp', reverse=True) %}
+      <div class="post-card {% if post.pinned %}pinned{% endif %}" id="post-{{ key }}" data-user="{{ post.user }}" data-likes="{{ post.likes|length if post.likes else 0 }}">
+        <div class="post-header">
+          <div class="post-avatar" style="background: linear-gradient(135deg, hsl({{ loop.index * 47 % 360 }}, 60%, 55%), hsl({{ (loop.index * 47 + 60) % 360 }}, 60%, 45%))">
+            {{ post.user[0]|upper }}
+          </div>
+          <div class="post-meta">
+            <div class="post-author">{{ post.user.split('@')[0] | title }}</div>
+            <div class="post-date">{{ post.timestamp }}</div>
+            <div class="post-badges">
+              {% if post.pinned %}
+              <span class="pinned-badge"><i class="fas fa-thumbtack"></i> Pinned</span>
+              {% endif %}
+              {% if post.sentiment == 'positive' %}
+              <span class="sentiment-badge sentiment-positive"><i class="fas fa-smile"></i> Positive</span>
+              {% elif post.sentiment == 'negative' %}
+              <span class="sentiment-badge sentiment-negative"><i class="fas fa-frown"></i> Negative</span>
+              {% else %}
+              <span class="sentiment-badge sentiment-neutral"><i class="fas fa-meh"></i> Neutral</span>
+              {% endif %}
+            </div>
+          </div>
+          <button class="post-more-btn" onclick="togglePostMenu('{{ key }}')"><i class="fas fa-ellipsis-h"></i></button>
+        </div>
+
+        <div class="post-content">{{ post.content | e }}</div>
+        {% if post.image %}
+        <img class="post-image" src="{{ post.image }}" alt="Post image">
+        {% endif %}
+
+        <div class="post-actions">
+          <button class="action-btn {% if session.get('user') in (post.likes or {}) %}liked{% endif %}" onclick="likePost('{{ key }}', this)" id="like-btn-{{ key }}">
+            <i class="{% if session.get('user') in (post.likes or {}) %}fas{% else %}far{% endif %} fa-heart"></i>
+            <span class="like-count">{{ post.likes|length if post.likes else 0 }}</span>
+          </button>
+          <button class="action-btn" onclick="toggleComments('{{ key }}')">
+            <i class="far fa-comment"></i>
+            <span>{{ post.comments|length if post.comments else 0 }}</span>
+          </button>
+          <button class="action-btn bookmark-btn" id="bm-{{ key }}" onclick="toggleBookmark('{{ key }}', this)" title="Bookmark">
+            <i class="far fa-bookmark"></i>
+          </button>
+          <button class="action-btn" onclick="sharePost('{{ post.content|e }}')" title="Share">
+            <i class="fas fa-share-alt"></i>
+          </button>
+          {% if post.user == user %}
+          <button class="action-btn" onclick="editPost('{{ key }}', `{{ post.content|e }}`)" title="Edit">
+            <i class="far fa-edit"></i>
+          </button>
+          {% endif %}
+          {% if post.user == user or role == 'admin' %}
+          <button class="delete-btn-sm" onclick="deletePost('{{ key }}')"><i class="fas fa-trash"></i></button>
+          {% endif %}
+          {% if role == 'admin' %}
+          <button class="action-btn" onclick="pinPost('{{ key }}')" title="Pin/Unpin">
+            <i class="fas fa-thumbtack"></i>
+          </button>
+          {% endif %}
+        </div>
+
+        <!-- Comments -->
+        <div class="comments-area" id="comments-{{ key }}">
+          {% for c in post.comments %}
+          <div class="comment-item">
+            <div class="comment-avatar">{{ c.user[0]|upper }}</div>
+            <div class="comment-bubble">
+              <div class="c-author">{{ c.user.split('@')[0] | title }}</div>
+              <div class="c-text">{{ c.comment|e }}</div>
+            </div>
+          </div>
+          {% endfor %}
+          <form class="comment-form" onsubmit="addComment('{{ key }}', event)">
+            <input type="text" placeholder="Write a comment..." required maxlength="200">
+            <button type="submit"><i class="fas fa-paper-plane"></i></button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </main>
+
+  <!-- ===== RIGHT SIDEBAR ===== -->
+  <aside class="right-sidebar">
+
+    <!-- Events Widget -->
+    <div class="widget">
+      <div class="widget-title"><i class="fas fa-calendar-alt"></i> Upcoming Events</div>
+      {% if events %}
+        {% for event in events[:3] %}
+        <div class="event-item">
+          <div class="event-date-box">
+            <span class="eday">{{ event.datetime[:2] if event.datetime else '?' }}</span>
+            <span class="emon">{{ event.datetime[3:6] if event.datetime|length > 5 else 'TBD' }}</span>
+          </div>
+          <div class="event-info">
+            <div class="etitle">{{ event.title }}</div>
+            <div class="evenue"><i class="fas fa-map-marker-alt"></i> {{ event.venue or 'TBA' }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="color:var(--text3);font-size:0.85em;text-align:center;padding:12px 0;">No upcoming events</div>
+      {% endif %}
+      <button style="width:100%;padding:8px;border-radius:99px;background:var(--primary-light);color:var(--primary);font-size:0.82em;font-weight:700;border:none;margin-top:10px;cursor:pointer;" onclick="openModal('events-modal')">
+        View All Events →
+      </button>
+    </div>
+
+    <!-- Leaderboard Widget -->
+    <div class="widget">
+      <div class="widget-title"><i class="fas fa-trophy"></i> Top Contributors</div>
+      <div id="leaderboard-list">
+        <!-- Populated by JS -->
+        <div style="color:var(--text3);font-size:0.82em;text-align:center;padding:8px 0;">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Mood Widget -->
+    <div class="widget">
+      <div class="widget-title"><i class="fas fa-chart-pie"></i> Campus Mood Today</div>
+      <div id="mood-chart" style="text-align:center;padding:6px 0;">
+        <div style="display:flex;gap:6px;justify-content:center;margin-bottom:10px;">
+          <span style="font-size:1.5em;" title="Positive">😊</span>
+          <span style="font-size:1.5em;" title="Neutral">😐</span>
+          <span style="font-size:1.5em;" title="Negative">😔</span>
+        </div>
+        <div id="mood-bars"></div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="widget">
+      <div class="widget-title"><i class="fas fa-bolt"></i> Quick Links</div>
+      <a href="https://srec.ac.in" target="_blank" class="quick-link"><i class="fas fa-globe"></i> SREC Website</a>
+      <a href="https://srec.ac.in/controllerofexaminations" target="_blank" class="quick-link"><i class="fas fa-file-alt"></i> COE / Results</a>
+      <a href="https://srec.ac.in/facilities/library" target="_blank" class="quick-link"><i class="fas fa-book"></i> Library</a>
+      <a href="https://srec.ac.in/placement/contact" target="_blank" class="quick-link"><i class="fas fa-briefcase"></i> Placement Cell</a>
+    </div>
+  </aside>
 </div>
-<!-- Chatbot avatar and popup as before -->
-<div id="chatbot-avatar" onclick="showChatbotPopup()">
-    <img src="https://cdn-icons-png.flaticon.com/512/4712/4712024.png" alt="Chatbot Avatar"
-    style="width:55px; height:55px; border-radius:50%; box-shadow:0 1px 8px #bbb;">
+
+<!-- ===== EVENTS MODAL ===== -->
+<div class="modal-overlay" id="events-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📅 Events</div>
+      <button class="modal-close" onclick="closeModal('events-modal')">×</button>
+    </div>
+    <div id="events-modal-list">
+      {% for event in events %}
+      <div class="event-card-modal">
+        <div class="em-title">{{ event.title }}</div>
+        <div class="em-meta">
+          <span><i class="fas fa-calendar"></i> {{ event.datetime or 'TBD' }}</span>
+          <span><i class="fas fa-map-marker-alt"></i> {{ event.venue or 'TBA' }}</span>
+        </div>
+        {% if event.desc %}<div style="font-size:0.82em;color:var(--text2);margin-top:8px;">{{ event.desc }}</div>{% endif %}
+        {% if role == 'admin' %}
+        <div style="margin-top:10px;display:flex;gap:8px;">
+          <button onclick="editEvent('{{ event.id }}','{{ event.title }}','{{ event.desc }}','{{ event.datetime }}','{{ event.venue }}')" style="font-size:0.78em;padding:5px 12px;border-radius:99px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;">Edit</button>
+          <button onclick="deleteEvent('{{ event.id }}')" style="font-size:0.78em;padding:5px 12px;border-radius:99px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;">Delete</button>
+        </div>
+        {% endif %}
+      </div>
+      {% else %}
+      <div style="text-align:center;color:var(--text3);padding:24px;font-size:0.88em;">No events yet. Check back soon!</div>
+      {% endfor %}
+    </div>
+    {% if role == 'admin' %}
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+      <div class="modal-title" style="font-size:0.95em;margin-bottom:14px;">➕ Add New Event</div>
+      <div class="form-group"><label>Event Title</label><input type="text" id="event-title" placeholder="e.g. Tech Symposium 2025"></div>
+      <div class="form-group"><label>Description</label><textarea id="event-desc" placeholder="Event details..."></textarea></div>
+      <div class="form-group"><label>Date & Time</label><input type="datetime-local" id="event-datetime"></div>
+      <div class="form-group"><label>Venue</label><input type="text" id="event-venue" placeholder="e.g. Main Auditorium"></div>
+      <button class="form-submit" onclick="addEvent()">Add Event</button>
+    </div>
+    {% endif %}
+  </div>
 </div>
+
+<!-- ===== PROFILE MODAL ===== -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">👤 My Profile</div>
+      <button class="modal-close" onclick="closeModal('profile-modal')">×</button>
+    </div>
+    <div class="profile-modal-avatar">{{ user[0]|upper }}</div>
+    <div class="profile-modal-name">{{ user.split('@')[0] | title }}</div>
+    <div class="profile-modal-email">{{ user }}</div>
+    <div class="profile-modal-stats">
+      <div class="profile-modal-stat">
+        <span class="pnum" id="modal-post-count">{{ post_count }}</span>
+        <span class="plbl">Posts</span>
+      </div>
+      <div class="profile-modal-stat">
+        <span class="pnum" id="modal-like-count">0</span>
+        <span class="plbl">Likes Got</span>
+      </div>
+      <div class="profile-modal-stat">
+        <span class="pnum">{{ role|title }}</span>
+        <span class="plbl">Role</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Bio / Status</label>
+      <textarea id="bio-input" placeholder="Tell your fellow students about yourself...">{{ user_bio or '' }}</textarea>
+    </div>
+    <button class="form-submit" onclick="saveBio()">Save Profile</button>
+    <div style="margin-top:12px;">
+      <a href="/logout" class="form-submit" style="display:block;text-align:center;background:var(--accent);text-decoration:none;padding:11px;border-radius:var(--radius-sm);color:white;font-weight:700;">Logout</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CHATBOT ===== -->
+<button id="chatbot-fab" onclick="toggleChatbot()" title="Ask SREC Bot">
+  <i class="fas fa-robot"></i>
+</button>
 <div id="chatbot-popup">
-    <button onclick="closeChatbotPopup()">&times;</button>
-    <iframe src="/widget" width="100%" height="95%"></iframe>
+  <iframe src="/widget" title="SREC Bot"></iframe>
 </div>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div id="toast-container"></div>
+
+<!-- ===== JAVASCRIPT ===== -->
 <script>
-function showChatbotPopup() { document.getElementById('chatbot-popup').style.display = 'block'; }
-function closeChatbotPopup() { document.getElementById('chatbot-popup').style.display = 'none'; }
-document.getElementById('add-post-form').onsubmit = function(e){
-    e.preventDefault();
-    var content = document.getElementById('post-input').value;
-    fetch('/add_post', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({content: content, timestamp: new Date().toLocaleString()})
-    })
-    .then(r=>r.json())
-    .then(data => {
-        document.getElementById('post-msg').innerText = data.success ? "Posted!" : data.msg;
-        if(data.success) setTimeout(()=>window.location.reload(),600);
-    });
+const CURRENT_USER = "{{ user }}";
+const USER_ROLE = "{{ role }}";
+let bookmarks = JSON.parse(localStorage.getItem('srec_bookmarks') || '[]');
+let darkMode = localStorage.getItem('srec_dark') === 'true';
+let notifications = 3;
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  if (darkMode) enableDark();
+  initBookmarks();
+  buildLeaderboard();
+  buildMoodChart();
+  countUserLikes();
+  setupSearch();
+  setupCharCount();
+  setupNotifDropdown();
+});
+
+// ===== DARK MODE =====
+function enableDark() {
+  document.documentElement.setAttribute('data-theme', 'dark');
+  document.getElementById('theme-toggle').classList.add('on');
+  darkMode = true;
+  localStorage.setItem('srec_dark', 'true');
 }
-function likePost(postID, btn) {
-    fetch('/like_post', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({post_id: postID})
-    })
-    .then(r=>r.json())
-    .then(data => {
-        if(data.success) {
-            btn.querySelector('.like-count').innerText = data.likes;
-        }
-    });
+function disableDark() {
+  document.documentElement.setAttribute('data-theme', 'light');
+  document.getElementById('theme-toggle').classList.remove('on');
+  darkMode = false;
+  localStorage.setItem('srec_dark', 'false');
 }
-function toggleCommentBox(postID) {
-    var sec = document.getElementById('comment-section-' + postID);
-    sec.style.display = sec.style.display === 'none' ? 'block' : 'none';
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  darkMode ? disableDark() : enableDark();
+});
+
+// ===== TOAST =====
+function showToast(msg, type='info') {
+  const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<i class="fas ${icons[type]}"></i> ${msg}`;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => t.remove(), 3200);
 }
-function commentPost(postID, event) {
-    event.preventDefault();
-    var inp = event.target.querySelector('.comment-input');
-    var comment = inp.value;
-    fetch('/comment_post', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({post_id: postID, comment: comment, timestamp: new Date().toLocaleString()})
-    })
-    .then(r=>r.json())
-    .then(data => {
-        if(data.success) window.location.reload();
-    });
+
+// ===== MODALS =====
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ===== NOTIFICATIONS =====
+function setupNotifDropdown() {
+  const btn = document.getElementById('notif-btn');
+  const dd = document.getElementById('notif-dropdown');
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+  });
+  document.addEventListener('click', () => dd.style.display = 'none');
 }
-function deletePost(postID, btn){
-    if(confirm("Delete this post permanently?")) {
-        fetch('/delete_post', {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({post_id: postID})
-        })
-        .then(r=>r.json())
-        .then(data=>{
-            if(data.success) window.location.reload();
-            else alert(data.msg || "Delete failed");
-        });
+function clearNotifs() {
+  document.getElementById('notif-list').innerHTML = '<div class="notif-empty">No new notifications 🎉</div>';
+  document.getElementById('notif-badge').style.display = 'none';
+  notifications = 0;
+}
+function addNotif(msg, icon='fa-bell', color='') {
+  const list = document.getElementById('notif-list');
+  const item = document.createElement('div');
+  item.className = 'notif-item';
+  item.innerHTML = `<div class="notif-icon" style="${color}">${icon}</div>
+    <div><div class="notif-text">${msg}</div><div class="notif-time">Just now</div></div>`;
+  list.prepend(item);
+  notifications++;
+  const badge = document.getElementById('notif-badge');
+  badge.textContent = notifications;
+  badge.style.display = 'flex';
+}
+
+// ===== CHAR COUNT =====
+function setupCharCount() {
+  const ta = document.getElementById('post-input');
+  const counter = document.getElementById('char-count');
+  ta.addEventListener('input', () => {
+    const len = ta.value.length;
+    counter.textContent = `${len}/500`;
+    counter.style.color = len > 450 ? 'var(--accent)' : 'var(--text3)';
+  });
+}
+
+// ===== IMAGE HANDLING =====
+let selectedImageBase64 = null;
+function previewImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('Image too large (max 2MB)', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    selectedImageBase64 = ev.target.result;
+    document.getElementById('preview-img').src = ev.target.result;
+    document.getElementById('image-preview-area').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+function removeImage() {
+  selectedImageBase64 = null;
+  document.getElementById('image-preview-area').style.display = 'none';
+  document.getElementById('preview-img').src = '';
+  document.getElementById('img-upload').value = '';
+}
+
+// ===== SENTIMENT ANALYSIS =====
+function analyzeSentiment(text) {
+  const pos = ['great','amazing','love','happy','excited','awesome','fantastic','wonderful','good','best','excellent','proud','thank','congrats','congratulations','yay','😊','🎉','❤️','👍','brilliant'];
+  const neg = ['sad','angry','hate','worst','bad','terrible','awful','horrible','annoyed','frustrated','fail','failed','disappointed','sucks','pathetic','😔','😢','😡','👎','ugh'];
+  const t = text.toLowerCase();
+  const ps = pos.filter(w => t.includes(w)).length;
+  const ns = neg.filter(w => t.includes(w)).length;
+  if (ps > ns) return 'positive';
+  if (ns > ps) return 'negative';
+  return 'neutral';
+}
+
+// ===== SUBMIT POST =====
+function submitPost() {
+  const input = document.getElementById('post-input');
+  const content = input.value.trim();
+  if (!content) { showToast('Write something first!', 'error'); return; }
+
+  const btn = document.getElementById('post-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+
+  const sentiment = analyzeSentiment(content);
+
+  fetch('/add_post', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content, sentiment, image: selectedImageBase64 })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      input.value = '';
+      document.getElementById('char-count').textContent = '0/500';
+      removeImage();
+      showToast('Post shared! 🎉', 'success');
+      setTimeout(() => location.reload(), 800);
+    } else {
+      showToast('Failed to post', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Post';
     }
+  })
+  .catch(() => {
+    showToast('Network error', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Post';
+  });
+}
+
+// ===== LIKE =====
+function likePost(id, btn) {
+  fetch('/like_post', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ post_id: id })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      const icon = btn.querySelector('i');
+      const count = btn.querySelector('.like-count');
+      count.textContent = d.likes;
+      if (btn.classList.contains('liked')) {
+        btn.classList.remove('liked');
+        icon.className = 'far fa-heart';
+      } else {
+        btn.classList.add('liked');
+        icon.className = 'fas fa-heart';
+        addNotif('You liked a post ❤️', '<i class="fas fa-heart" style="color:var(--accent)"></i>');
+      }
+      buildLeaderboard();
+      buildMoodChart();
+    }
+  });
+}
+
+// ===== COMMENTS =====
+function toggleComments(id) {
+  const el = document.getElementById('comments-' + id);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  if (el.style.display === 'block') {
+    const inp = el.querySelector('input');
+    if (inp) setTimeout(() => inp.focus(), 100);
+  }
+}
+function addComment(id, e) {
+  e.preventDefault();
+  const inp = e.target.querySelector('input');
+  const comment = inp.value.trim();
+  if (!comment) return;
+  const btn = e.target.querySelector('button');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  fetch('/comment_post', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ post_id: id, comment })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      inp.value = '';
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+      const area = document.getElementById('comments-' + id);
+      const div = document.createElement('div');
+      div.className = 'comment-item';
+      const name = CURRENT_USER.split('@')[0];
+      div.innerHTML = `<div class="comment-avatar">${CURRENT_USER[0].toUpperCase()}</div>
+        <div class="comment-bubble">
+          <div class="c-author">${name.charAt(0).toUpperCase() + name.slice(1)}</div>
+          <div class="c-text">${comment}</div>
+        </div>`;
+      area.insertBefore(div, e.target);
+      showToast('Comment added!', 'success');
+    }
+  });
+}
+
+// ===== DELETE POST =====
+function deletePost(id) {
+  if (!confirm('Delete this post?')) return;
+  fetch('/delete_post', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ post_id: id })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      const el = document.getElementById('post-' + id);
+      el.style.opacity = '0'; el.style.transform = 'translateY(-10px)';
+      el.style.transition = 'all 0.3s';
+      setTimeout(() => { el.remove(); showToast('Post deleted', 'info'); }, 300);
+    } else showToast('Could not delete', 'error');
+  });
+}
+
+// ===== EDIT POST =====
+function editPost(id, currentContent) {
+  const newContent = prompt('Edit your post:', currentContent);
+  if (!newContent || newContent.trim() === currentContent) return;
+  fetch('/edit_post', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ post_id: id, content: newContent.trim() })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      document.querySelector(`#post-${id} .post-content`).textContent = newContent.trim();
+      showToast('Post updated!', 'success');
+    } else showToast('Update failed', 'error');
+  });
+}
+
+// ===== BOOKMARK =====
+function initBookmarks() {
+  bookmarks.forEach(id => {
+    const btn = document.getElementById('bm-' + id);
+    if (btn) { btn.classList.add('bookmarked'); btn.querySelector('i').className = 'fas fa-bookmark'; }
+  });
+}
+function toggleBookmark(id, btn) {
+  const idx = bookmarks.indexOf(id);
+  if (idx === -1) {
+    bookmarks.push(id);
+    btn.classList.add('bookmarked');
+    btn.querySelector('i').className = 'fas fa-bookmark';
+    showToast('Post bookmarked! 🔖', 'success');
+  } else {
+    bookmarks.splice(idx, 1);
+    btn.classList.remove('bookmarked');
+    btn.querySelector('i').className = 'far fa-bookmark';
+    showToast('Bookmark removed', 'info');
+  }
+  localStorage.setItem('srec_bookmarks', JSON.stringify(bookmarks));
+}
+
+// ===== PIN POST (admin) =====
+function pinPost(id) {
+  fetch('/pin_post', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ post_id: id })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) { showToast(d.pinned ? 'Post pinned! 📌' : 'Post unpinned', 'info'); setTimeout(() => location.reload(), 600); }
+  });
+}
+
+// ===== SHARE =====
+function sharePost(content) {
+  if (navigator.share) {
+    navigator.share({ title: 'CampusConnect Post', text: content.substring(0, 100), url: window.location.href });
+  } else {
+    navigator.clipboard.writeText(content).then(() => showToast('Post text copied!', 'success'));
+  }
+}
+
+// ===== FILTER TABS =====
+function filterTab(type, btn) {
+  document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const posts = document.querySelectorAll('.post-card');
+  posts.forEach(post => {
+    const user = post.getAttribute('data-user');
+    const id = post.id.replace('post-', '');
+    const likes = parseInt(post.getAttribute('data-likes') || 0);
+
+    if (type === 'all') post.style.display = '';
+    else if (type === 'my') post.style.display = user === CURRENT_USER ? '' : 'none';
+    else if (type === 'bookmarked') post.style.display = bookmarks.includes(id) ? '' : 'none';
+    else if (type === 'trending') post.style.display = likes >= 1 ? '' : 'none';
+  });
+}
+
+// ===== SEARCH =====
+function setupSearch() {
+  const inp = document.getElementById('search-input');
+  inp.addEventListener('input', () => {
+    const q = inp.value.toLowerCase().trim();
+    document.querySelectorAll('.post-card').forEach(post => {
+      const content = post.querySelector('.post-content').textContent.toLowerCase();
+      const author = (post.getAttribute('data-user') || '').toLowerCase();
+      post.style.display = (!q || content.includes(q) || author.includes(q)) ? '' : 'none';
+    });
+  });
+}
+
+// ===== LEADERBOARD =====
+function buildLeaderboard() {
+  const posts = document.querySelectorAll('.post-card');
+  const userLikes = {};
+  posts.forEach(post => {
+    const user = post.getAttribute('data-user') || '';
+    const likes = parseInt(post.getAttribute('data-likes') || 0);
+    userLikes[user] = (userLikes[user] || 0) + likes;
+  });
+  const sorted = Object.entries(userLikes).sort((a,b) => b[1] - a[1]).slice(0, 5);
+  const rankClasses = ['gold','silver','bronze','',''];
+  const rankNums = ['🥇','🥈','🥉','4','5'];
+  const html = sorted.length ? sorted.map(([ user, likes ], i) => `
+    <div class="leader-item">
+      <div class="leader-rank ${rankClasses[i]}">${rankNums[i]}</div>
+      <div class="leader-avatar">${user[0].toUpperCase()}</div>
+      <div class="leader-info">
+        <div class="leader-name">${user.split('@')[0]}</div>
+        <div class="leader-likes"><i class="fas fa-heart"></i> ${likes} likes</div>
+      </div>
+    </div>`).join('') : '<div style="color:var(--text3);font-size:0.82em;text-align:center;padding:8px;">No posts yet</div>';
+  const el = document.getElementById('leaderboard-list');
+  if (el) el.innerHTML = html;
+}
+
+// ===== MOOD CHART =====
+function buildMoodChart() {
+  const posts = document.querySelectorAll('.post-card');
+  let pos = 0, neg = 0, neu = 0;
+  posts.forEach(post => {
+    const badge = post.querySelector('.sentiment-badge');
+    if (!badge) { neu++; return; }
+    if (badge.classList.contains('sentiment-positive')) pos++;
+    else if (badge.classList.contains('sentiment-negative')) neg++;
+    else neu++;
+  });
+  const total = pos + neg + neu || 1;
+  const el = document.getElementById('mood-bars');
+  if (!el) return;
+  el.innerHTML = `
+    <div style="margin-bottom:6px;">
+      <div style="display:flex;justify-content:space-between;font-size:0.75em;color:var(--text2);margin-bottom:3px;">
+        <span>😊 Positive</span><span>${Math.round(pos/total*100)}%</span>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:99px;overflow:hidden;">
+        <div style="height:100%;width:${pos/total*100}%;background:#2fb86e;border-radius:99px;transition:width 0.6s;"></div>
+      </div>
+    </div>
+    <div style="margin-bottom:6px;">
+      <div style="display:flex;justify-content:space-between;font-size:0.75em;color:var(--text2);margin-bottom:3px;">
+        <span>😐 Neutral</span><span>${Math.round(neu/total*100)}%</span>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:99px;overflow:hidden;">
+        <div style="height:100%;width:${neu/total*100}%;background:#3b5bdb;border-radius:99px;transition:width 0.6s;"></div>
+      </div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:0.75em;color:var(--text2);margin-bottom:3px;">
+        <span>😔 Negative</span><span>${Math.round(neg/total*100)}%</span>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:99px;overflow:hidden;">
+        <div style="height:100%;width:${neg/total*100}%;background:#f03e3e;border-radius:99px;transition:width 0.6s;"></div>
+      </div>
+    </div>`;
+}
+
+// ===== COUNT USER LIKES =====
+function countUserLikes() {
+  let total = 0;
+  document.querySelectorAll('.post-card').forEach(post => {
+    if (post.getAttribute('data-user') === CURRENT_USER) {
+      total += parseInt(post.getAttribute('data-likes') || 0);
+    }
+  });
+  const el1 = document.getElementById('like-count-stat');
+  const el2 = document.getElementById('modal-like-count');
+  if (el1) el1.textContent = total;
+  if (el2) el2.textContent = total;
+}
+
+// ===== EVENTS =====
+function addEvent() {
+  const title = document.getElementById('event-title').value.trim();
+  const desc = document.getElementById('event-desc').value.trim();
+  const datetime = document.getElementById('event-datetime').value;
+  const venue = document.getElementById('event-venue').value.trim();
+  if (!title || !datetime || !venue) { showToast('Fill all required fields', 'error'); return; }
+  fetch('/add_event', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, desc, datetime, venue })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) { showToast('Event added! 🎉', 'success'); setTimeout(() => location.reload(), 800); }
+    else showToast(d.msg || 'Failed', 'error');
+  });
+}
+function editEvent(id, title, desc, datetime, venue) {
+  const newTitle = prompt('Title:', title);
+  if (!newTitle) return;
+  const newDesc = prompt('Description:', desc);
+  const newDT = prompt('Date & Time (YYYY-MM-DDTHH:MM):', datetime);
+  const newVenue = prompt('Venue:', venue);
+  fetch('/edit_event', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event_id: id, title: newTitle, desc: newDesc, datetime: newDT, venue: newVenue })
+  })
+  .then(r => r.json())
+  .then(d => { if (d.success) { showToast('Event updated!', 'success'); setTimeout(() => location.reload(), 600); } });
+}
+function deleteEvent(id) {
+  if (!confirm('Delete this event?')) return;
+  fetch('/delete_event', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event_id: id })
+  })
+  .then(r => r.json())
+  .then(d => { if (d.success) { showToast('Event deleted', 'info'); setTimeout(() => location.reload(), 600); } });
+}
+
+// ===== BIO SAVE =====
+function saveBio() {
+  const bio = document.getElementById('bio-input').value.trim();
+  fetch('/save_bio', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bio })
+  })
+  .then(r => r.json())
+  .then(d => { showToast(d.success ? 'Profile saved! ✅' : 'Save failed', d.success ? 'success' : 'error'); });
+}
+
+// ===== CHATBOT =====
+function toggleChatbot() {
+  const popup = document.getElementById('chatbot-popup');
+  popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+}
+
+// ===== POST MORE MENU =====
+function togglePostMenu(id) {
+  // For now just a placeholder - could expand to a context menu
 }
 </script>
+
 </body>
 </html>

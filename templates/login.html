@@ -1,56 +1,629 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="light">
 <head>
-  <title>Login - SREC Social Platform</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: Arial; background:#eaf6fa; display:flex; align-items:center; justify-content:center; height:100vh; }
-    .box { background:white; border-radius:10px; box-shadow:0 2px 12px #90caf9; padding:38px; min-width:340px; text-align:center; }
-    h2 { color:#1976d2; margin-bottom:19px;}
-    input { width:95%; padding:12px; margin-bottom:14px; border-radius:7px; border:1px solid #b6cae4; font-size:1em;}
-    button { background:#1976d2; color:white; border:none; padding:12px 28px; border-radius:18px; font-size:1em; cursor:pointer;}
-    button:hover { background: #1565c0; }
-    #error { color:#e53935; margin:12px 0 14px 0;}
-    .info { font-size:0.92em; margin-top:15px; color:#1976d2;}
-    a { color:#1565c0; text-decoration: underline; }
-    #chatbot-avatar { position: fixed; bottom: 22px; right: 32px; z-index: 999; cursor: pointer; background: #fff; border-radius: 50%;
-      box-shadow: 0 2px 20px #b3e2c9; transition: box-shadow 0.2s; }
-    #chatbot-avatar:hover { box-shadow: 0 4px 24px #1976d2; }
-    #chatbot-popup { display: none; position: fixed; bottom: 80px; right: 32px; z-index: 1001; width: 350px; height: 410px; background: white; border-radius: 18px; box-shadow: 0 6px 24px #ccc; }
-    #chatbot-popup iframe { border: none; border-radius: 15px; }
-    #chatbot-popup button { position: absolute; top: 13px; right: 12px; font-size: 20px; border: none; background: transparent; cursor: pointer; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login – CampusConnect SREC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+:root {
+  --bg: #eef2ff;
+  --surface: #ffffff;
+  --border: #dde3f5;
+  --primary: #3b5bdb;
+  --primary-dark: #2f4ac0;
+  --primary-light: #e8edff;
+  --accent: #f03e3e;
+  --text: #1a1d2e;
+  --text2: #5a6075;
+  --text3: #9da3b8;
+  --success: #2fb86e;
+  --warning: #f59f00;
+  --error: #f03e3e;
+  --radius: 16px;
+  --shadow: 0 20px 60px rgba(59,91,219,0.12);
+  --font: 'Plus Jakarta Sans', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated background blobs */
+.bg-blob {
+  position: fixed; border-radius: 50%;
+  filter: blur(80px); opacity: 0.25; pointer-events: none; z-index: 0;
+  animation: blobFloat 8s ease-in-out infinite alternate;
+}
+.blob1 { width: 400px; height: 400px; background: #3b5bdb; top: -100px; left: -100px; animation-delay: 0s; }
+.blob2 { width: 300px; height: 300px; background: #f03e3e; bottom: -80px; right: -80px; animation-delay: 2s; }
+.blob3 { width: 200px; height: 200px; background: #f59f00; top: 50%; left: 60%; animation-delay: 4s; }
+@keyframes blobFloat {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(20px, 20px) scale(1.08); }
+}
+
+/* Card */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  width: 420px;
+  max-width: 96vw;
+  padding: 40px 36px;
+  position: relative; z-index: 1;
+  border: 1px solid var(--border);
+  animation: cardIn 0.5s cubic-bezier(.22,.68,0,1.2);
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Logo */
+.logo {
+  text-align: center; margin-bottom: 8px;
+}
+.logo img {
+  height: 64px; width: auto; object-fit: contain;
+}
+.logo-fallback {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 64px; height: 64px; border-radius: 16px;
+  background: linear-gradient(135deg, var(--primary), #5c7cfa);
+  color: white; font-size: 1.6em; font-weight: 800;
+  box-shadow: 0 4px 16px rgba(59,91,219,0.35);
+}
+
+.brand-name {
+  text-align: center;
+  font-size: 1.5em; font-weight: 800; color: var(--primary);
+  margin-bottom: 2px;
+}
+.brand-name span { color: var(--accent); }
+.brand-sub {
+  text-align: center; color: var(--text3);
+  font-size: 0.82em; margin-bottom: 28px;
+}
+
+/* Alert box */
+.alert {
+  padding: 11px 14px; border-radius: 10px;
+  font-size: 0.83em; font-weight: 600;
+  margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.alert-error { background: #fff0f0; color: var(--error); border: 1px solid #ffc9c9; }
+.alert-success { background: #d3f9d8; color: #1a7431; border: 1px solid #8ce99a; }
+.alert-warning { background: #fff9db; color: #7d5a00; border: 1px solid #ffd43b; }
+
+/* Form fields */
+.field {
+  margin-bottom: 18px; position: relative;
+}
+.field label {
+  display: block; font-size: 0.8em; font-weight: 700;
+  color: var(--text2); margin-bottom: 6px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.field-input-wrap { position: relative; }
+.field-icon {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  color: var(--text3); font-size: 0.9em; pointer-events: none;
+  transition: color 0.2s;
+}
+.field input {
+  width: 100%; padding: 12px 40px 12px 38px;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  background: #f8f9ff; color: var(--text);
+  font-size: 0.93em; font-family: var(--font);
+  transition: all 0.2s;
+}
+.field input:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+  background: white;
+}
+.field input:focus ~ .field-icon,
+.field input:focus + * .field-icon { color: var(--primary); }
+.field input.error { border-color: var(--error); box-shadow: 0 0 0 3px #ffe3e3; }
+.field input.success { border-color: var(--success); box-shadow: 0 0 0 3px #d3f9d8; }
+
+/* Toggle password */
+.toggle-pw {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--text3); cursor: pointer;
+  font-size: 0.9em; padding: 4px; transition: color 0.2s;
+}
+.toggle-pw:hover { color: var(--primary); }
+
+/* Field hint */
+.field-hint {
+  font-size: 0.72em; color: var(--text3); margin-top: 5px;
+  display: flex; align-items: center; gap: 4px;
+}
+.field-hint.error-hint { color: var(--error); }
+
+/* Extras row */
+.extras {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.remember-label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 0.82em; color: var(--text2); cursor: pointer;
+}
+.remember-label input[type="checkbox"] {
+  width: 15px; height: 15px; accent-color: var(--primary); cursor: pointer;
+}
+.forgot-link {
+  font-size: 0.82em; color: var(--primary); font-weight: 600;
+  text-decoration: none; transition: color 0.2s;
+}
+.forgot-link:hover { color: var(--primary-dark); text-decoration: underline; }
+
+/* Submit btn */
+.submit-btn {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white; border: none; border-radius: 10px;
+  font-size: 0.97em; font-weight: 700; font-family: var(--font);
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(59,91,219,0.35);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(59,91,219,0.45); }
+.submit-btn:active { transform: translateY(0); }
+.submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* Lock warning */
+.lock-warning {
+  display: none; margin-top: 14px; padding: 12px;
+  background: #fff9db; border: 1px solid #ffd43b;
+  border-radius: 10px; font-size: 0.82em; color: #7d5a00;
+  text-align: center;
+}
+.lock-warning i { color: var(--warning); }
+
+/* Divider */
+.divider {
+  text-align: center; margin: 20px 0;
+  position: relative; color: var(--text3); font-size: 0.8em;
+}
+.divider::before, .divider::after {
+  content: ''; position: absolute; top: 50%; width: 40%;
+  height: 1px; background: var(--border);
+}
+.divider::before { left: 0; }
+.divider::after { right: 0; }
+
+/* Footer */
+.card-footer {
+  margin-top: 22px; text-align: center;
+  font-size: 0.83em; color: var(--text3);
+}
+.card-footer a {
+  color: var(--primary); font-weight: 700; text-decoration: none;
+}
+.card-footer a:hover { text-decoration: underline; }
+
+/* Attempt counter */
+.attempt-bar {
+  display: none; margin-top: 10px;
+}
+.attempt-dots {
+  display: flex; gap: 6px; justify-content: center; margin-top: 6px;
+}
+.attempt-dot {
+  width: 10px; height: 10px; border-radius: 99px;
+  background: var(--border); transition: background 0.3s;
+}
+.attempt-dot.used { background: var(--error); }
+
+/* Chatbot */
+#chatbot-fab {
+  position: fixed; bottom: 24px; right: 24px;
+  width: 52px; height: 52px; border-radius: 99px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white; font-size: 1.2em; border: none; cursor: pointer;
+  box-shadow: 0 4px 20px rgba(59,91,219,0.4);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; transition: all 0.2s;
+}
+#chatbot-fab:hover { transform: scale(1.08); }
+#chatbot-popup {
+  display: none; position: fixed; bottom: 88px; right: 24px;
+  width: 360px; height: 440px; z-index: 100;
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  border: 1px solid var(--border);
+  animation: popIn 0.25s ease;
+}
+@keyframes popIn { from { opacity:0; transform: scale(0.9) translateY(10px); } to { opacity:1; transform: scale(1) translateY(0); } }
+#chatbot-popup iframe { border: none; width: 100%; height: 100%; }
+
+/* Forgot password modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 200;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: var(--radius);
+  padding: 32px; width: 380px; max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: cardIn 0.25s ease;
+}
+.modal h3 { font-size: 1.1em; font-weight: 800; margin-bottom: 6px; }
+.modal p { font-size: 0.83em; color: var(--text3); margin-bottom: 20px; }
+.modal-close { float: right; background: none; border: none; font-size: 1.3em; cursor: pointer; color: var(--text3); margin-top: -4px; }
+</style>
 </head>
 <body>
-  <div class="box">
-    <h2>SREC Social Platform Login</h2>
-    <form method="post" autocomplete="off">
-      <input name="userid" type="text" placeholder="Enter SREC Email" required>
-      <input name="password" type="password" placeholder="Password" required>
-      <button type="submit">Login</button>
-    </form>
-    <div id="error">{% if error %}{{error}}{% endif %}</div>
-    <div class="info">
-      Only registered students/staff can login.<br>
-      <a href="/signup">Don't have an account? Sign up here</a>
+
+<!-- Background blobs -->
+<div class="bg-blob blob1"></div>
+<div class="bg-blob blob2"></div>
+<div class="bg-blob blob3"></div>
+
+<!-- Main Card -->
+<div class="card">
+
+  <!-- Logo -->
+  <div class="logo">
+    <img src="/static/srec-logo.jpeg" alt="SREC Logo"
+         onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='inline-flex'">
+    <div class="logo-fallback" id="logo-fallback" style="display:none">CC</div>
+  </div>
+  <div class="brand-name">Campus<span>Connect</span></div>
+  <div class="brand-sub">Sri Ramakrishna Engineering College</div>
+
+  <!-- Server Error -->
+  {% if error %}
+  <div class="alert alert-error" id="server-error">
+    <i class="fas fa-exclamation-circle"></i> {{ error }}
+  </div>
+  {% endif %}
+
+  <!-- Client Alert (JS filled) -->
+  <div class="alert alert-error" id="client-alert" style="display:none">
+    <i class="fas fa-exclamation-circle"></i>
+    <span id="client-alert-msg"></span>
+  </div>
+
+  <form method="POST" id="login-form" autocomplete="off" novalidate>
+
+    <!-- Email -->
+    <div class="field">
+      <label>SREC Email</label>
+      <div class="field-input-wrap">
+        <i class="fas fa-envelope field-icon"></i>
+        <input type="email" name="userid" id="email-input"
+               placeholder="yourname@srec.ac.in"
+               value="{{ request.form.get('userid', '') }}"
+               autocomplete="email" required>
+      </div>
+      <div class="field-hint" id="email-hint">
+        <i class="fas fa-info-circle"></i> Must be a valid @srec.ac.in address
+      </div>
     </div>
+
+    <!-- Password -->
+    <div class="field">
+      <label>Password</label>
+      <div class="field-input-wrap">
+        <i class="fas fa-lock field-icon"></i>
+        <input type="password" name="password" id="password-input"
+               placeholder="Enter your password"
+               autocomplete="current-password" required>
+        <button type="button" class="toggle-pw" onclick="togglePw('password-input', this)" tabindex="-1">
+          <i class="fas fa-eye"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Extras -->
+    <div class="extras">
+      <label class="remember-label">
+        <input type="checkbox" id="remember-me" name="remember">
+        Remember me
+      </label>
+      <a href="#" class="forgot-link" onclick="openForgot(event)">Forgot password?</a>
+    </div>
+
+    <!-- Attempt warning -->
+    <div class="attempt-bar" id="attempt-bar">
+      <div style="font-size:0.78em;color:var(--error);text-align:center;">
+        <i class="fas fa-shield-alt"></i> Failed attempts:
+      </div>
+      <div class="attempt-dots" id="attempt-dots">
+        <div class="attempt-dot"></div>
+        <div class="attempt-dot"></div>
+        <div class="attempt-dot"></div>
+        <div class="attempt-dot"></div>
+        <div class="attempt-dot"></div>
+      </div>
+    </div>
+
+    <!-- Lock warning -->
+    <div class="lock-warning" id="lock-warning">
+      <i class="fas fa-lock"></i> Too many failed attempts. Please wait <span id="lock-timer">30</span>s before trying again.
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="submit-btn" id="submit-btn">
+      <i class="fas fa-sign-in-alt"></i> Login to CampusConnect
+    </button>
+  </form>
+
+  <div class="card-footer">
+    New to CampusConnect? <a href="/signup">Create an account</a>
   </div>
-  <!-- Chatbot widget, as before -->
-  <div id="chatbot-avatar" onclick="showChatbotPopup()">
-    <img src="https://cdn-icons-png.flaticon.com/512/4712/4712024.png" alt="Chatbot Avatar"
-         style="width:55px; height:55px; border-radius:50%; box-shadow:0 1px 8px #bbb;">
+</div>
+
+<!-- Forgot Password Modal -->
+<div class="modal-overlay" id="forgot-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeForgot()">×</button>
+    <h3><i class="fas fa-key" style="color:var(--primary)"></i> Reset Password</h3>
+    <p>Enter your SREC email and we'll send a password reset link.</p>
+    <div class="field">
+      <label>SREC Email</label>
+      <div class="field-input-wrap">
+        <i class="fas fa-envelope field-icon"></i>
+        <input type="email" id="reset-email" placeholder="yourname@srec.ac.in">
+      </div>
+    </div>
+    <button class="submit-btn" onclick="sendReset()" id="reset-btn" style="margin-top:4px;">
+      <i class="fas fa-paper-plane"></i> Send Reset Link
+    </button>
+    <div id="reset-msg" style="margin-top:12px;font-size:0.82em;text-align:center;"></div>
   </div>
-  <div id="chatbot-popup">
-    <button onclick="closeChatbotPopup()">&times;</button>
-    <iframe src="/widget" width="100%" height="95%"></iframe>
-  </div>
-  <script>
-    function showChatbotPopup() {
-      document.getElementById('chatbot-popup').style.display = 'block';
+</div>
+
+<!-- Chatbot FAB -->
+<button id="chatbot-fab" onclick="toggleBot()" title="Ask SREC Bot">
+  <i class="fas fa-robot"></i>
+</button>
+<div id="chatbot-popup">
+  <iframe src="/widget" title="SREC Bot"></iframe>
+</div>
+
+<script>
+// ===== LOGIN ATTEMPT LIMITER =====
+const MAX_ATTEMPTS = 5;
+const LOCK_SECONDS = 30;
+let attempts = parseInt(sessionStorage.getItem('login_attempts') || '0');
+let locked = false;
+
+// Restore lock state if within window
+const lockUntil = parseInt(sessionStorage.getItem('lock_until') || '0');
+if (Date.now() < lockUntil) {
+  applyLock(Math.ceil((lockUntil - Date.now()) / 1000));
+}
+
+// Update attempt dots on load
+updateAttemptDots();
+
+document.getElementById('login-form').addEventListener('submit', function(e) {
+  const email = document.getElementById('email-input').value.trim();
+  const password = document.getElementById('password-input').value;
+
+  if (locked) { e.preventDefault(); return; }
+
+  // Client-side validation
+  if (!validateEmail(email)) {
+    e.preventDefault();
+    showClientAlert('Please use a valid @srec.ac.in email address.');
+    document.getElementById('email-input').classList.add('error');
+    return;
+  }
+  if (password.length < 6) {
+    e.preventDefault();
+    showClientAlert('Password must be at least 6 characters.');
+    document.getElementById('password-input').classList.add('error');
+    return;
+  }
+
+  // Show loading state
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+});
+
+// If server returned an error, count the attempt
+{% if error %}
+attempts++;
+sessionStorage.setItem('login_attempts', attempts);
+updateAttemptDots();
+if (attempts >= MAX_ATTEMPTS) {
+  const until = Date.now() + LOCK_SECONDS * 1000;
+  sessionStorage.setItem('lock_until', until);
+  applyLock(LOCK_SECONDS);
+}
+{% endif %}
+
+// Clear attempts on page unload (successful login navigates away)
+window.addEventListener('pageshow', () => {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login to CampusConnect';
+});
+
+function validateEmail(email) {
+  return /^[a-zA-Z0-9._%+\-]+@srec\.ac\.in$/.test(email);
+}
+
+function showClientAlert(msg) {
+  document.getElementById('client-alert-msg').textContent = msg;
+  document.getElementById('client-alert').style.display = 'flex';
+}
+
+function updateAttemptDots() {
+  if (attempts === 0) return;
+  document.getElementById('attempt-bar').style.display = 'block';
+  const dots = document.querySelectorAll('.attempt-dot');
+  dots.forEach((dot, i) => {
+    dot.classList.toggle('used', i < attempts);
+  });
+}
+
+function applyLock(seconds) {
+  locked = true;
+  const warning = document.getElementById('lock-warning');
+  const btn = document.getElementById('submit-btn');
+  warning.style.display = 'block';
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-lock"></i> Account Locked';
+
+  let remaining = seconds;
+  document.getElementById('lock-timer').textContent = remaining;
+  const interval = setInterval(() => {
+    remaining--;
+    document.getElementById('lock-timer').textContent = remaining;
+    if (remaining <= 0) {
+      clearInterval(interval);
+      locked = false;
+      attempts = 0;
+      sessionStorage.setItem('login_attempts', '0');
+      sessionStorage.removeItem('lock_until');
+      warning.style.display = 'none';
+      document.getElementById('attempt-bar').style.display = 'none';
+      updateAttemptDots();
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login to CampusConnect';
     }
-    function closeChatbotPopup() {
-      document.getElementById('chatbot-popup').style.display = 'none';
+  }, 1000);
+}
+
+// Remember me - pre-fill email
+const savedEmail = localStorage.getItem('srec_remember_email');
+if (savedEmail) {
+  document.getElementById('email-input').value = savedEmail;
+  document.getElementById('remember-me').checked = true;
+}
+document.getElementById('login-form').addEventListener('submit', () => {
+  if (document.getElementById('remember-me').checked) {
+    localStorage.setItem('srec_remember_email', document.getElementById('email-input').value);
+  } else {
+    localStorage.removeItem('srec_remember_email');
+  }
+});
+
+// Clear error styling on input
+['email-input', 'password-input'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    document.getElementById(id).classList.remove('error');
+    document.getElementById('client-alert').style.display = 'none';
+  });
+});
+
+// Email domain live validation
+document.getElementById('email-input').addEventListener('blur', function() {
+  const val = this.value.trim();
+  const hint = document.getElementById('email-hint');
+  if (!val) return;
+  if (!val.endsWith('@srec.ac.in')) {
+    this.classList.add('error');
+    hint.className = 'field-hint error-hint';
+    hint.innerHTML = '<i class="fas fa-times-circle"></i> Must be a @srec.ac.in email address';
+  } else {
+    this.classList.remove('error');
+    this.classList.add('success');
+    hint.className = 'field-hint';
+    hint.innerHTML = '<i class="fas fa-check-circle" style="color:var(--success)"></i> Valid SREC email';
+  }
+});
+
+// Toggle password visibility
+function togglePw(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  const isHidden = inp.type === 'password';
+  inp.type = isHidden ? 'text' : 'password';
+  btn.innerHTML = isHidden ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+}
+
+// Forgot password modal
+function openForgot(e) {
+  e.preventDefault();
+  const email = document.getElementById('email-input').value;
+  if (email) document.getElementById('reset-email').value = email;
+  document.getElementById('forgot-modal').classList.add('open');
+}
+function closeForgot() {
+  document.getElementById('forgot-modal').classList.remove('open');
+}
+document.getElementById('forgot-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('forgot-modal')) closeForgot();
+});
+
+function sendReset() {
+  const email = document.getElementById('reset-email').value.trim();
+  const msg   = document.getElementById('reset-msg');
+  const btn   = document.getElementById('reset-btn');
+
+  if (!/^[^@]+@srec\.ac\.in$/.test(email)) {
+    msg.innerHTML = '<span style="color:var(--error)"><i class="fas fa-times-circle"></i> Enter a valid @srec.ac.in email</span>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+  msg.innerHTML = '';
+
+  // ✅ Firebase REST API — sends reset email directly, no backend needed
+  const FIREBASE_API_KEY = 'AIzaSyCS_00jpLwOXDuSoPK8pRhJL9jbzwC5-wc';
+  fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${FIREBASE_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      requestType: 'PASSWORD_RESET',
+      email: email
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Link';
+
+    if (data.email) {
+      // Success — Firebase confirmed the email was sent
+      msg.innerHTML = '<span style="color:var(--success)"><i class="fas fa-check-circle"></i> Reset link sent to <b>' + email + '</b>! Check your inbox (and spam folder).</span>';
+      btn.style.display = 'none'; // Hide button after success
+    } else if (data.error) {
+      const errCode = data.error.message || '';
+      let errText = 'Something went wrong. Try again.';
+      if (errCode.includes('EMAIL_NOT_FOUND'))    errText = 'No account found with this email.';
+      if (errCode.includes('INVALID_EMAIL'))      errText = 'Invalid email address.';
+      if (errCode.includes('TOO_MANY_ATTEMPTS'))  errText = 'Too many attempts. Please wait and try again.';
+      msg.innerHTML = '<span style="color:var(--error)"><i class="fas fa-times-circle"></i> ' + errText + '</span>';
     }
-  </script>
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Link';
+    msg.innerHTML = '<span style="color:var(--error)"><i class="fas fa-times-circle"></i> Network error. Check your connection and try again.</span>';
+  });
+}
+
+// Chatbot
+function toggleBot() {
+  const p = document.getElementById('chatbot-popup');
+  p.style.display = p.style.display === 'block' ? 'none' : 'block';
+}
+</script>
 </body>
 </html>

@@ -13,6 +13,9 @@ from google.genai import types
 
 app = Flask(__name__)
 app.secret_key = 'srec_demo_secret_2025'
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = False  # Set True if HTTPS
+app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours
 
 # ------------------ Firebase Admin Setup ------------------
 cred = credentials.Certificate("october11-868ab-firebase-adminsdk-fbsvc-3edad1544c.json")
@@ -520,6 +523,7 @@ def login():
             try:
                 user = auth.get_user_by_email(userid)
                 role = user.custom_claims.get('role', 'student') if user.custom_claims else 'student'
+                session.permanent = True
                 session.update({'user': user.uid, 'email': user.email, 'role': role})
                 return redirect(url_for('dashboard'))
             except Exception as e:
@@ -585,6 +589,7 @@ def signup():
                 'joined': datetime.now().strftime('%Y-%m-%d %H:%M'),
                 'bio': ''
             })
+            session.permanent = True
             session.update({'user': user.uid, 'email': user.email, 'role': role})
             return redirect(url_for('dashboard'))
         except Exception as e:
@@ -726,6 +731,52 @@ def widget(): return render_template('chat_widget.html')
 # =====================================================================
 # POSTS & SOCIAL
 # =====================================================================
+
+@app.route('/get_notifications')
+def get_notifications():
+    if 'user' not in session:
+        return jsonify({'notifications': []})
+    current_user_email = session.get('email', '')
+    try:
+        posts_data = db.reference('/posts').get() or {}
+        notifs = []
+        for post_id, post in posts_data.items():
+            if post.get('user') != current_user_email:
+                continue
+            post_content = post.get('content', '')
+            post_preview = (post_content[:40] + '...') if len(post_content) > 40 else post_content
+            # Like notifications
+            likes = post.get('likes', {})
+            for uid, liker_email in likes.items():
+                if liker_email == current_user_email:
+                    continue
+                notifs.append({
+                    'key':          f"like_{post_id}_{uid}",
+                    'type':         'like',
+                    'by':           liker_email,
+                    'post_preview': post_preview,
+                    'timestamp':    post.get('timestamp', '')
+                })
+            # Comment notifications
+            comments = post.get('comments', [])
+            comment_list = list(comments.values()) if isinstance(comments, dict) else (comments if isinstance(comments, list) else [])
+            for idx, c in enumerate(comment_list):
+                commenter = c.get('user', '')
+                if commenter == current_user_email:
+                    continue
+                notifs.append({
+                    'key':       f"comment_{post_id}_{idx}_{commenter}",
+                    'type':      'comment',
+                    'by':        commenter,
+                    'comment':   c.get('comment', ''),
+                    'timestamp': c.get('timestamp', post.get('timestamp', ''))
+                })
+        notifs.reverse()
+        return jsonify({'notifications': notifs[:20]})
+    except Exception as e:
+        return jsonify({'notifications': [], 'error': str(e)})
+
+
 @app.route('/add_post', methods=['POST'])
 def add_post():
     if 'user' not in session: return jsonify({'success': False}), 401
@@ -735,8 +786,13 @@ def add_post():
     if not content: return jsonify({'success': False}), 400
     sentiment = analyze_sentiment(content)
     post_id = str(uuid.uuid4())
+    anonymous = data.get('anonymous', False)
+    tags = data.get('tags', [])
     post_data = {
-        'user': session.get('email'), 'content': content,
+        'user': 'Anonymous' if anonymous else session.get('email'),
+        'real_user': session.get('email'),
+        'anonymous': anonymous,
+        'tags': tags, 'content': content,
         'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M'),
         'likes': {}, 'comments': [],
         'sentiment': sentiment, 'pinned': False
@@ -876,6 +932,157 @@ def logout():
 events_ref = db.reference('/events')
 if not events_ref.get():
     events_ref.set({})
+
+# =====================================================================
+# INNOVATION ROUTES
+# =====================================================================
+
+@app.route('/enhance_post', methods=['POST'])
+def enhance_post():
+    if 'user' not in session: return jsonify({'success': False}), 401
+    text = request.get_json().get('text', '').strip()
+    if not text: return jsonify({'enhanced': None})
+    try:
+        prompt = f"""You are helping a college student improve their social media post.
+Enhance the following post to make it clearer, more engaging and friendly.
+Keep the meaning exactly the same. Keep it under 500 characters. 
+Return ONLY the improved post text, nothing else.
+
+Original post: {text}"""
+        response = client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+        enhanced = response.text.strip().strip('"').strip("'")
+        return jsonify({'enhanced': enhanced})
+    except Exception as e:
+        return jsonify({'enhanced': None, 'error': str(e)})
+
+
+@app.route('/campus_pulse')
+def campus_pulse():
+    if 'user' not in session: return jsonify({'summary': 'Please log in.'})
+    try:
+        posts_data = db.reference('/posts').get() or {}
+        today = datetime.now().strftime('%Y-%m-%d')
+        today_posts = [p.get('content','') for p in posts_data.values()
+                       if p.get('timestamp','').startswith(today) and p.get('content')][:30]
+        if not today_posts:
+            return jsonify({'summary': 'No posts today yet — be the first to share something! 🌅'})
+        posts_text = '\n'.join(f'- {p}' for p in today_posts)
+        prompt = f"""You are an AI analyst for a college campus social platform.
+Based on these student posts from today, write a 2-sentence friendly campus mood summary.
+Sound like a helpful news anchor, not a robot. Be warm and specific.
+
+Today's posts:
+{posts_text}
+
+Write only the 2-sentence summary:"""
+        response = client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+        return jsonify({'summary': response.text.strip()})
+    except Exception as e:
+        return jsonify({'summary': 'Campus pulse unavailable right now. Try again later!'})
+
+
+@app.route('/study_room', methods=['GET', 'POST'])
+def study_room():
+    if 'user' not in session: return jsonify({'students': []})
+    user_email = session.get('email','')
+    uid = session.get('user','')
+    ref = db.reference('/study_room')
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        action = data.get('action')
+        subject = data.get('subject', 'General')
+        if action == 'join':
+            ref.child(uid).set({
+                'email': user_email,
+                'subject': subject,
+                'joined_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            })
+        elif action == 'leave':
+            ref.child(uid).delete()
+        return jsonify({'success': True})
+    # GET — return all current studying users
+    students_raw = ref.get() or {}
+    students = []
+    now = datetime.now()
+    for suid, s in students_raw.items():
+        # Auto-expire after 4 hours
+        try:
+            joined = datetime.strptime(s.get('joined_at',''), '%Y-%m-%d %H:%M:%S')
+            diff_mins = int((now - joined).total_seconds() / 60)
+            if diff_mins > 240:
+                ref.child(suid).delete()
+                continue
+            if diff_mins < 1:   dur = 'just joined'
+            elif diff_mins < 60: dur = f'{diff_mins} min ago'
+            else:               dur = f'{diff_mins//60}h {diff_mins%60}m'
+        except:
+            dur = ''
+        students.append({'email': s.get('email',''), 'subject': s.get('subject',''), 'duration': dur})
+    return jsonify({'students': students})
+
+
+@app.route('/react_post', methods=['POST'])
+def react_post():
+    if 'user' not in session: return jsonify({'success': False}), 401
+    data = request.get_json() or {}
+    post_id = data.get('post_id')
+    reaction = data.get('reaction')
+    uid = session.get('user','')
+    user_email = session.get('email','')
+    if not post_id or not reaction: return jsonify({'success': False})
+    try:
+        ref = db.reference(f'/posts/{post_id}/reactions/{reaction}')
+        existing = ref.get() or {}
+        if uid in existing:
+            ref.child(uid).delete()  # Toggle off
+        else:
+            ref.child(uid).set(user_email)  # Toggle on
+        all_reactions = db.reference(f'/posts/{post_id}/reactions').get() or {}
+        return jsonify({'success': True, 'reactions': all_reactions})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@app.route('/get_reactions')
+def get_reactions():
+    if 'user' not in session: return jsonify({'reactions': {}})
+    try:
+        posts = db.reference('/posts').get() or {}
+        result = {}
+        for pid, post in posts.items():
+            if post.get('reactions'):
+                result[pid] = post['reactions']
+        return jsonify({'reactions': result})
+    except:
+        return jsonify({'reactions': {}})
+
+
+@app.route('/mood_checkin', methods=['POST'])
+def mood_checkin():
+    if 'user' not in session: return jsonify({'success': False}), 401
+    mood = request.get_json().get('mood', 'okay')
+    uid = session.get('user','')
+    today = datetime.now().strftime('%Y-%m-%d')
+    try:
+        db.reference(f'/mood_checkins/{today}/{uid}').set(mood)
+        return jsonify({'success': True})
+    except:
+        return jsonify({'success': False})
+
+
+@app.route('/get_users')
+def get_users():
+    if 'user' not in session: return jsonify({'users': []})
+    try:
+        users_data = db.reference('/users').get() or {}
+        current_email = session.get('email','')
+        users = [v.get('email','').split('@')[0]
+                 for v in users_data.values()
+                 if v.get('email') and v.get('email') != current_email]
+        return jsonify({'users': users})
+    except:
+        return jsonify({'users': []})
+
 
 if __name__ == '__main__':
     app.run(debug=True)

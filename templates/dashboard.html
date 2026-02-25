@@ -8,6 +8,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<script>
+// Apply dark mode IMMEDIATELY before render to avoid flash
+if (localStorage.getItem('srec_dark') === 'true') {
+  document.documentElement.setAttribute('data-theme', 'dark');
+}
+</script>
 <style>
 /* ===== CSS VARIABLES ===== */
 :root {
@@ -42,6 +48,9 @@
   --primary: #5c7cfa;
   --primary-light: #1e2540;
   --primary-dark: #4c6ef5;
+  --accent: #f03e3e;
+  --accent2: #f59f00;
+  --accent3: #2fb86e;
   --text: #e8ecf8;
   --text2: #9da3c0;
   --text3: #5a6075;
@@ -51,6 +60,9 @@
 
 /* ===== RESET ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* Smooth dark mode transitions */
+*, *::before, *::after { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease; }
+button { transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease; }
 html { scroll-behavior: smooth; }
 body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; transition: background var(--transition), color var(--transition); }
 a { color: var(--primary); text-decoration: none; }
@@ -308,7 +320,7 @@ input, textarea, select { font-family: var(--font); outline: none; }
 .post-date { color: var(--text3); font-size: 0.75em; font-family: var(--mono); }
 .post-badges { display: flex; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
 .pinned-badge {
-  background: #fff9e6; color: #b07c00; border: 1px solid #ffd43b;
+  background: var(--accent2-light, rgba(255,212,0,0.12)); color: var(--accent2-text, #b07c00); border: 1px solid rgba(255,212,0,0.35);
   font-size: 0.68em; font-weight: 700; padding: 2px 7px; border-radius: 99px;
   display: flex; align-items: center; gap: 3px;
 }
@@ -318,9 +330,9 @@ input, textarea, select { font-family: var(--font); outline: none; }
   font-size: 0.68em; font-weight: 700; padding: 2px 8px; border-radius: 99px;
   display: flex; align-items: center; gap: 4px;
 }
-.sentiment-positive { background: #d3f9d8; color: #1a7431; border: 1px solid #8ce99a; }
-.sentiment-negative { background: #ffe3e3; color: #c92a2a; border: 1px solid #ffa8a8; }
-.sentiment-neutral  { background: #e8ecff; color: #3b5bdb; border: 1px solid #bac8ff; }
+.sentiment-positive { background: rgba(47,184,110,0.12); color: #2fb86e; border: 1px solid rgba(47,184,110,0.3); }
+.sentiment-negative { background: rgba(240,62,62,0.12); color: #f03e3e; border: 1px solid rgba(240,62,62,0.3); }
+.sentiment-neutral  { background: rgba(59,91,219,0.12); color: var(--primary); border: 1px solid rgba(59,91,219,0.25); }
 
 .post-more-btn {
   background: transparent; border: none; color: var(--text3);
@@ -343,7 +355,7 @@ input, textarea, select { font-family: var(--font); outline: none; }
 }
 .action-btn:hover { background: var(--surface2); border-color: var(--border); }
 .action-btn.liked { color: var(--accent); }
-.action-btn.liked:hover { background: #fff0f0; border-color: #ffa8a8; }
+.action-btn.liked:hover { background: rgba(240,62,62,0.10); border-color: rgba(240,62,62,0.3); }
 .action-btn.bookmarked { color: var(--accent2); }
 .action-btn i { font-size: 0.95em; }
 .delete-btn-sm {
@@ -431,6 +443,7 @@ input, textarea, select { font-family: var(--font); outline: none; }
 .leader-name { font-weight: 700; font-size: 0.83em; }
 .leader-likes { color: var(--text3); font-size: 0.73em; display: flex; align-items: center; gap: 3px; }
 .leader-likes i { color: var(--accent); }
+.leader-me { background: var(--primary-light); border-radius: var(--radius-sm); padding: 6px 8px; margin: 0 -8px; }
 
 /* QUICK LINKS */
 .quick-link {
@@ -542,7 +555,8 @@ input, textarea, select { font-family: var(--font); outline: none; }
 .empty-state p { color: var(--text3); font-size: 0.85em; }
 
 /* ===== TOAST ===== */
-#toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+#toast-container { position: fixed; bottom: 80px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast { pointer-events: auto; }
 .toast {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius-sm); padding: 12px 18px;
@@ -568,7 +582,7 @@ input, textarea, select { font-family: var(--font); outline: none; }
   box-shadow: 0 4px 20px rgba(59,91,219,0.45);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: all var(--transition);
-  border: none;
+  border: none; z-index: 1000;
 }
 #chatbot-fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(59,91,219,0.55); }
 #chatbot-popup {
@@ -585,9 +599,230 @@ input, textarea, select { font-family: var(--font); outline: none; }
 @media (max-width: 1100px) { .layout { grid-template-columns: var(--sidebar-w) 1fr; } .right-sidebar { display: none; } }
 @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } .header-logo span { display: none; } }
 
+.mood-bar-pos { background: var(--accent3); }
+.mood-bar-neu { background: var(--primary); }
+.mood-bar-neg { background: var(--accent); }
+
 /* ===== LOADING SKELETON ===== */
 .skeleton { background: linear-gradient(90deg, var(--border) 25%, var(--surface2) 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius-sm); }
 @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+/* ===== INNOVATIONS CSS ===== */
+
+/* -- Reaction system -- */
+.reactions-wrap { position: relative; display: inline-block; }
+.reactions-popup {
+  display: none;
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  background: var(--surface); border: 1px solid var(--border); border-radius: 99px;
+  padding: 6px 10px; box-shadow: var(--shadow-lg);
+  align-items: center; gap: 4px; z-index: 50; white-space: nowrap;
+}
+.reactions-wrap:hover .reactions-popup,
+.reactions-wrap:focus-within .reactions-popup { display: flex !important; }
+.reaction-opt {
+  font-size: 1.3em; cursor: pointer; padding: 2px 4px; border-radius: 8px;
+  transition: transform 0.12s; border: none; background: none;
+}
+.reaction-opt:hover { transform: scale(1.4); }
+.reaction-counts { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+.reaction-count-chip {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 0.72em; padding: 2px 7px; border-radius: 99px;
+  background: var(--surface2); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.15s; font-weight: 600;
+}
+.reaction-count-chip:hover { border-color: var(--primary); background: var(--primary-light); }
+.reaction-count-chip.mine { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+
+/* -- Post Tags -- */
+.tag-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+.post-tag {
+  font-size: 0.72em; font-weight: 700; padding: 3px 10px; border-radius: 99px;
+  cursor: pointer; transition: all 0.15s; border: none;
+  background: var(--primary-light); color: var(--primary);
+}
+.post-tag:hover { background: var(--primary); color: white; }
+.post-tag.tag-placement { background: rgba(47,184,110,0.15); color: #2fb86e; }
+.post-tag.tag-exam     { background: rgba(245,159,0,0.12); color: var(--accent2,#f59f00); }
+.post-tag.tag-event    { background: rgba(132,94,247,0.12); color: #845ef7; }
+.post-tag.tag-fun      { background: rgba(255,107,107,0.12); color: #ff6b6b; }
+.post-tag.tag-general  { background: var(--primary-light); color: var(--primary); }
+.post-tag.tag-placement:hover { background: rgba(47,184,110,0.3); }
+.post-tag.tag-exam:hover     { background: rgba(245,159,0,0.25); }
+.post-tag.tag-event:hover    { background: rgba(132,94,247,0.25); }
+.post-tag.tag-fun:hover      { background: rgba(255,107,107,0.25); }
+
+/* Tag selector in composer */
+.tag-selector { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
+.tag-sel-btn {
+  font-size: 0.76em; font-weight: 700; padding: 4px 12px; border-radius: 99px;
+  border: 1.5px solid var(--border); background: var(--surface2); cursor: pointer;
+  transition: all 0.15s; color: var(--text2);
+}
+.tag-sel-btn:hover { border-color: var(--primary); color: var(--primary); }
+.tag-sel-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
+
+/* -- Anonymous post toggle -- */
+.anon-toggle-row {
+  display: flex; align-items: center; gap: 8px; margin: 8px 0 0;
+  font-size: 0.82em; color: var(--text2);
+}
+.anon-toggle-row input { accent-color: var(--primary); width: 14px; height: 14px; }
+.anon-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(132,94,247,0.12); color: #845ef7;
+  font-size: 0.68em; font-weight: 700; padding: 2px 8px; border-radius: 99px;
+  border: 1px solid rgba(132,94,247,0.25);
+}
+
+/* -- AI Enhancer button -- */
+.enhance-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.78em; font-weight: 700; padding: 5px 12px; border-radius: 99px;
+  border: 1.5px solid rgba(204,93,232,0.5); color: #cc5de8; background: rgba(204,93,232,0.08);
+  cursor: pointer; transition: all 0.18s;
+}
+.enhance-btn:hover { background: rgba(204,93,232,0.18); }
+.enhance-btn.loading { opacity: 0.6; pointer-events: none; }
+
+/* -- Study Room widget -- */
+.study-room-widget { }
+.study-status-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.study-dot { width: 9px; height: 9px; border-radius: 99px; background: var(--border); }
+.study-dot.active { background: #2fb86e; box-shadow: 0 0 0 3px rgba(47,184,110,0.2); }
+.study-item {
+  display: flex; align-items: center; gap: 8px; padding: 7px 0;
+  border-bottom: 1px solid var(--border); font-size: 0.82em;
+}
+.study-item:last-child { border-bottom: none; }
+.study-avatar-sm {
+  width: 28px; height: 28px; border-radius: 99px;
+  background: linear-gradient(135deg, var(--primary), #5c7cfa);
+  color: white; font-size: 0.72em; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.study-name { font-weight: 600; color: var(--text); font-size: 0.9em; }
+.study-subject-tag {
+  margin-left: auto; font-size: 0.68em; font-weight: 700;
+  padding: 2px 7px; border-radius: 99px;
+  background: var(--primary-light); color: var(--primary);
+}
+.study-join-row { margin-top: 10px; display: flex; gap: 6px; }
+.study-join-row select, .study-join-row input {
+  flex: 1; padding: 7px 10px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--surface2);
+  font-size: 0.8em; font-family: var(--font); color: var(--text);
+}
+.study-join-btn {
+  padding: 7px 14px; border-radius: var(--radius-sm);
+  background: var(--primary); color: white;
+  font-size: 0.8em; font-weight: 700; border: none; cursor: pointer;
+  transition: all 0.15s;
+}
+.study-join-btn:hover { background: var(--primary-dark); }
+.study-join-btn.leave { background: var(--accent); }
+
+/* -- Mood Check-in -- */
+.mood-checkin {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 12px; background: var(--surface2);
+  border-radius: var(--radius); border: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+.mood-checkin-title { font-size: 0.8em; font-weight: 700; color: var(--text2); margin-bottom: 10px; }
+.mood-emojis { display: flex; gap: 8px; }
+.mood-emoji-btn {
+  font-size: 1.5em; border: none; background: none; cursor: pointer;
+  border-radius: 10px; padding: 4px 6px; transition: transform 0.15s, background 0.15s;
+  border: 2px solid transparent;
+}
+.mood-emoji-btn:hover { transform: scale(1.2); background: var(--surface); }
+.mood-emoji-btn.selected { border-color: var(--primary); background: var(--primary-light); transform: scale(1.15); }
+.mood-done-msg { font-size: 0.78em; color: var(--accent3); font-weight: 600; margin-top: 6px; }
+
+/* -- Campus Pulse AI -- */
+.pulse-card {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+  border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px;
+  color: white; position: relative; overflow: hidden;
+}
+.pulse-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(99,102,241,0.4) 0%, transparent 60%);
+}
+.pulse-title { font-size: 0.78em; font-weight: 700; opacity: 0.7; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; position: relative; }
+.pulse-text { font-size: 0.85em; line-height: 1.6; position: relative; }
+.pulse-refresh {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.72em; margin-top: 8px; opacity: 0.7; cursor: pointer;
+  border: none; background: none; color: white; position: relative;
+  padding: 0; font-family: var(--font);
+}
+.pulse-refresh:hover { opacity: 1; }
+
+/* -- @mention autocomplete -- */
+.mention-dropdown {
+  position: absolute; z-index: 200; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg); min-width: 180px;
+  display: none;
+}
+.mention-item {
+  padding: 8px 12px; cursor: pointer; font-size: 0.85em;
+  display: flex; align-items: center; gap: 8px; transition: background 0.12s;
+}
+.mention-item:hover { background: var(--primary-light); color: var(--primary); }
+.mention-avatar-sm {
+  width: 24px; height: 24px; border-radius: 99px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white; font-size: 0.68em; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* -- Confession box modal -- */
+.confession-warning {
+  background: rgba(245,159,0,0.10); border: 1px solid rgba(245,159,0,0.3); border-radius: var(--radius-sm);
+  padding: 10px 12px; font-size: 0.8em; color: var(--text2); margin-bottom: 14px;
+  display: flex; align-items: flex-start; gap: 8px;
+}
+
+/* -- Floating action toolbar -- */
+.fab-group {
+  position: fixed; bottom: 90px; right: 26px; z-index: 90;
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+}
+.fab-mini {
+  width: 42px; height: 42px; border-radius: 99px; border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1em; cursor: pointer; transition: all 0.2s;
+  box-shadow: var(--shadow);
+}
+.fab-mini:hover { transform: scale(1.12); }
+.fab-confession { background: rgba(132,94,247,0.15); color: #845ef7; border: 1.5px solid rgba(132,94,247,0.25); }
+.fab-study     { background: rgba(47,184,110,0.15); color: #2fb86e; border: 1.5px solid rgba(47,184,110,0.25); }
+
+/* -- Scroll to top -- */
+.scroll-top-btn {
+  position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
+  width: 40px; height: 40px; border-radius: 99px;
+  background: var(--primary); color: white; border: none; cursor: pointer;
+  font-size: 0.9em; display: none; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-lg); z-index: 90; transition: all 0.2s;
+}
+.scroll-top-btn:hover { transform: translateX(-50%) scale(1.1); }
+
+/* -- Mention highlight in posts -- */
+.mention-chip {
+  color: var(--primary); font-weight: 700; cursor: pointer;
+}
+.mention-chip:hover { text-decoration: underline; }
+
+/* filter tag active */
+.feed-tab.tag-active { background: var(--primary); color: white; }
+
 </style>
 </head>
 
@@ -607,7 +842,8 @@ input, textarea, select { font-family: var(--font); outline: none; }
 
   <div class="header-actions">
     <!-- Dark Mode -->
-    <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+    <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode" style="position:relative;">
+      <span id="theme-icon" style="position:absolute;left:4px;font-size:11px;top:50%;transform:translateY(-50%);pointer-events:none;transition:opacity 0.3s;">🌙</span>
       <div class="theme-toggle-thumb"></div>
     </button>
 
@@ -615,7 +851,7 @@ input, textarea, select { font-family: var(--font); outline: none; }
     <div style="position:relative;">
       <button class="icon-btn" id="notif-btn" title="Notifications">
         <i class="fas fa-bell"></i>
-        <span class="badge" id="notif-badge">3</span>
+        <span class="badge" id="notif-badge" style="display:none">0</span>
       </button>
       <div class="notif-dropdown" id="notif-dropdown">
         <div class="notif-header">
@@ -623,18 +859,7 @@ input, textarea, select { font-family: var(--font); outline: none; }
           <span class="notif-clear" onclick="clearNotifs()">Clear all</span>
         </div>
         <div id="notif-list">
-          <div class="notif-item">
-            <div class="notif-icon"><i class="fas fa-thumbs-up"></i></div>
-            <div><div class="notif-text">Someone liked your post</div><div class="notif-time">2 min ago</div></div>
-          </div>
-          <div class="notif-item">
-            <div class="notif-icon" style="background:#fff9db;color:#e67700"><i class="fas fa-calendar"></i></div>
-            <div><div class="notif-text">New event: Tech Symposium 2025 added</div><div class="notif-time">1 hr ago</div></div>
-          </div>
-          <div class="notif-item">
-            <div class="notif-icon" style="background:#d3f9d8;color:#1a7431"><i class="fas fa-comment"></i></div>
-            <div><div class="notif-text">New comment on your post</div><div class="notif-time">3 hrs ago</div></div>
-          </div>
+          <div class="notif-empty"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
         </div>
       </div>
     </div>
@@ -680,9 +905,9 @@ input, textarea, select { font-family: var(--font); outline: none; }
     </div>
 
     <nav class="nav-menu">
-      <button class="nav-item active" onclick="filterTab('all')"><i class="fas fa-home"></i> Home Feed</button>
-      <button class="nav-item" onclick="filterTab('my')"><i class="fas fa-user"></i> My Posts</button>
-      <button class="nav-item" onclick="filterTab('bookmarked')"><i class="fas fa-bookmark"></i> Bookmarks</button>
+      <button class="nav-item active" onclick="filterTab('all',this)"><i class="fas fa-home"></i> Home Feed</button>
+      <button class="nav-item" onclick="filterTab('my',this)"><i class="fas fa-user"></i> My Posts</button>
+      <button class="nav-item" onclick="filterTab('bookmarked',this)"><i class="fas fa-bookmark"></i> Bookmarks</button>
       <button class="nav-item" onclick="openModal('events-modal')"><i class="fas fa-calendar"></i> Events</button>
       <button class="nav-item" onclick="openModal('profile-modal')"><i class="fas fa-id-card"></i> My Profile</button>
       {% if role == 'admin' %}
@@ -711,15 +936,49 @@ input, textarea, select { font-family: var(--font); outline: none; }
       <button class="ann-close" onclick="document.getElementById('ann-banner').style.display='none'">×</button>
     </div>
 
+    <!-- Mood Check-in -->
+    <div class="mood-checkin" id="mood-checkin-wrap">
+      <div class="mood-checkin-title">🌤️ How are you feeling today?</div>
+      <div class="mood-emojis">
+        <button class="mood-emoji-btn" onclick="checkInMood('😄','amazing')" title="Amazing">😄</button>
+        <button class="mood-emoji-btn" onclick="checkInMood('😊','good')" title="Good">😊</button>
+        <button class="mood-emoji-btn" onclick="checkInMood('😐','okay')" title="Okay">😐</button>
+        <button class="mood-emoji-btn" onclick="checkInMood('😔','down')" title="Down">😔</button>
+        <button class="mood-emoji-btn" onclick="checkInMood('😤','stressed')" title="Stressed">😤</button>
+      </div>
+      <div class="mood-done-msg" id="mood-done-msg" style="display:none"></div>
+    </div>
+
     <!-- Composer -->
     <div class="composer">
       <div class="composer-top">
         <div class="composer-avatar" id="composer-avatar">{{ user[0]|upper }}</div>
-        <textarea id="post-input" placeholder="What's on your mind? Share updates, notes, questions... ✍️" maxlength="500"></textarea>
+        <textarea id="post-input" placeholder="What's on your mind? Share updates, notes, questions... ✍️&#10;Use @name to mention someone" maxlength="500"></textarea>
+        <div class="mention-dropdown" id="mention-dropdown"></div>
       </div>
       <div id="image-preview-area" class="image-preview-area">
         <img id="preview-img" src="" alt="">
         <button class="remove-img-btn" onclick="removeImage()" title="Remove image">×</button>
+      </div>
+      <!-- Tag selector -->
+      <div class="tag-selector" id="tag-selector">
+        <span style="font-size:0.76em;color:var(--text3);align-self:center;">Tag:</span>
+        <button class="tag-sel-btn" onclick="toggleTag(this,'general')">💬 General</button>
+        <button class="tag-sel-btn" onclick="toggleTag(this,'placement')">💼 Placement</button>
+        <button class="tag-sel-btn" onclick="toggleTag(this,'exam')">📝 Exam</button>
+        <button class="tag-sel-btn" onclick="toggleTag(this,'event')">🎉 Event</button>
+        <button class="tag-sel-btn" onclick="toggleTag(this,'fun')">😄 Fun</button>
+      </div>
+      <!-- Anonymous + Enhance row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;flex-wrap:wrap;gap:8px;">
+        <label class="anon-toggle-row">
+          <input type="checkbox" id="anon-toggle">
+          Post anonymously
+          <span class="anon-badge"><i class="fas fa-user-secret"></i> Private</span>
+        </label>
+        <button class="enhance-btn" id="enhance-btn" onclick="enhancePost()">
+          ✨ AI Enhance
+        </button>
       </div>
       <div class="composer-actions">
         <label class="composer-action-btn" for="img-upload" title="Add image">
@@ -753,7 +1012,7 @@ input, textarea, select { font-family: var(--font); outline: none; }
       {% endif %}
 
       {% for key, post in posts.items()|sort(attribute='1.timestamp', reverse=True) %}
-      <div class="post-card {% if post.pinned %}pinned{% endif %}" id="post-{{ key }}" data-user="{{ post.user }}" data-likes="{{ post.likes|length if post.likes else 0 }}">
+      <div class="post-card {% if post.pinned %}pinned{% endif %}" id="post-{{ key }}" data-user="{{ post.user }}" data-likes="{{ post.likes|length if post.likes and post.likes is mapping else 0 }}" data-tags="{{ (post.tags or [])|join(',') }}" data-real-user="{{ post.real_user or post.user }}">
         <div class="post-header">
           <div class="post-avatar" style="background: linear-gradient(135deg, hsl({{ loop.index * 47 % 360 }}, 60%, 55%), hsl({{ (loop.index * 47 + 60) % 360 }}, 60%, 45%))">
             {{ post.user[0]|upper }}
@@ -777,16 +1036,40 @@ input, textarea, select { font-family: var(--font); outline: none; }
           <button class="post-more-btn" onclick="togglePostMenu('{{ key }}')"><i class="fas fa-ellipsis-h"></i></button>
         </div>
 
-        <div class="post-content">{{ post.content | e }}</div>
+        {% if post.tags and post.tags is iterable and post.tags|length > 0 %}
+        <div class="tag-row">
+          {% for tag in post.tags %}
+          {% if tag %}
+          <span class="post-tag tag-{{ tag }}" onclick="filterByTag('{{ tag }}')">{{ tag }}</span>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if post.anonymous %}
+        <div style="margin-bottom:6px;"><span class="anon-badge"><i class="fas fa-user-secret"></i> Anonymous</span></div>
+        {% endif %}
+        <div class="post-content" id="content-{{ key }}">{{ post.content | e }}</div>
         {% if post.image %}
         <img class="post-image" src="{{ post.image }}" alt="Post image">
         {% endif %}
 
         <div class="post-actions">
-          <button class="action-btn {% if session.get('user') in (post.likes or {}) %}liked{% endif %}" onclick="likePost('{{ key }}', this)" id="like-btn-{{ key }}">
-            <i class="{% if session.get('user') in (post.likes or {}) %}fas{% else %}far{% endif %} fa-heart"></i>
-            <span class="like-count">{{ post.likes|length if post.likes else 0 }}</span>
-          </button>
+          <!-- Reaction system -->
+          <div class="reactions-wrap">
+            <button class="action-btn {% if post.likes and session.get('user') in post.likes %}liked{% endif %}" onclick="likePost('{{ key }}', this)" id="like-btn-{{ key }}">
+              <i class="{% if post.likes and session.get('user') in post.likes %}fas{% else %}far{% endif %} fa-heart"></i>
+              <span class="like-count">{{ post.likes|length if post.likes else 0 }}</span>
+            </button>
+            <div class="reactions-popup">
+              <button class="reaction-opt" onclick="reactPost('{{ key }}','❤️',event)" title="Love">❤️</button>
+              <button class="reaction-opt" onclick="reactPost('{{ key }}','🔥',event)" title="Fire">🔥</button>
+              <button class="reaction-opt" onclick="reactPost('{{ key }}','🎉',event)" title="Celebrate">🎉</button>
+              <button class="reaction-opt" onclick="reactPost('{{ key }}','🤔',event)" title="Thinking">🤔</button>
+              <button class="reaction-opt" onclick="reactPost('{{ key }}','💪',event)" title="Strong">💪</button>
+            </div>
+          </div>
+          <!-- Reaction counts -->
+          <div class="reaction-counts" id="reactions-{{ key }}"></div>
           <button class="action-btn" onclick="toggleComments('{{ key }}')">
             <i class="far fa-comment"></i>
             <span>{{ post.comments|length if post.comments else 0 }}</span>
@@ -814,14 +1097,17 @@ input, textarea, select { font-family: var(--font); outline: none; }
 
         <!-- Comments -->
         <div class="comments-area" id="comments-{{ key }}">
-          {% for c in post.comments %}
+          {% set comments_list = post.comments.values() if post.comments is mapping else (post.comments if post.comments else []) %}
+          {% for c in comments_list %}
+          {% if c and c.user is defined %}
           <div class="comment-item">
-            <div class="comment-avatar">{{ c.user[0]|upper }}</div>
+            <div class="comment-avatar">{{ c.user[0]|upper if c.user else '?' }}</div>
             <div class="comment-bubble">
-              <div class="c-author">{{ c.user.split('@')[0] | title }}</div>
-              <div class="c-text">{{ c.comment|e }}</div>
+              <div class="c-author">{{ c.user.split('@')[0]|title if c.user else 'User' }}</div>
+              <div class="c-text">{{ c.comment|e if c.comment else '' }}</div>
             </div>
           </div>
+          {% endif %}
           {% endfor %}
           <form class="comment-form" onsubmit="addComment('{{ key }}', event)">
             <input type="text" placeholder="Write a comment..." required maxlength="200">
@@ -879,6 +1165,46 @@ input, textarea, select { font-family: var(--font); outline: none; }
           <span style="font-size:1.5em;" title="Negative">😔</span>
         </div>
         <div id="mood-bars"></div>
+      </div>
+    </div>
+
+    <!-- Campus Pulse AI -->
+    <div class="widget">
+      <div class="widget-title"><i class="fas fa-brain"></i> Campus Pulse AI</div>
+      <div class="pulse-card">
+        <div class="pulse-title">🤖 AI Summary</div>
+        <div class="pulse-text" id="pulse-text">Analyzing today's campus mood...</div>
+        <button class="pulse-refresh" onclick="fetchCampusPulse()">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Study Room -->
+    <div class="widget study-room-widget">
+      <div class="widget-title"><i class="fas fa-book-open"></i> Study Room 📚</div>
+      <div class="study-status-row">
+        <div class="study-dot" id="study-status-dot"></div>
+        <span id="study-status-txt" style="font-size:0.8em;color:var(--text3);">You are not studying</span>
+      </div>
+      <div id="study-list">
+        <div style="font-size:0.8em;color:var(--text3);text-align:center;padding:8px;">No one is studying right now 🌙</div>
+      </div>
+      <div class="study-join-row">
+        <select id="study-subject">
+          <option value="">Pick subject...</option>
+          <option>Mathematics</option>
+          <option>Physics</option>
+          <option>Chemistry</option>
+          <option>Programming</option>
+          <option>Data Structures</option>
+          <option>Networks</option>
+          <option>DBMS</option>
+          <option>Machine Learning</option>
+          <option>Operating Systems</option>
+          <option>Other</option>
+        </select>
+        <button class="study-join-btn" id="study-btn" onclick="toggleStudyRoom()">Join</button>
       </div>
     </div>
 
@@ -976,6 +1302,48 @@ input, textarea, select { font-family: var(--font); outline: none; }
   <iframe src="/widget" title="SREC Bot"></iframe>
 </div>
 
+<!-- ===== FAB GROUP ===== -->
+<div class="fab-group">
+  <button class="fab-mini fab-confession" onclick="openModal('confession-modal')" title="Confession Box">
+    <i class="fas fa-user-secret"></i>
+  </button>
+  <button class="fab-mini fab-study" onclick="document.querySelector('.study-room-widget').scrollIntoView({behavior:'smooth'})" title="Study Room">
+    <i class="fas fa-book-open"></i>
+  </button>
+</div>
+
+<!-- Scroll to top -->
+<button class="scroll-top-btn" id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">
+  <i class="fas fa-chevron-up"></i>
+</button>
+
+<!-- ===== CONFESSION BOX MODAL ===== -->
+<div class="modal-overlay" id="confession-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🤫 Confession Box</div>
+      <button class="modal-close" onclick="closeModal('confession-modal')">×</button>
+    </div>
+    <div class="confession-warning">
+      <i class="fas fa-shield-alt" style="color:var(--accent2,#e67700);flex-shrink:0;margin-top:2px;"></i>
+      <div>Posts here appear as <b>Anonymous</b> to everyone. However, college administration can identify posts in emergencies. Be respectful.</div>
+    </div>
+    <div class="form-group">
+      <label>Your Confession / Thought</label>
+      <textarea id="confession-input" placeholder="Share something anonymously... feelings, campus issues, feedback, venting..." rows="4" maxlength="500"></textarea>
+    </div>
+    <div class="tag-selector" style="margin-bottom:14px;">
+      <span style="font-size:0.76em;color:var(--text3);align-self:center;">Tag:</span>
+      <button class="tag-sel-btn" onclick="toggleTag(this,'general')">💬 General</button>
+      <button class="tag-sel-btn" onclick="toggleTag(this,'feedback')">📣 Feedback</button>
+      <button class="tag-sel-btn" onclick="toggleTag(this,'fun')">😄 Fun</button>
+    </div>
+    <button class="form-submit" onclick="submitConfession()">
+      <i class="fas fa-paper-plane"></i> Post Anonymously
+    </button>
+  </div>
+</div>
+
 <!-- ===== TOAST CONTAINER ===== -->
 <div id="toast-container"></div>
 
@@ -985,36 +1353,55 @@ const CURRENT_USER = "{{ user }}";
 const USER_ROLE = "{{ role }}";
 let bookmarks = JSON.parse(localStorage.getItem('srec_bookmarks') || '[]');
 let darkMode = localStorage.getItem('srec_dark') === 'true';
-let notifications = 3;
+let notifications = 0;
+let seenNotifKeys = JSON.parse(localStorage.getItem('cc_seen_notifs') || '[]');
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-  if (darkMode) enableDark();
+  // Dark mode: sync toggle button state
+  const toggleBtn = document.getElementById('theme-toggle');
+  if (toggleBtn) {
+    if (darkMode) { enableDark(); }
+    toggleBtn.addEventListener('click', () => { darkMode ? disableDark() : enableDark(); });
+  }
   initBookmarks();
   buildLeaderboard();
   buildMoodChart();
+  fetchNotifications();
+  setInterval(fetchNotifications, 30000);
   countUserLikes();
   setupSearch();
   setupCharCount();
   setupNotifDropdown();
+  setupMentionAutocomplete();
+  fetchCampusPulse();
+  fetchStudyRoom();
+  setInterval(fetchStudyRoom, 20000);
+  setupScrollTop();
+  restoreMoodCheckin();
+  renderAllReactions();
 });
 
 // ===== DARK MODE =====
 function enableDark() {
   document.documentElement.setAttribute('data-theme', 'dark');
-  document.getElementById('theme-toggle').classList.add('on');
+  const btn = document.getElementById('theme-toggle');
+  if (btn) btn.classList.add('on');
+  const icon = document.getElementById('theme-icon');
+  if (icon) { icon.textContent = '☀️'; icon.style.left = 'auto'; icon.style.right = '4px'; }
   darkMode = true;
   localStorage.setItem('srec_dark', 'true');
 }
 function disableDark() {
   document.documentElement.setAttribute('data-theme', 'light');
-  document.getElementById('theme-toggle').classList.remove('on');
+  const btn = document.getElementById('theme-toggle');
+  if (btn) btn.classList.remove('on');
+  const icon = document.getElementById('theme-icon');
+  if (icon) { icon.textContent = '🌙'; icon.style.right = 'auto'; icon.style.left = '4px'; }
   darkMode = false;
   localStorage.setItem('srec_dark', 'false');
 }
-document.getElementById('theme-toggle').addEventListener('click', () => {
-  darkMode ? disableDark() : enableDark();
-});
+
 
 // ===== TOAST =====
 function showToast(msg, type='info') {
@@ -1044,21 +1431,119 @@ function setupNotifDropdown() {
   document.addEventListener('click', () => dd.style.display = 'none');
 }
 function clearNotifs() {
+  // Mark all current notifications as seen
+  const items = document.querySelectorAll('.notif-item[data-key]');
+  items.forEach(item => {
+    const k = item.getAttribute('data-key');
+    if (k && !seenNotifKeys.includes(k)) seenNotifKeys.push(k);
+  });
+  localStorage.setItem('cc_seen_notifs', JSON.stringify(seenNotifKeys));
   document.getElementById('notif-list').innerHTML = '<div class="notif-empty">No new notifications 🎉</div>';
   document.getElementById('notif-badge').style.display = 'none';
   notifications = 0;
 }
-function addNotif(msg, icon='fa-bell', color='') {
+
+function addNotif(msg, icon, color, key) {
+  // Deduplicate — don't show if already seen
+  if (key && seenNotifKeys.includes(key)) return;
   const list = document.getElementById('notif-list');
+  // Remove empty/loading state
+  const empty = list.querySelector('.notif-empty');
+  if (empty) empty.remove();
   const item = document.createElement('div');
   item.className = 'notif-item';
-  item.innerHTML = `<div class="notif-icon" style="${color}">${icon}</div>
+  if (key) item.setAttribute('data-key', key);
+  item.innerHTML = `<div class="notif-icon" style="${color || ''}">${icon}</div>
     <div><div class="notif-text">${msg}</div><div class="notif-time">Just now</div></div>`;
   list.prepend(item);
   notifications++;
   const badge = document.getElementById('notif-badge');
   badge.textContent = notifications;
   badge.style.display = 'flex';
+}
+
+// ===== REAL NOTIFICATION POLLING =====
+function timeAgo(ts) {
+  if (!ts) return '';
+  // ts can be "YYYY-MM-DD HH:MM:SS"
+  const then = new Date(ts.replace(' ', 'T'));
+  const diff = Math.floor((Date.now() - then) / 1000);
+  if (diff < 60)  return 'Just now';
+  if (diff < 3600) return Math.floor(diff/60) + ' min ago';
+  if (diff < 86400) return Math.floor(diff/3600) + ' hr ago';
+  return Math.floor(diff/86400) + ' days ago';
+}
+
+function fetchNotifications() {
+  fetch('/get_notifications')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.notifications) return;
+      const list = document.getElementById('notif-list');
+
+      // Clear loading state on first load
+      const loading = list.querySelector('.notif-empty');
+      if (loading && loading.innerHTML.includes('spinner')) {
+        list.innerHTML = '';
+      }
+
+      let newCount = 0;
+      data.notifications.forEach(n => {
+        const key = n.key;
+        if (seenNotifKeys.includes(key)) return; // Already seen
+
+        newCount++;
+        // Remove empty state if present
+        const empty = list.querySelector('.notif-empty');
+        if (empty) empty.remove();
+
+        const item = document.createElement('div');
+        item.className = 'notif-item';
+        item.setAttribute('data-key', key);
+
+        let icon, color, text;
+        if (n.type === 'like') {
+          icon = '<i class="fas fa-heart"></i>';
+          color = 'background:var(--primary-light);color:var(--accent)';
+          const liker = n.by ? n.by.split('@')[0] : 'Someone';
+          const preview = n.post_preview ? ' — "' + n.post_preview + '"' : '';
+          text = `<b>${liker}</b> liked your post${preview}`;
+        } else if (n.type === 'comment') {
+          icon = '<i class="fas fa-comment"></i>';
+          color = 'background:rgba(47,184,110,0.15);color:#2fb86e';
+          const commenter = n.by ? n.by.split('@')[0] : 'Someone';
+          const said = n.comment ? ': "' + n.comment.substring(0,40) + (n.comment.length > 40 ? '…' : '') + '"' : '';
+          text = `<b>${commenter}</b> commented on your post${said}`;
+        }
+
+        item.innerHTML = `<div class="notif-icon" style="${color}">${icon}</div>
+          <div>
+            <div class="notif-text">${text}</div>
+            <div class="notif-time">${timeAgo(n.timestamp)}</div>
+          </div>`;
+        list.prepend(item);
+      });
+
+      // Show no notifs message if list is empty
+      if (list.children.length === 0) {
+        list.innerHTML = '<div class="notif-empty">No new notifications 🎉</div>';
+      }
+
+      if (newCount > 0) {
+        notifications += newCount;
+        const badge = document.getElementById('notif-badge');
+        badge.textContent = notifications;
+        badge.style.display = 'flex';
+      }
+    })
+    .catch(() => {
+      // Silently fail — don't break the page
+      const list = document.getElementById('notif-list');
+      const loading = list.querySelector('.notif-empty');
+      if (loading && loading.innerHTML.includes('spinner')) {
+        list.innerHTML = '<div class="notif-empty">No new notifications 🎉</div>';
+      }
+    });
 }
 
 // ===== CHAR COUNT =====
@@ -1107,20 +1592,19 @@ function analyzeSentiment(text) {
 
 // ===== SUBMIT POST =====
 function submitPost() {
-  const input = document.getElementById('post-input');
+  const input   = document.getElementById('post-input');
   const content = input.value.trim();
-  if (!content) { showToast('Write something first!', 'error'); return; }
-
-  const btn = document.getElementById('post-btn');
+  if (!content) { showToast('Write something first!', 'info'); return; }
+  const btn       = document.getElementById('post-btn');
+  const sentiment = analyzeSentiment(content);
+  const anonymous = document.getElementById('anon-toggle') ? document.getElementById('anon-toggle').checked : false;
+  const tags      = [...(typeof selectedTags !== 'undefined' ? selectedTags : [])];
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
-
-  const sentiment = analyzeSentiment(content);
-
   fetch('/add_post', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content, sentiment, image: selectedImageBase64 })
+    body: JSON.stringify({ content, sentiment, image: selectedImageBase64, anonymous, tags })
   })
   .then(r => r.json())
   .then(d => {
@@ -1128,16 +1612,19 @@ function submitPost() {
       input.value = '';
       document.getElementById('char-count').textContent = '0/500';
       removeImage();
+      if (typeof selectedTags !== 'undefined') selectedTags = [];
+      document.querySelectorAll('.tag-sel-btn').forEach(b => b.classList.remove('selected'));
+      if (document.getElementById('anon-toggle')) document.getElementById('anon-toggle').checked = false;
       showToast('Post shared! 🎉', 'success');
       setTimeout(() => location.reload(), 800);
     } else {
-      showToast('Failed to post', 'error');
+      showToast('Failed to post. Try again.', 'error');
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-paper-plane"></i> Post';
     }
   })
   .catch(() => {
-    showToast('Network error', 'error');
+    showToast('Network error. Try again.', 'error');
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Post';
   });
@@ -1153,19 +1640,22 @@ function likePost(id, btn) {
   .then(r => r.json())
   .then(d => {
     if (d.success) {
-      const icon = btn.querySelector('i');
+      const icon  = btn.querySelector('i');
       const count = btn.querySelector('.like-count');
       count.textContent = d.likes;
+      // Update data-likes on the post card so leaderboard stays live
+      const postCard = btn.closest('.post-card');
+      if (postCard) postCard.setAttribute('data-likes', d.likes);
       if (btn.classList.contains('liked')) {
         btn.classList.remove('liked');
         icon.className = 'far fa-heart';
       } else {
         btn.classList.add('liked');
         icon.className = 'fas fa-heart';
-        addNotif('You liked a post ❤️', '<i class="fas fa-heart" style="color:var(--accent)"></i>');
       }
       buildLeaderboard();
       buildMoodChart();
+      countUserLikes();
     }
   });
 }
@@ -1252,26 +1742,29 @@ function editPost(id, currentContent) {
 function initBookmarks() {
   bookmarks.forEach(id => {
     const btn = document.getElementById('bm-' + id);
-    if (btn) { btn.classList.add('bookmarked'); btn.querySelector('i').className = 'fas fa-bookmark'; }
+    if (btn) {
+      btn.classList.add('bookmarked');
+      const icon = btn.querySelector('i');
+      if (icon) icon.className = 'fas fa-bookmark';
+    }
   });
 }
 function toggleBookmark(id, btn) {
   const idx = bookmarks.indexOf(id);
-  if (idx === -1) {
-    bookmarks.push(id);
-    btn.classList.add('bookmarked');
-    btn.querySelector('i').className = 'fas fa-bookmark';
-    showToast('Post bookmarked! 🔖', 'success');
-  } else {
+  const icon = btn ? btn.querySelector('i') : null;
+  if (idx >= 0) {
     bookmarks.splice(idx, 1);
-    btn.classList.remove('bookmarked');
-    btn.querySelector('i').className = 'far fa-bookmark';
+    if (btn) btn.classList.remove('bookmarked');
+    if (icon) icon.className = 'far fa-bookmark';
     showToast('Bookmark removed', 'info');
+  } else {
+    bookmarks.push(id);
+    if (btn) btn.classList.add('bookmarked');
+    if (icon) icon.className = 'fas fa-bookmark';
+    showToast('Bookmarked! ✨', 'success');
   }
   localStorage.setItem('srec_bookmarks', JSON.stringify(bookmarks));
 }
-
-// ===== PIN POST (admin) =====
 function pinPost(id) {
   fetch('/pin_post', {
     method: 'POST',
@@ -1295,21 +1788,44 @@ function sharePost(content) {
 
 // ===== FILTER TABS =====
 function filterTab(type, btn) {
+  // Update active tab styling
   document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
   if (btn) btn.classList.add('active');
+  // Also sync nav-menu items
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
   const posts = document.querySelectorAll('.post-card');
   posts.forEach(post => {
-    const user = post.getAttribute('data-user');
-    const id = post.id.replace('post-', '');
-    const likes = parseInt(post.getAttribute('data-likes') || 0);
-
-    if (type === 'all') post.style.display = '';
-    else if (type === 'my') post.style.display = user === CURRENT_USER ? '' : 'none';
-    else if (type === 'bookmarked') post.style.display = bookmarks.includes(id) ? '' : 'none';
-    else if (type === 'trending') post.style.display = likes >= 1 ? '' : 'none';
+    let show = false;
+    const user    = post.getAttribute('data-user') || '';
+    const likes   = parseInt(post.getAttribute('data-likes') || 0);
+    const postKey = post.id.replace('post-', '');
+    const realUser = post.getAttribute('data-real-user') || user;
+    if (type === 'all') {
+      show = true;
+    } else if (type === 'my') {
+      show = (realUser === CURRENT_USER || user === CURRENT_USER);
+    } else if (type === 'bookmarked') {
+      show = bookmarks.includes(postKey);
+    } else if (type === 'trending') {
+      show = likes >= 1;
+    }
+    post.style.display = show ? 'block' : 'none';
   });
+  // Rebuild widgets after filter changes
+  setTimeout(() => { buildLeaderboard(); buildMoodChart(); countUserLikes(); }, 50);
+  // Show empty message if nothing visible
+  const visible = [...posts].filter(p => p.style.display !== 'none');
+  const feed = document.getElementById('posts-feed');
+  const existing = feed.querySelector('.filter-empty');
+  if (existing) existing.remove();
+  if (visible.length === 0) {
+    const msg = document.createElement('div');
+    msg.className = 'empty-state filter-empty';
+    const labels = { my: 'No posts yet — share something! ✍️', bookmarked: 'No bookmarks yet — save posts you like!', trending: 'No trending posts yet.' };
+    msg.innerHTML = `<div class="empty-icon">📭</div><h3>${labels[type] || 'No posts found'}</h3>`;
+    feed.appendChild(msg);
+  }
 }
 
 // ===== SEARCH =====
@@ -1318,7 +1834,8 @@ function setupSearch() {
   inp.addEventListener('input', () => {
     const q = inp.value.toLowerCase().trim();
     document.querySelectorAll('.post-card').forEach(post => {
-      const content = post.querySelector('.post-content').textContent.toLowerCase();
+      const postContent = post.querySelector('.post-content');
+      const content = postContent ? postContent.textContent.toLowerCase() : '';
       const author = (post.getAttribute('data-user') || '').toLowerCase();
       post.style.display = (!q || content.includes(q) || author.includes(q)) ? '' : 'none';
     });
@@ -1329,23 +1846,47 @@ function setupSearch() {
 function buildLeaderboard() {
   const posts = document.querySelectorAll('.post-card');
   const userLikes = {};
+  const userPosts = {};
+  const userDisplay = {}; // email -> display name
+
   posts.forEach(post => {
-    const user = post.getAttribute('data-user') || '';
+    // Use real_user for counting (anonymous posts still count toward the real user)
+    const realUser = post.getAttribute('data-real-user') || post.getAttribute('data-user') || '';
+    const displayUser = post.getAttribute('data-user') || realUser;
+    if (!realUser || realUser === 'Anonymous') return;
     const likes = parseInt(post.getAttribute('data-likes') || 0);
-    userLikes[user] = (userLikes[user] || 0) + likes;
+    userLikes[realUser] = (userLikes[realUser] || 0) + likes;
+    userPosts[realUser] = (userPosts[realUser] || 0) + 1;
+    if (!userDisplay[realUser]) userDisplay[realUser] = displayUser;
   });
+
   const sorted = Object.entries(userLikes).sort((a,b) => b[1] - a[1]).slice(0, 5);
   const rankClasses = ['gold','silver','bronze','',''];
-  const rankNums = ['🥇','🥈','🥉','4','5'];
-  const html = sorted.length ? sorted.map(([ user, likes ], i) => `
-    <div class="leader-item">
+  const rankNums = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+  const avatarColors = [
+    'linear-gradient(135deg,#f59f00,#f76707)',
+    'linear-gradient(135deg,#868e96,#495057)',
+    'linear-gradient(135deg,#c47c39,#8c5a1e)',
+    'linear-gradient(135deg,var(--primary),var(--accent))',
+    'linear-gradient(135deg,var(--accent3),var(--primary))',
+  ];
+
+  const html = sorted.length ? sorted.map(([user, likes], i) => {
+    const raw = userDisplay[user] || user;
+    const name = raw.includes('@') ? raw.split('@')[0] : raw;
+    const displayName = name.charAt(0).toUpperCase() + name.slice(1);
+    const postCount = userPosts[user] || 0;
+    const isCurrentUser = user === CURRENT_USER;
+    return `<div class="leader-item${isCurrentUser ? ' leader-me' : ''}">
       <div class="leader-rank ${rankClasses[i]}">${rankNums[i]}</div>
-      <div class="leader-avatar">${user[0].toUpperCase()}</div>
+      <div class="leader-avatar" style="background:${avatarColors[i]}">${name[0].toUpperCase()}</div>
       <div class="leader-info">
-        <div class="leader-name">${user.split('@')[0]}</div>
-        <div class="leader-likes"><i class="fas fa-heart"></i> ${likes} likes</div>
+        <div class="leader-name">${displayName}${isCurrentUser ? ' <span style="font-size:0.7em;color:var(--primary);">(you)</span>' : ''}</div>
+        <div class="leader-likes"><i class="fas fa-heart"></i> ${likes} likes &nbsp;·&nbsp; ${postCount} post${postCount !== 1 ? 's' : ''}</div>
       </div>
-    </div>`).join('') : '<div style="color:var(--text3);font-size:0.82em;text-align:center;padding:8px;">No posts yet</div>';
+    </div>`;
+  }).join('') : '<div style="color:var(--text3);font-size:0.82em;text-align:center;padding:16px 8px;">No posts yet — be the first! 🚀</div>';
+
   const el = document.getElementById('leaderboard-list');
   if (el) el.innerHTML = html;
 }
@@ -1364,45 +1905,40 @@ function buildMoodChart() {
   const total = pos + neg + neu || 1;
   const el = document.getElementById('mood-bars');
   if (!el) return;
-  el.innerHTML = `
-    <div style="margin-bottom:6px;">
+  const moodData = [
+    { label: '😊 Positive', count: pos, cls: 'mood-bar-pos' },
+    { label: '😐 Neutral',  count: neu, cls: 'mood-bar-neu' },
+    { label: '😔 Negative', count: neg, cls: 'mood-bar-neg' },
+  ];
+  el.innerHTML = moodData.map((m, i) => `
+    <div style="margin-bottom:${i < 2 ? '8px' : '0'};">
       <div style="display:flex;justify-content:space-between;font-size:0.75em;color:var(--text2);margin-bottom:3px;">
-        <span>😊 Positive</span><span>${Math.round(pos/total*100)}%</span>
+        <span>${m.label}</span><span>${Math.round(m.count/total*100)}%</span>
       </div>
       <div style="height:8px;background:var(--border);border-radius:99px;overflow:hidden;">
-        <div style="height:100%;width:${pos/total*100}%;background:#2fb86e;border-radius:99px;transition:width 0.6s;"></div>
+        <div class="${m.cls}" style="height:100%;width:${m.count/total*100}%;border-radius:99px;transition:width 0.8s ease;"></div>
       </div>
-    </div>
-    <div style="margin-bottom:6px;">
-      <div style="display:flex;justify-content:space-between;font-size:0.75em;color:var(--text2);margin-bottom:3px;">
-        <span>😐 Neutral</span><span>${Math.round(neu/total*100)}%</span>
-      </div>
-      <div style="height:8px;background:var(--border);border-radius:99px;overflow:hidden;">
-        <div style="height:100%;width:${neu/total*100}%;background:#3b5bdb;border-radius:99px;transition:width 0.6s;"></div>
-      </div>
-    </div>
-    <div>
-      <div style="display:flex;justify-content:space-between;font-size:0.75em;color:var(--text2);margin-bottom:3px;">
-        <span>😔 Negative</span><span>${Math.round(neg/total*100)}%</span>
-      </div>
-      <div style="height:8px;background:var(--border);border-radius:99px;overflow:hidden;">
-        <div style="height:100%;width:${neg/total*100}%;background:#f03e3e;border-radius:99px;transition:width 0.6s;"></div>
-      </div>
-    </div>`;
+    </div>`).join('');
 }
 
 // ===== COUNT USER LIKES =====
 function countUserLikes() {
-  let total = 0;
+  let totalLikes = 0;
+  let totalPosts = 0;
   document.querySelectorAll('.post-card').forEach(post => {
-    if (post.getAttribute('data-user') === CURRENT_USER) {
-      total += parseInt(post.getAttribute('data-likes') || 0);
+    // Match by real-user (works for both anon and normal posts)
+    const realUser = post.getAttribute('data-real-user') || post.getAttribute('data-user') || '';
+    if (realUser === CURRENT_USER) {
+      totalLikes += parseInt(post.getAttribute('data-likes') || 0);
+      totalPosts++;
     }
   });
   const el1 = document.getElementById('like-count-stat');
   const el2 = document.getElementById('modal-like-count');
-  if (el1) el1.textContent = total;
-  if (el2) el2.textContent = total;
+  const el3 = document.getElementById('post-count-stat');
+  if (el1) el1.textContent = totalLikes;
+  if (el2) el2.textContent = totalLikes;
+  if (el3 && totalPosts > 0) el3.textContent = totalPosts;
 }
 
 // ===== EVENTS =====
@@ -1470,6 +2006,328 @@ function toggleChatbot() {
 function togglePostMenu(id) {
   // For now just a placeholder - could expand to a context menu
 }
+
+// ===================================================
+// INNOVATION 1: POST TAGS
+// ===================================================
+let selectedTags = [];
+function toggleTag(btn, tag) {
+  btn.classList.toggle('selected');
+  if (selectedTags.includes(tag)) {
+    selectedTags = selectedTags.filter(t => t !== tag);
+  } else {
+    selectedTags.push(tag);
+  }
+}
+let activeTagFilter = null;
+function filterByTag(tag) {
+  if (activeTagFilter === tag) {
+    // Toggle off — show all
+    activeTagFilter = null;
+    document.querySelectorAll('.post-card').forEach(p => p.style.display = 'block');
+    showToast('Showing all posts', 'info');
+    return;
+  }
+  activeTagFilter = tag;
+  const posts = document.querySelectorAll('.post-card');
+  posts.forEach(p => {
+    const ptags = p.getAttribute('data-tags') || '';
+    p.style.display = ptags.includes(tag) ? 'block' : 'none';
+  });
+  showToast('Filtering by ' + tag + ' — click tag again to clear', 'info');
+}
+
+// ===================================================
+// INNOVATION 2: AI POST ENHANCER
+// ===================================================
+async function enhancePost() {
+  const textarea = document.getElementById('post-input');
+  const text = textarea.value.trim();
+  if (!text || text.length < 10) {
+    showToast('Write at least 10 characters first!', 'info'); return;
+  }
+  const btn = document.getElementById('enhance-btn');
+  btn.classList.add('loading');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enhancing...';
+  try {
+    const res = await fetch('/enhance_post', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    const d = await res.json();
+    if (d.enhanced) {
+      textarea.value = d.enhanced;
+      showToast('✨ Post enhanced by AI!', 'success');
+    } else {
+      showToast('Enhancement failed. Try again.', 'error');
+    }
+  } catch {
+    showToast('Network error. Try again.', 'error');
+  }
+  btn.classList.remove('loading');
+  btn.innerHTML = '✨ AI Enhance';
+}
+
+// ===================================================
+// INNOVATION 3: ANONYMOUS CONFESSION BOX
+// ===================================================
+function submitConfession() {
+  const text = document.getElementById('confession-input').value.trim();
+  if (!text) { showToast('Write something first!', 'info'); return; }
+  const tags = [];
+  document.querySelectorAll('#confession-modal .tag-sel-btn.selected').forEach(b => {
+    tags.push(b.getAttribute('onclick').match(/toggleTag\(this,'(.*?)'\)/)[1]);
+  });
+  fetch('/add_post', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: text, anonymous: true, tags })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      closeModal('confession-modal');
+      document.getElementById('confession-input').value = '';
+      showToast('Posted anonymously! 🤫', 'success');
+      setTimeout(() => location.reload(), 1200);
+    }
+  });
+}
+
+// ===================================================
+// INNOVATION 4: REACTION SYSTEM
+// ===================================================
+const REACTIONS = { '❤️':'like', '🔥':'fire', '🎉':'celebrate', '🤔':'think', '💪':'strong' };
+const REACTION_WEIGHTS = { '❤️':1, '🔥':1.5, '🎉':1.2, '🤔':0.8, '💪':1.1 };
+
+function reactPost(postId, emoji, e) {
+  e.stopPropagation();
+  fetch('/react_post', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ post_id: postId, reaction: emoji })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) renderReactions(postId, d.reactions);
+  });
+}
+
+function renderReactions(postId, reactions) {
+  const container = document.getElementById('reactions-' + postId);
+  if (!container) return;
+  container.innerHTML = '';
+  if (!reactions) return;
+  Object.entries(reactions).forEach(([emoji, data]) => {
+    const total = Object.keys(data).length;
+    if (total === 0) return;
+    const isMine = Object.values(data).includes(CURRENT_USER);
+    const chip = document.createElement('span');
+    chip.className = 'reaction-count-chip' + (isMine ? ' mine' : '');
+    chip.innerHTML = emoji + ' ' + total;
+    chip.title = Object.values(data).map(e => e.split('@')[0]).join(', ');
+    chip.onclick = () => reactPost(postId, emoji, {stopPropagation:()=>{}});
+    container.appendChild(chip);
+  });
+}
+
+function renderAllReactions() {
+  fetch('/get_reactions')
+    .then(r => r.json())
+    .then(d => {
+      if (!d.reactions) return;
+      Object.entries(d.reactions).forEach(([postId, reactions]) => {
+        renderReactions(postId, reactions);
+      });
+    })
+    .catch(() => {});
+}
+
+// ===================================================
+// INNOVATION 5: CAMPUS PULSE AI
+// ===================================================
+async function fetchCampusPulse() {
+  const el = document.getElementById('pulse-text');
+  if (!el) return;
+  el.textContent = 'Analyzing campus mood...';
+  try {
+    const res = await fetch('/campus_pulse');
+    const d = await res.json();
+    el.textContent = d.summary || 'Could not generate pulse right now.';
+  } catch {
+    el.textContent = 'Unable to fetch campus pulse.';
+  }
+}
+
+// ===================================================
+// INNOVATION 6: STUDY ROOM
+// ===================================================
+let isStudying = false;
+async function fetchStudyRoom() {
+  try {
+    const res = await fetch('/study_room');
+    const d = await res.json();
+    renderStudyRoom(d.students || []);
+  } catch {}
+}
+
+function renderStudyRoom(students) {
+  const list = document.getElementById('study-list');
+  const dot  = document.getElementById('study-status-dot');
+  const txt  = document.getElementById('study-status-txt');
+  if (!list) return;
+
+  // Check if current user is studying
+  const meStudying = students.find(s => s.email === CURRENT_USER);
+  isStudying = !!meStudying;
+  const btn = document.getElementById('study-btn');
+  if (btn) {
+    btn.textContent = isStudying ? 'Leave' : 'Join';
+    btn.className = 'study-join-btn' + (isStudying ? ' leave' : '');
+  }
+  if (dot) { dot.className = 'study-dot' + (isStudying ? ' active' : ''); }
+  if (txt) { txt.textContent = isStudying ? ('Studying: ' + (meStudying.subject || 'something')) : 'You are not studying'; }
+
+  const others = students.filter(s => s.email !== CURRENT_USER);
+  if (others.length === 0) {
+    list.innerHTML = '<div style="font-size:0.8em;color:var(--text3);text-align:center;padding:8px;">' +
+      (isStudying ? '📖 Studying solo for now...' : 'No one is studying right now 🌙') + '</div>';
+    return;
+  }
+  list.innerHTML = others.map(s => {
+    const name = s.email ? s.email.split('@')[0] : '?';
+    return `<div class="study-item">
+      <div class="study-avatar-sm">${name[0].toUpperCase()}</div>
+      <div>
+        <div class="study-name">${name.charAt(0).toUpperCase() + name.slice(1)}</div>
+        <div style="font-size:0.7em;color:var(--text3);">${s.duration || 'just joined'}</div>
+      </div>
+      <span class="study-subject-tag">${s.subject || 'General'}</span>
+    </div>`;
+  }).join('');
+}
+
+async function toggleStudyRoom() {
+  const subject = document.getElementById('study-subject').value;
+  if (!isStudying && !subject) { showToast('Please pick a subject first!', 'info'); return; }
+  try {
+    const res = await fetch('/study_room', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: isStudying ? 'leave' : 'join', subject })
+    });
+    const d = await res.json();
+    if (d.success) {
+      await fetchStudyRoom();
+      showToast(isStudying ? 'Left the study room 👋' : 'Joined the study room 📚', 'success');
+    }
+  } catch {
+    showToast('Error connecting to study room', 'error');
+  }
+}
+
+// ===================================================
+// INNOVATION 7: MOOD CHECK-IN
+// ===================================================
+function restoreMoodCheckin() {
+  const today = new Date().toDateString();
+  const saved = localStorage.getItem('cc_mood_checkin');
+  if (saved) {
+    const obj = JSON.parse(saved);
+    if (obj.date === today) {
+      document.getElementById('mood-done-msg').textContent = "Today's mood: " + obj.emoji + ' Checked in!';
+      document.getElementById('mood-done-msg').style.display = 'block';
+      document.querySelectorAll('.mood-emoji-btn').forEach(b => b.disabled = true);
+    }
+  }
+}
+
+function checkInMood(emoji, mood) {
+  const today = new Date().toDateString();
+  localStorage.setItem('cc_mood_checkin', JSON.stringify({ date: today, emoji, mood }));
+  document.querySelectorAll('.mood-emoji-btn').forEach(b => {
+    b.disabled = true;
+    if (b.getAttribute('onclick').includes(emoji)) b.classList.add('selected');
+  });
+  document.getElementById('mood-done-msg').textContent = 'Checked in as ' + emoji;
+  document.getElementById('mood-done-msg').style.display = 'block';
+  // Also send to server to update the campus mood chart
+  fetch('/mood_checkin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mood })
+  }).catch(() => {});
+  showToast('Mood checked in! ' + emoji, 'success');
+}
+
+// ===================================================
+// INNOVATION 8: @MENTION AUTOCOMPLETE
+// ===================================================
+let allUsers = [];
+function setupMentionAutocomplete() {
+  // Fetch all users for mention suggestions
+  fetch('/get_users')
+    .then(r => r.json())
+    .then(d => { allUsers = d.users || []; })
+    .catch(() => {});
+
+  const textarea = document.getElementById('post-input');
+  const dropdown = document.getElementById('mention-dropdown');
+  if (!textarea || !dropdown) return;
+
+  textarea.addEventListener('input', () => {
+    const text = textarea.value;
+    const cursor = textarea.selectionStart;
+    const before = text.slice(0, cursor);
+    const match = before.match(/@(\w*)$/);
+    if (!match) { dropdown.style.display = 'none'; return; }
+    const query = match[1].toLowerCase();
+    const matches = allUsers.filter(u => u.toLowerCase().includes(query)).slice(0, 5);
+    if (!matches.length) { dropdown.style.display = 'none'; return; }
+    dropdown.innerHTML = matches.map(u =>
+      `<div class="mention-item" onclick="insertMention('${u}')">
+        <div class="mention-avatar-sm">${u[0].toUpperCase()}</div>
+        @${u}
+      </div>`
+    ).join('');
+    dropdown.style.display = 'block';
+    // Position below textarea
+    const rect = textarea.getBoundingClientRect();
+    dropdown.style.top = textarea.offsetHeight + 'px';
+    dropdown.style.left = '0';
+  });
+
+  document.addEventListener('click', e => {
+    if (!dropdown.contains(e.target) && e.target !== textarea)
+      dropdown.style.display = 'none';
+  });
+}
+
+function insertMention(username) {
+  const textarea = document.getElementById('post-input');
+  const cursor = textarea.selectionStart;
+  const text = textarea.value;
+  const before = text.slice(0, cursor);
+  const after = text.slice(cursor);
+  const newBefore = before.replace(/@\w*$/, '@' + username + ' ');
+  textarea.value = newBefore + after;
+  textarea.focus();
+  document.getElementById('mention-dropdown').style.display = 'none';
+}
+
+// ===================================================
+// SCROLL TO TOP
+// ===================================================
+function setupScrollTop() {
+  const btn = document.getElementById('scroll-top-btn');
+  if (!btn) return;
+  window.addEventListener('scroll', () => {
+    btn.style.display = window.scrollY > 400 ? 'flex' : 'none';
+  });
+}
+
+
 </script>
 
 </body>

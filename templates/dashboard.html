@@ -368,30 +368,90 @@ input, textarea, select { font-family: var(--font); outline: none; }
 
 /* COMMENTS */
 .comments-area { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); display: none; }
-.comment-item { display: flex; gap: 10px; margin-bottom: 10px; }
+
+/* ---- Parent comment ---- */
+.comment-item { display: flex; gap: 10px; margin-bottom: 4px; }
 .comment-avatar {
   width: 30px; height: 30px; border-radius: 99px; flex-shrink: 0;
   background: linear-gradient(135deg, #43e97b, #38f9d7);
   color: #fff; font-weight: 700; font-size: 0.72em;
   display: flex; align-items: center; justify-content: center;
 }
+.comment-body { flex: 1; min-width: 0; }
 .comment-bubble {
   background: var(--surface2); border-radius: 10px 10px 10px 3px;
-  padding: 8px 12px; flex: 1;
+  padding: 8px 12px;
 }
 .comment-bubble .c-author { font-weight: 700; font-size: 0.78em; margin-bottom: 2px; color: var(--primary); }
 .comment-bubble .c-text { font-size: 0.85em; line-height: 1.5; }
-.comment-form { display: flex; gap: 8px; margin-top: 8px; }
+
+/* ---- Comment actions (Reply / time) ---- */
+.comment-actions {
+  display: flex; align-items: center; gap: 12px;
+  padding: 3px 4px 6px; font-size: 0.72em; color: var(--text3);
+}
+.reply-btn {
+  background: none; border: none; color: var(--primary);
+  font-size: 0.72em; font-weight: 700; cursor: pointer; padding: 0;
+  display: flex; align-items: center; gap: 4px;
+  transition: color var(--transition);
+}
+.reply-btn:hover { color: var(--primary-dark); text-decoration: underline; }
+
+/* ---- Replies block ---- */
+.replies-block {
+  margin-left: 14px;
+  border-left: 2px solid var(--primary-light);
+  padding-left: 10px;
+  margin-bottom: 6px;
+}
+.reply-item { display: flex; gap: 8px; margin-bottom: 6px; }
+.reply-avatar {
+  width: 24px; height: 24px; border-radius: 99px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--primary), #7c9df7);
+  color: #fff; font-weight: 700; font-size: 0.65em;
+  display: flex; align-items: center; justify-content: center;
+}
+.reply-bubble {
+  background: var(--surface2); border-radius: 8px 8px 8px 3px;
+  padding: 6px 10px; flex: 1;
+  border: 1px solid var(--border);
+}
+.reply-bubble .r-author { font-weight: 700; font-size: 0.72em; color: var(--primary); margin-bottom: 1px; }
+.reply-bubble .r-text { font-size: 0.82em; line-height: 1.45; }
+
+/* ---- Inline reply input ---- */
+.reply-form {
+  display: none; gap: 6px; margin: 4px 0 8px 14px;
+  border-left: 2px solid var(--primary-light); padding-left: 10px;
+}
+.reply-form.open { display: flex; }
+.reply-form input {
+  flex: 1; padding: 6px 12px; border-radius: 99px;
+  border: 1.5px solid var(--border); background: var(--surface2);
+  color: var(--text); font-size: 0.82em;
+  transition: border-color var(--transition);
+}
+.reply-form input:focus { border-color: var(--primary); outline: none; }
+.reply-form button {
+  padding: 6px 14px; border-radius: 99px;
+  background: var(--primary); color: white; font-size: 0.78em; font-weight: 700;
+  border: none; cursor: pointer; transition: all var(--transition);
+}
+.reply-form button:hover { background: var(--primary-dark); }
+
+/* ---- Main comment form ---- */
+.comment-form { display: flex; gap: 8px; margin-top: 10px; }
 .comment-form input {
   flex: 1; padding: 8px 14px; border-radius: 99px;
   border: 1.5px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.85em;
   transition: border-color var(--transition);
 }
-.comment-form input:focus { border-color: var(--primary); }
+.comment-form input:focus { border-color: var(--primary); outline: none; }
 .comment-form button {
   padding: 8px 16px; border-radius: 99px;
   background: var(--primary); color: white; font-size: 0.82em; font-weight: 700;
-  transition: all var(--transition);
+  border: none; cursor: pointer; transition: all var(--transition);
 }
 .comment-form button:hover { background: var(--primary-dark); }
 
@@ -411,17 +471,38 @@ input, textarea, select { font-family: var(--font); outline: none; }
 .widget-title i { color: var(--primary); font-size: 0.95em; }
 
 /* EVENTS WIDGET */
-.event-item { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+.event-item {
+  display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start;
+  background: var(--surface2); border-radius: var(--radius-sm);
+  padding: 10px; border: 1px solid var(--border);
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+.event-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
 .event-item:last-child { margin-bottom: 0; }
 .event-date-box {
-  background: var(--primary-light); color: var(--primary);
-  border-radius: var(--radius-sm); padding: 6px 10px; text-align: center;
-  min-width: 46px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--primary), #5c8cf5);
+  color: #fff; border-radius: 10px; padding: 8px 10px; text-align: center;
+  min-width: 46px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(33,98,199,0.25);
 }
-.event-date-box .eday { font-size: 1.15em; font-weight: 800; display: block; }
-.event-date-box .emon { font-size: 0.65em; font-weight: 700; text-transform: uppercase; }
-.event-info .etitle { font-size: 0.85em; font-weight: 700; margin-bottom: 2px; }
-.event-info .evenue { font-size: 0.75em; color: var(--text3); display: flex; align-items: center; gap: 4px; }
+.event-date-box .eday { font-size: 1.2em; font-weight: 900; display: block; line-height: 1; }
+.event-date-box .emon { font-size: 0.6em; font-weight: 700; text-transform: uppercase; opacity: 0.88; }
+.event-info { flex: 1; min-width: 0; }
+.event-info .etitle { font-size: 0.85em; font-weight: 700; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.event-info .evenue { font-size: 0.73em; color: var(--text3); display: flex; align-items: center; gap: 4px; }
+.event-info .ecountdown { font-size: 0.68em; font-weight: 700; color: var(--primary); margin-top: 3px; background: var(--primary-light); display: inline-block; padding: 1px 7px; border-radius: 99px; }
+.event-category-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 0.62em; font-weight: 700; padding: 2px 7px; border-radius: 99px; margin-bottom: 4px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.ecat-academic { background: rgba(33,98,199,0.12); color: #2162c7; }
+.ecat-cultural { background: rgba(132,94,247,0.12); color: #845ef7; }
+.ecat-sports   { background: rgba(64,192,87,0.12);  color: #2f9e44; }
+.ecat-workshop { background: rgba(253,126,20,0.12); color: #e8590c; }
+.ecat-placement{ background: rgba(240,62,62,0.12);  color: #c92a2a; }
+.ecat-club     { background: rgba(12,166,166,0.12); color: #0c8599; }
+.ecat-other    { background: rgba(134,142,150,0.12);color: #495057; }
 
 /* LEADERBOARD */
 .leader-item {
@@ -496,10 +577,39 @@ input, textarea, select { font-family: var(--font); outline: none; }
 .modal-close { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); width: 32px; height: 32px; border-radius: 99px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1em; transition: all var(--transition); }
 .modal-close:hover { background: var(--accent); color: white; border-color: var(--accent); }
 
-.event-card-modal { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px; }
-.event-card-modal .em-title { font-weight: 700; margin-bottom: 6px; font-size: 0.95em; }
-.event-card-modal .em-meta { color: var(--text2); font-size: 0.8em; display: flex; gap: 14px; flex-wrap: wrap; }
+.event-card-modal {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 16px; margin-bottom: 12px;
+  position: relative; transition: box-shadow 0.2s;
+}
+.event-card-modal:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+.event-card-modal .em-title { font-weight: 800; margin-bottom: 6px; font-size: 1em; }
+.event-card-modal .em-meta { color: var(--text2); font-size: 0.8em; display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
 .event-card-modal .em-meta span { display: flex; align-items: center; gap: 4px; }
+.event-card-modal .em-desc { font-size: 0.83em; color: var(--text2); line-height: 1.6; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.event-edit-form { background: var(--bg); border: 1.5px solid var(--primary); border-radius: var(--radius-sm); padding: 14px; margin-top: 10px; display: none; }
+.event-edit-form.open { display: block; }
+.em-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.em-btn { font-size: 0.78em; padding: 5px 14px; border-radius: 99px; cursor: pointer; font-weight: 600; border: 1.5px solid; transition: all 0.18s; }
+.em-btn-edit { border-color: var(--border); background: var(--surface2); color: var(--text2); }
+.em-btn-edit:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.em-btn-del  { border-color: var(--accent); background: transparent; color: var(--accent); }
+.em-btn-del:hover  { background: var(--accent); color: #fff; }
+.em-btn-save { border-color: var(--primary); background: var(--primary); color: #fff; }
+.em-btn-save:hover { opacity: 0.88; }
+.em-btn-cancel { border-color: var(--border); background: transparent; color: var(--text3); }
+
+/* Add Event Form Styles */
+.add-event-section { margin-top: 18px; padding-top: 18px; border-top: 2px dashed var(--border); }
+.add-event-section .ae-title { font-size: 0.92em; font-weight: 800; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+.event-category-selector { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.ecat-btn { font-size: 0.72em; padding: 4px 11px; border-radius: 99px; border: 1.5px solid var(--border); background: var(--surface2); cursor: pointer; font-weight: 600; transition: all 0.18s; }
+.ecat-btn.selected { border-color: var(--primary); background: var(--primary); color: #fff; }
+.event-modal-header-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.event-count-badge { background: var(--primary-light); color: var(--primary); font-size: 0.78em; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+.events-empty { text-align: center; padding: 30px 0; }
+.events-empty .empty-icon { font-size: 2.5em; margin-bottom: 10px; }
+.events-empty p { color: var(--text3); font-size: 0.88em; }
 
 .form-group { margin-bottom: 14px; }
 .form-group label { display: block; font-size: 0.8em; font-weight: 700; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
@@ -691,8 +801,16 @@ input, textarea, select { font-family: var(--font); outline: none; }
 .study-status-row {
   display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
 }
-.study-dot { width: 9px; height: 9px; border-radius: 99px; background: var(--border); }
-.study-dot.active { background: #2fb86e; box-shadow: 0 0 0 3px rgba(47,184,110,0.2); }
+.study-dot { width: 9px; height: 9px; border-radius: 99px; background: var(--border); transition: all 0.3s; }
+.study-dot.active {
+  background: #2fb86e;
+  box-shadow: 0 0 0 3px rgba(47,184,110,0.2);
+  animation: studyPulse 2s ease-in-out infinite;
+}
+@keyframes studyPulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(47,184,110,0.2); }
+  50% { box-shadow: 0 0 0 6px rgba(47,184,110,0.08); }
+}
 .study-item {
   display: flex; align-items: center; gap: 8px; padding: 7px 0;
   border-bottom: 1px solid var(--border); font-size: 0.82em;
@@ -823,6 +941,32 @@ input, textarea, select { font-family: var(--font); outline: none; }
 /* filter tag active */
 .feed-tab.tag-active { background: var(--primary); color: white; }
 
+
+/* ===== QUIZ STYLES ===== */
+.quiz-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--surface2);
+  cursor: pointer; font-size: 0.88em; font-weight: 500;
+  transition: all 0.18s; text-align: left; width: 100%;
+  font-family: var(--font); color: var(--text);
+}
+.quiz-option:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+.quiz-option .opt-label {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  background: var(--border); color: var(--text2); font-weight: 800;
+  font-size: 0.82em; display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+}
+.quiz-option:hover:not(:disabled) .opt-label { background: var(--primary); color: #fff; }
+.quiz-option.correct { border-color: var(--accent3) !important; background: rgba(47,184,110,0.12) !important; color: var(--accent3) !important; }
+.quiz-option.correct .opt-label { background: var(--accent3); color: #fff; }
+.quiz-option.wrong   { border-color: var(--accent) !important;  background: rgba(240,62,62,0.1) !important;  color: var(--accent) !important; }
+.quiz-option.wrong   .opt-label  { background: var(--accent);   color: #fff; }
+.quiz-option.reveal  { border-color: var(--accent3) !important; background: rgba(47,184,110,0.06) !important; opacity: 0.7; }
+.quiz-option:disabled { cursor: default; }
+@keyframes quizPanelIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+#sr-panel-quiz, #sr-panel-result { animation: quizPanelIn 0.28s ease; }
 </style>
 </head>
 
@@ -909,6 +1053,7 @@ input, textarea, select { font-family: var(--font); outline: none; }
       <button class="nav-item" onclick="filterTab('my',this)"><i class="fas fa-user"></i> My Posts</button>
       <button class="nav-item" onclick="filterTab('bookmarked',this)"><i class="fas fa-bookmark"></i> Bookmarks</button>
       <button class="nav-item" onclick="openModal('events-modal')"><i class="fas fa-calendar"></i> Events</button>
+      <button class="nav-item" onclick="openStudyRoomModal()"><i class="fas fa-book-open"></i> Study Room</button>
       <button class="nav-item" onclick="openModal('profile-modal')"><i class="fas fa-id-card"></i> My Profile</button>
       {% if role == 'admin' %}
       <button class="nav-item" onclick="openModal('events-modal')"><i class="fas fa-tools"></i> Manage Events</button>
@@ -1097,14 +1242,65 @@ input, textarea, select { font-family: var(--font); outline: none; }
 
         <!-- Comments -->
         <div class="comments-area" id="comments-{{ key }}">
-          {% set comments_list = post.comments.values() if post.comments is mapping else (post.comments if post.comments else []) %}
+          {# Firebase stores comments as a dict keyed by UUID - handle both dict and list #}
+          {% if post.comments is mapping %}
+            {% set comments_list = post.comments.values() | list %}
+          {% elif post.comments %}
+            {% set comments_list = post.comments %}
+          {% else %}
+            {% set comments_list = [] %}
+          {% endif %}
           {% for c in comments_list %}
           {% if c and c.user is defined %}
-          <div class="comment-item">
+          {% set cid = c.id if c.id is defined else loop.index0|string %}
+          <div class="comment-item" id="comment-{{ key }}-{{ cid }}">
             <div class="comment-avatar">{{ c.user[0]|upper if c.user else '?' }}</div>
-            <div class="comment-bubble">
-              <div class="c-author">{{ c.user.split('@')[0]|title if c.user else 'User' }}</div>
-              <div class="c-text">{{ c.comment|e if c.comment else '' }}</div>
+            <div class="comment-body">
+              <div class="comment-bubble">
+                <div class="c-author">{{ c.user.split('@')[0]|title if c.user else 'User' }}</div>
+                <div class="c-text">{{ c.comment|e if c.comment else '' }}</div>
+              </div>
+              <div class="comment-actions">
+                <span>{{ c.timestamp if c.timestamp is defined else '' }}</span>
+                <button class="reply-btn" onclick="toggleReplyForm('{{ key }}', '{{ cid }}')">
+                  <i class="fas fa-reply"></i> Reply
+                </button>
+              </div>
+              <!-- Existing replies: Firebase stores as dict, iterate .values() -->
+              {% if c.replies %}
+                {% if c.replies is mapping %}
+                  {% set reply_list = c.replies.values() | list %}
+                {% else %}
+                  {% set reply_list = c.replies %}
+                {% endif %}
+                {% if reply_list | length > 0 %}
+                <div class="replies-block" id="replies-{{ key }}-{{ cid }}">
+                  {% for r in reply_list %}
+                  {% if r and r.user is defined %}
+                  <div class="reply-item">
+                    <div class="reply-avatar">{{ r.user[0]|upper if r.user else '?' }}</div>
+                    <div class="reply-bubble">
+                      <div class="r-author">{{ r.user.split('@')[0]|title if r.user else 'User' }}</div>
+                      <div class="r-text">{{ r.reply|e if r.reply else '' }}</div>
+                      <div style="font-size:0.65em;color:var(--text3);margin-top:2px;">{{ r.timestamp if r.timestamp is defined else '' }}</div>
+                    </div>
+                  </div>
+                  {% endif %}
+                  {% endfor %}
+                </div>
+                {% else %}
+                <div class="replies-block" id="replies-{{ key }}-{{ cid }}" style="display:none;"></div>
+                {% endif %}
+              {% else %}
+              <div class="replies-block" id="replies-{{ key }}-{{ cid }}" style="display:none;"></div>
+              {% endif %}
+              <!-- Inline reply input — hidden until Reply is clicked -->
+              <form class="reply-form" id="reply-form-{{ key }}-{{ cid }}"
+                    data-post-id="{{ key }}" data-comment-id="{{ cid }}"
+                    onsubmit="submitReply(event)">
+                <input type="text" placeholder="Write a reply…" maxlength="200">
+                <button type="submit"><i class="fas fa-paper-plane"></i></button>
+              </form>
             </div>
           </div>
           {% endif %}
@@ -1127,22 +1323,34 @@ input, textarea, select { font-family: var(--font); outline: none; }
       <div class="widget-title"><i class="fas fa-calendar-alt"></i> Upcoming Events</div>
       {% if events %}
         {% for event in events[:3] %}
-        <div class="event-item">
+        <div class="event-item" onclick="openModal('events-modal')" title="Click to see all events">
           <div class="event-date-box">
-            <span class="eday">{{ event.datetime[:2] if event.datetime else '?' }}</span>
-            <span class="emon">{{ event.datetime[3:6] if event.datetime|length > 5 else 'TBD' }}</span>
+            {% if event.datetime %}
+              <span class="eday">{{ event.datetime[8:10] if event.datetime|length >= 10 else event.datetime[:2] }}</span>
+              <span class="emon">{{ event.datetime[5:7] if event.datetime|length >= 7 else 'TBD' }}</span>
+            {% else %}
+              <span class="eday">?</span>
+              <span class="emon">TBD</span>
+            {% endif %}
           </div>
           <div class="event-info">
+            {% if event.category %}
+            <div class="event-category-badge ecat-{{ event.category }}">{{ event.category }}</div>
+            {% endif %}
             <div class="etitle">{{ event.title }}</div>
             <div class="evenue"><i class="fas fa-map-marker-alt"></i> {{ event.venue or 'TBA' }}</div>
+            <div class="ecountdown" data-eventdt="{{ event.datetime }}">Loading...</div>
           </div>
         </div>
         {% endfor %}
       {% else %}
-        <div style="color:var(--text3);font-size:0.85em;text-align:center;padding:12px 0;">No upcoming events</div>
+        <div style="color:var(--text3);font-size:0.85em;text-align:center;padding:16px 0;">
+          <div style="font-size:1.8em;margin-bottom:6px;">📅</div>
+          No upcoming events yet
+        </div>
       {% endif %}
-      <button style="width:100%;padding:8px;border-radius:99px;background:var(--primary-light);color:var(--primary);font-size:0.82em;font-weight:700;border:none;margin-top:10px;cursor:pointer;" onclick="openModal('events-modal')">
-        View All Events →
+      <button style="width:100%;padding:9px;border-radius:99px;background:var(--primary-light);color:var(--primary);font-size:0.82em;font-weight:700;border:none;margin-top:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;" onclick="openModal('events-modal')">
+        <i class="fas fa-calendar-alt"></i> View All Events →
       </button>
     </div>
 
@@ -1186,13 +1394,17 @@ input, textarea, select { font-family: var(--font); outline: none; }
       <div class="study-status-row">
         <div class="study-dot" id="study-status-dot"></div>
         <span id="study-status-txt" style="font-size:0.8em;color:var(--text3);">You are not studying</span>
+        <span id="study-count-badge" style="display:none;margin-left:auto;font-size:0.72em;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--primary-light);color:var(--primary);"></span>
       </div>
       <div id="study-list">
-        <div style="font-size:0.8em;color:var(--text3);text-align:center;padding:8px;">No one is studying right now 🌙</div>
+        <div style="font-size:0.8em;color:var(--text3);text-align:center;padding:12px 0;">No one is studying right now 🌙<br><span style="font-size:0.9em;">Be the first to join!</span></div>
       </div>
       <div class="study-join-row">
         <select id="study-subject">
           <option value="">Pick subject...</option>
+          <option>MAD</option>
+          <option>BEEE</option>
+          <option>SENSORS</option>
           <option>Mathematics</option>
           <option>Physics</option>
           <option>Chemistry</option>
@@ -1205,6 +1417,9 @@ input, textarea, select { font-family: var(--font); outline: none; }
           <option>Other</option>
         </select>
         <button class="study-join-btn" id="study-btn" onclick="toggleStudyRoom()">Join</button>
+      </div>
+      <div id="study-my-timer" style="display:none;margin-top:8px;text-align:center;font-size:0.75em;color:var(--accent3);font-weight:700;padding:4px;background:rgba(47,184,110,0.08);border-radius:var(--radius-sm);">
+        ⏱ Studying for: <span id="study-timer-display">0:00</span>
       </div>
     </div>
 
@@ -1221,39 +1436,129 @@ input, textarea, select { font-family: var(--font); outline: none; }
 
 <!-- ===== EVENTS MODAL ===== -->
 <div class="modal-overlay" id="events-modal">
-  <div class="modal">
+  <div class="modal" style="max-width:520px;">
     <div class="modal-header">
-      <div class="modal-title">📅 Events</div>
+      <div class="event-modal-header-meta">
+        <div class="modal-title">📅 Campus Events</div>
+        <span class="event-count-badge">{{ events|length }} Event{{ 's' if events|length != 1 else '' }}</span>
+      </div>
       <button class="modal-close" onclick="closeModal('events-modal')">×</button>
     </div>
-    <div id="events-modal-list">
-      {% for event in events %}
-      <div class="event-card-modal">
-        <div class="em-title">{{ event.title }}</div>
-        <div class="em-meta">
-          <span><i class="fas fa-calendar"></i> {{ event.datetime or 'TBD' }}</span>
-          <span><i class="fas fa-map-marker-alt"></i> {{ event.venue or 'TBA' }}</span>
-        </div>
-        {% if event.desc %}<div style="font-size:0.82em;color:var(--text2);margin-top:8px;">{{ event.desc }}</div>{% endif %}
-        {% if role == 'admin' %}
-        <div style="margin-top:10px;display:flex;gap:8px;">
-          <button onclick="editEvent('{{ event.id }}','{{ event.title }}','{{ event.desc }}','{{ event.datetime }}','{{ event.venue }}')" style="font-size:0.78em;padding:5px 12px;border-radius:99px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;">Edit</button>
-          <button onclick="deleteEvent('{{ event.id }}')" style="font-size:0.78em;padding:5px 12px;border-radius:99px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;">Delete</button>
-        </div>
-        {% endif %}
-      </div>
-      {% else %}
-      <div style="text-align:center;color:var(--text3);padding:24px;font-size:0.88em;">No events yet. Check back soon!</div>
-      {% endfor %}
+
+    <!-- Event Filter Tabs -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="event-filter-tabs">
+      <button class="ecat-btn selected" onclick="filterEvents('all',this)">🗓 All</button>
+      <button class="ecat-btn" onclick="filterEvents('academic',this)">📚 Academic</button>
+      <button class="ecat-btn" onclick="filterEvents('cultural',this)">🎭 Cultural</button>
+      <button class="ecat-btn" onclick="filterEvents('sports',this)">⚽ Sports</button>
+      <button class="ecat-btn" onclick="filterEvents('workshop',this)">🔧 Workshop</button>
+      <button class="ecat-btn" onclick="filterEvents('placement',this)">💼 Placement</button>
+      <button class="ecat-btn" onclick="filterEvents('club',this)">🎉 Club</button>
     </div>
+
+    <div id="events-modal-list">
+      {% if events %}
+        {% for event in events %}
+        <div class="event-card-modal" data-category="{{ event.category or 'other' }}" data-eventid="{{ event.id }}">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+            <div style="flex:1;min-width:0;">
+              {% if event.category %}
+              <div class="event-category-badge ecat-{{ event.category }}" style="margin-bottom:6px;">
+                {% if event.category == 'academic' %}📚{% elif event.category == 'cultural' %}🎭{% elif event.category == 'sports' %}⚽{% elif event.category == 'workshop' %}🔧{% elif event.category == 'placement' %}💼{% elif event.category == 'club' %}🎉{% else %}📌{% endif %}
+                {{ event.category | title }}
+              </div>
+              {% endif %}
+              <div class="em-title">{{ event.title }}</div>
+            </div>
+            <div style="text-align:center;background:linear-gradient(135deg,var(--primary),#5c8cf5);color:#fff;border-radius:10px;padding:8px 12px;min-width:52px;flex-shrink:0;box-shadow:0 2px 8px rgba(33,98,199,0.25);">
+              {% if event.datetime and event.datetime|length >= 10 %}
+              <div style="font-size:1.3em;font-weight:900;line-height:1;">{{ event.datetime[8:10] }}</div>
+              <div style="font-size:0.62em;font-weight:700;opacity:0.9;">
+                {% set m = event.datetime[5:7] %}
+                {% if m == '01' %}JAN{% elif m == '02' %}FEB{% elif m == '03' %}MAR{% elif m == '04' %}APR{% elif m == '05' %}MAY{% elif m == '06' %}JUN{% elif m == '07' %}JUL{% elif m == '08' %}AUG{% elif m == '09' %}SEP{% elif m == '10' %}OCT{% elif m == '11' %}NOV{% else %}DEC{% endif %}
+              </div>
+              {% else %}
+              <div style="font-size:1em;font-weight:900;">TBD</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="em-meta" style="margin-top:8px;">
+            {% if event.datetime %}<span><i class="fas fa-clock"></i> {{ event.datetime.replace('T',' ') }}</span>{% endif %}
+            {% if event.venue %}<span><i class="fas fa-map-marker-alt"></i> {{ event.venue }}</span>{% endif %}
+          </div>
+          {% if event.desc %}
+          <div class="em-desc">{{ event.desc }}</div>
+          {% endif %}
+          <div class="ecountdown" data-eventdt="{{ event.datetime }}" style="font-size:0.72em;font-weight:700;color:var(--primary);margin-top:8px;background:var(--primary-light);display:inline-block;padding:2px 10px;border-radius:99px;"></div>
+
+          {% if role == 'admin' %}
+          <div class="em-actions">
+            <button class="em-btn em-btn-edit" onclick="toggleEditForm('{{ event.id }}')"><i class="fas fa-pen"></i> Edit</button>
+            <button class="em-btn em-btn-del" onclick="deleteEvent('{{ event.id }}')"><i class="fas fa-trash"></i> Delete</button>
+          </div>
+          <!-- Inline Edit Form -->
+          <div class="event-edit-form" id="edit-form-{{ event.id }}">
+            <div style="font-size:0.82em;font-weight:800;margin-bottom:10px;color:var(--primary);">✏️ Edit Event</div>
+            <div class="form-group" style="margin-bottom:10px;"><label>Title</label><input type="text" id="ef-title-{{ event.id }}" value="{{ event.title }}" placeholder="Event title"></div>
+            <div class="form-group" style="margin-bottom:10px;"><label>Description</label><textarea id="ef-desc-{{ event.id }}" rows="2" placeholder="Event details...">{{ event.desc or '' }}</textarea></div>
+            <div class="form-group" style="margin-bottom:10px;"><label>Date & Time</label><input type="datetime-local" id="ef-dt-{{ event.id }}" value="{{ event.datetime }}"></div>
+            <div class="form-group" style="margin-bottom:10px;"><label>Venue</label><input type="text" id="ef-venue-{{ event.id }}" value="{{ event.venue or '' }}" placeholder="e.g. Main Auditorium"></div>
+            <div class="form-group" style="margin-bottom:10px;"><label>Category</label>
+              <select id="ef-cat-{{ event.id }}" style="width:100%;padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:0.9em;">
+                <option value="academic" {% if event.category == 'academic' %}selected{% endif %}>📚 Academic</option>
+                <option value="cultural" {% if event.category == 'cultural' %}selected{% endif %}>🎭 Cultural</option>
+                <option value="sports"   {% if event.category == 'sports'   %}selected{% endif %}>⚽ Sports</option>
+                <option value="workshop" {% if event.category == 'workshop' %}selected{% endif %}>🔧 Workshop</option>
+                <option value="placement"{% if event.category == 'placement'%}selected{% endif %}>💼 Placement</option>
+                <option value="club"     {% if event.category == 'club'     %}selected{% endif %}>🎉 Club</option>
+                <option value="other"    {% if not event.category or event.category == 'other' %}selected{% endif %}>📌 Other</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="em-btn em-btn-save" onclick="saveEditEvent('{{ event.id }}')"><i class="fas fa-check"></i> Save</button>
+              <button class="em-btn em-btn-cancel" onclick="toggleEditForm('{{ event.id }}')">Cancel</button>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="events-empty">
+        <div class="empty-icon">📅</div>
+        <p>No events yet.<br>{% if role == 'admin' %}Add one below!{% else %}Check back soon!{% endif %}</p>
+      </div>
+      {% endif %}
+    </div>
+
     {% if role == 'admin' %}
-    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
-      <div class="modal-title" style="font-size:0.95em;margin-bottom:14px;">➕ Add New Event</div>
-      <div class="form-group"><label>Event Title</label><input type="text" id="event-title" placeholder="e.g. Tech Symposium 2025"></div>
-      <div class="form-group"><label>Description</label><textarea id="event-desc" placeholder="Event details..."></textarea></div>
-      <div class="form-group"><label>Date & Time</label><input type="datetime-local" id="event-datetime"></div>
-      <div class="form-group"><label>Venue</label><input type="text" id="event-venue" placeholder="e.g. Main Auditorium"></div>
-      <button class="form-submit" onclick="addEvent()">Add Event</button>
+    <div class="add-event-section">
+      <div class="ae-title"><i class="fas fa-plus-circle" style="color:var(--primary);"></i> Add New Event</div>
+
+      <div class="form-group"><label>Event Title *</label><input type="text" id="event-title" placeholder="e.g. Tech Symposium 2025"></div>
+      <div class="form-group"><label>Description</label><textarea id="event-desc" rows="3" placeholder="What's happening? Share details..."></textarea></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group"><label>Date & Time *</label><input type="datetime-local" id="event-datetime"></div>
+        <div class="form-group"><label>Venue *</label><input type="text" id="event-venue" placeholder="e.g. Main Auditorium"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <div class="event-category-selector">
+          <button class="ecat-btn selected" data-cat="academic" onclick="selectCategory(this)">📚 Academic</button>
+          <button class="ecat-btn" data-cat="cultural"  onclick="selectCategory(this)">🎭 Cultural</button>
+          <button class="ecat-btn" data-cat="sports"    onclick="selectCategory(this)">⚽ Sports</button>
+          <button class="ecat-btn" data-cat="workshop"  onclick="selectCategory(this)">🔧 Workshop</button>
+          <button class="ecat-btn" data-cat="placement" onclick="selectCategory(this)">💼 Placement</button>
+          <button class="ecat-btn" data-cat="club"      onclick="selectCategory(this)">🎉 Club</button>
+          <button class="ecat-btn" data-cat="other"     onclick="selectCategory(this)">📌 Other</button>
+        </div>
+        <input type="hidden" id="event-category" value="academic">
+      </div>
+
+      <button class="form-submit" onclick="addEvent()" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+        <i class="fas fa-plus"></i> Add Event
+      </button>
     </div>
     {% endif %}
   </div>
@@ -1307,7 +1612,7 @@ input, textarea, select { font-family: var(--font); outline: none; }
   <button class="fab-mini fab-confession" onclick="openModal('confession-modal')" title="Confession Box">
     <i class="fas fa-user-secret"></i>
   </button>
-  <button class="fab-mini fab-study" onclick="document.querySelector('.study-room-widget').scrollIntoView({behavior:'smooth'})" title="Study Room">
+  <button class="fab-mini fab-study" onclick="openStudyRoomModal()" title="Study Room">
     <i class="fas fa-book-open"></i>
   </button>
 </div>
@@ -1316,6 +1621,173 @@ input, textarea, select { font-family: var(--font); outline: none; }
 <button class="scroll-top-btn" id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">
   <i class="fas fa-chevron-up"></i>
 </button>
+
+<!-- ===== STUDY ROOM MODAL ===== -->
+<div class="modal-overlay" id="study-room-modal">
+  <div class="modal" style="max-width:520px;width:96%;">
+
+    <!-- PANEL 1: LOBBY -->
+    <div id="sr-panel-lobby">
+      <div class="modal-header">
+        <div class="modal-title">📚 Study Room</div>
+        <button class="modal-close" onclick="closeModal('study-room-modal')">×</button>
+      </div>
+
+      <!-- Status bar -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);">
+        <div class="study-dot" id="modal-study-dot"></div>
+        <span id="modal-study-txt" style="font-size:0.88em;color:var(--text2);font-weight:600;flex:1;">You are not in the study room</span>
+        <span id="modal-study-count" style="display:none;font-size:0.72em;font-weight:700;padding:2px 10px;border-radius:99px;background:var(--primary-light);color:var(--primary);"></span>
+      </div>
+
+      <!-- Session timer (shown when studying) -->
+      <div id="modal-study-timer" style="display:none;text-align:center;padding:8px;margin-bottom:14px;background:rgba(47,184,110,0.08);border:1px solid rgba(47,184,110,0.2);border-radius:var(--radius-sm);">
+        <div style="font-size:0.72em;color:var(--accent3);font-weight:700;margin-bottom:2px;">⏱ SESSION TIME</div>
+        <div id="modal-timer-display" style="font-size:1.6em;font-weight:800;color:var(--accent3);font-family:var(--mono);">0:00</div>
+      </div>
+
+      <!-- Members list -->
+      <div style="margin-bottom:14px;">
+        <div style="font-size:0.72em;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">
+          <i class="fas fa-users" style="color:var(--primary);"></i> Currently Studying
+        </div>
+        <div id="modal-study-list" style="max-height:180px;overflow-y:auto;"></div>
+      </div>
+
+      <!-- Join controls -->
+      <div id="modal-join-controls">
+        <div style="font-size:0.72em;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">
+          <i class="fas fa-book" style="color:var(--primary);"></i> Pick Your Subject
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <select id="modal-study-subject" style="flex:1;padding:9px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--font);font-size:0.88em;">
+            <option value="">Choose subject...</option>
+            <option>MAD</option>
+            <option>BEEE</option>
+            <option>SENSORS</option>
+            <option>Mathematics</option>
+            <option>Physics</option>
+            <option>Chemistry</option>
+            <option>Programming</option>
+            <option>Data Structures</option>
+            <option>Networks</option>
+            <option>DBMS</option>
+            <option>Machine Learning</option>
+            <option>Operating Systems</option>
+            <option>Other</option>
+          </select>
+          <button class="study-join-btn" id="modal-study-btn" onclick="toggleStudyRoomModal()" style="padding:9px 20px;white-space:nowrap;">Join</button>
+        </div>
+
+        <!-- Quiz launch button (shown only when studying) -->
+        <div id="quiz-launch-area" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+            <div>
+              <label style="font-size:0.72em;font-weight:700;color:var(--text3);display:block;margin-bottom:4px;">QUESTIONS</label>
+              <select id="quiz-count-select" style="width:100%;padding:8px 10px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--font);font-size:0.85em;">
+                <option value="5">5 Questions</option>
+                <option value="10" selected>10 Questions</option>
+                <option value="12">12 Questions</option>
+                <option value="15">15 Questions</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:flex-end;">
+              <button id="generate-quiz-btn" onclick="startQuiz()"
+                style="width:100%;padding:9px 0;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--primary),#4a7cf7);color:#fff;font-weight:700;font-size:0.88em;border:none;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.2s;">
+                <i class="fas fa-bolt"></i> Generate Quiz
+              </button>
+            </div>
+          </div>
+          <div id="quiz-generating-msg" style="display:none;text-align:center;padding:10px;font-size:0.82em;color:var(--primary);">
+            <i class="fas fa-spinner fa-spin"></i> Generating questions with AI… <span id="quiz-gen-dots"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tip -->
+      <div style="margin-top:12px;padding:8px 12px;background:var(--primary-light);border-radius:var(--radius-sm);font-size:0.76em;color:var(--primary);display:flex;gap:8px;align-items:flex-start;">
+        <i class="fas fa-lightbulb" style="flex-shrink:0;margin-top:1px;"></i>
+        <span id="study-tip">Join the room, pick a subject, then hit Generate Quiz to test yourself! 🧠</span>
+      </div>
+    </div>
+
+    <!-- PANEL 2: QUIZ IN PROGRESS -->
+    <div id="sr-panel-quiz" style="display:none;">
+      <div class="modal-header" style="margin-bottom:0;">
+        <div>
+          <div class="modal-title" id="quiz-title">📝 Quiz</div>
+          <div style="font-size:0.75em;color:var(--text3);margin-top:2px;" id="quiz-subject-label"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="quiz-timer-box" style="font-size:0.85em;font-weight:800;color:var(--accent);font-family:var(--mono);background:rgba(240,62,62,0.08);padding:4px 10px;border-radius:99px;">⏱ <span id="quiz-timer">30</span>s</div>
+          <button class="modal-close" onclick="quitQuiz()" title="Quit quiz">×</button>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div style="margin:14px 0 6px;">
+        <div style="display:flex;justify-content:space-between;font-size:0.72em;color:var(--text3);margin-bottom:5px;">
+          <span id="quiz-progress-label">Question 1 of 10</span>
+          <span id="quiz-score-live" style="font-weight:700;color:var(--primary);">Score: 0</span>
+        </div>
+        <div style="height:5px;background:var(--border);border-radius:99px;overflow:hidden;">
+          <div id="quiz-progress-bar" style="height:100%;width:10%;background:linear-gradient(90deg,var(--primary),#4a7cf7);border-radius:99px;transition:width 0.4s ease;"></div>
+        </div>
+      </div>
+
+      <!-- Question -->
+      <div id="quiz-question-box" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;margin:14px 0;min-height:64px;">
+        <div id="quiz-q-number" style="font-size:0.7em;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;"></div>
+        <div id="quiz-q-text" style="font-size:0.95em;font-weight:600;line-height:1.55;"></div>
+      </div>
+
+      <!-- Options -->
+      <div id="quiz-options" style="display:grid;gap:8px;"></div>
+
+      <!-- Explanation (shown after answer) -->
+      <div id="quiz-explanation" style="display:none;margin-top:12px;padding:10px 14px;border-radius:var(--radius-sm);font-size:0.82em;line-height:1.5;"></div>
+
+      <!-- Next button -->
+      <button id="quiz-next-btn" onclick="nextQuestion()" style="display:none;width:100%;margin-top:14px;padding:11px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--primary),#4a7cf7);color:#fff;font-weight:700;font-size:0.9em;border:none;cursor:pointer;font-family:var(--font);">
+        Next Question →
+      </button>
+    </div>
+
+    <!-- PANEL 3: RESULTS -->
+    <div id="sr-panel-result" style="display:none;">
+      <div class="modal-header">
+        <div class="modal-title">🏆 Quiz Results</div>
+        <button class="modal-close" onclick="closeQuizResult()">×</button>
+      </div>
+
+      <!-- Score ring -->
+      <div style="text-align:center;padding:20px 0 10px;">
+        <div id="result-emoji" style="font-size:3em;margin-bottom:8px;"></div>
+        <div id="result-score-display" style="font-size:2.8em;font-weight:900;color:var(--primary);line-height:1;"></div>
+        <div id="result-fraction" style="font-size:1em;color:var(--text3);margin-top:4px;font-weight:600;"></div>
+        <div id="result-grade" style="display:inline-block;margin-top:10px;font-size:0.85em;font-weight:800;padding:5px 18px;border-radius:99px;"></div>
+        <div id="result-msg" style="margin-top:10px;font-size:0.85em;color:var(--text2);max-width:320px;margin-left:auto;margin-right:auto;line-height:1.5;"></div>
+      </div>
+
+      <!-- Per-question summary -->
+      <div style="margin:14px 0;">
+        <div style="font-size:0.72em;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:8px;">Question Breakdown</div>
+        <div id="result-breakdown" style="max-height:240px;overflow-y:auto;display:grid;gap:6px;"></div>
+      </div>
+
+      <!-- Action buttons -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;">
+        <button onclick="retakeQuiz()" style="padding:11px;border-radius:var(--radius-sm);background:var(--primary-light);color:var(--primary);font-weight:700;font-size:0.88em;border:1.5px solid var(--primary-light);cursor:pointer;font-family:var(--font);transition:all 0.18s;" onmouseover="this.style.background='var(--primary)';this.style.color='#fff'" onmouseout="this.style.background='var(--primary-light)';this.style.color='var(--primary)'">
+          🔄 Retake Quiz
+        </button>
+        <button onclick="closeQuizResult()" style="padding:11px;border-radius:var(--radius-sm);background:var(--surface2);color:var(--text2);font-weight:700;font-size:0.88em;border:1.5px solid var(--border);cursor:pointer;font-family:var(--font);">
+          ← Back to Room
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <!-- ===== CONFESSION BOX MODAL ===== -->
 <div class="modal-overlay" id="confession-modal">
@@ -1376,10 +1848,27 @@ document.addEventListener('DOMContentLoaded', () => {
   setupMentionAutocomplete();
   fetchCampusPulse();
   fetchStudyRoom();
-  setInterval(fetchStudyRoom, 20000);
+  // Study room refresh — use visibility API to pause when tab is hidden
+  let _studyInterval = setInterval(fetchStudyRoom, 20000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearInterval(_studyInterval);
+    } else {
+      fetchStudyRoom(); // Refresh immediately on tab focus
+      _studyInterval = setInterval(fetchStudyRoom, 20000);
+    }
+  });
   setupScrollTop();
   restoreMoodCheckin();
   renderAllReactions();
+
+  // Keep study subject dropdowns in sync
+  const sidebarSubj = document.getElementById('study-subject');
+  const modalSubj   = document.getElementById('modal-study-subject');
+  if (sidebarSubj && modalSubj) {
+    sidebarSubj.addEventListener('change', () => { modalSubj.value = sidebarSubj.value; });
+    modalSubj.addEventListener('change',   () => { sidebarSubj.value = modalSubj.value; });
+  }
 });
 
 // ===== DARK MODE =====
@@ -1665,40 +2154,150 @@ function toggleComments(id) {
   const el = document.getElementById('comments-' + id);
   el.style.display = el.style.display === 'block' ? 'none' : 'block';
   if (el.style.display === 'block') {
-    const inp = el.querySelector('input');
+    const inp = el.querySelector('.comment-form input');
     if (inp) setTimeout(() => inp.focus(), 100);
   }
 }
-function addComment(id, e) {
+
+function addComment(postId, e) {
   e.preventDefault();
   const inp = e.target.querySelector('input');
   const comment = inp.value.trim();
   if (!comment) return;
   const btn = e.target.querySelector('button');
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  btn.disabled = true;
+
   fetch('/comment_post', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ post_id: id, comment })
+    body: JSON.stringify({ post_id: postId, comment })
   })
   .then(r => r.json())
   .then(d => {
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+    btn.disabled = false;
     if (d.success) {
       inp.value = '';
-      btn.innerHTML = '<i class="fas fa-paper-plane"></i>';
-      const area = document.getElementById('comments-' + id);
+      const cid = d.comment_id; // UUID from server
+      const area = document.getElementById('comments-' + postId);
+      const commentForm = area.querySelector('.comment-form');
+      const name = CURRENT_USER.split('@')[0];
+      const displayName = name.charAt(0).toUpperCase() + name.slice(1);
+      const now = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
       const div = document.createElement('div');
       div.className = 'comment-item';
-      const name = CURRENT_USER.split('@')[0];
-      div.innerHTML = `<div class="comment-avatar">${CURRENT_USER[0].toUpperCase()}</div>
-        <div class="comment-bubble">
-          <div class="c-author">${name.charAt(0).toUpperCase() + name.slice(1)}</div>
-          <div class="c-text">${comment}</div>
+      div.id = `comment-${postId}-${cid}`;
+      div.innerHTML = `
+        <div class="comment-avatar">${CURRENT_USER[0].toUpperCase()}</div>
+        <div class="comment-body">
+          <div class="comment-bubble">
+            <div class="c-author">${displayName}</div>
+            <div class="c-text">${escapeHTML(comment)}</div>
+          </div>
+          <div class="comment-actions">
+            <span>just now</span>
+            <button class="reply-btn" onclick="toggleReplyForm('${postId}', '${cid}')">
+              <i class="fas fa-reply"></i> Reply
+            </button>
+          </div>
+          <div class="replies-block" id="replies-${postId}-${cid}" style="display:none;"></div>
+          <form class="reply-form" id="reply-form-${postId}-${cid}"
+                data-post-id="${postId}" data-comment-id="${cid}"
+                onsubmit="submitReply(event)">
+            <input type="text" placeholder="Write a reply…" maxlength="200">
+            <button type="submit"><i class="fas fa-paper-plane"></i></button>
+          </form>
         </div>`;
-      area.insertBefore(div, e.target);
-      showToast('Comment added!', 'success');
+      area.insertBefore(div, commentForm);
+      showToast('Comment added! 💬', 'success');
+    } else {
+      showToast('Failed to add comment. Try again.', 'error');
     }
+  })
+  .catch(() => {
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+    btn.disabled = false;
+    showToast('Network error. Try again.', 'error');
   });
+}
+
+// Toggle the inline reply form for a comment
+function toggleReplyForm(postId, commentId) {
+  const form = document.getElementById(`reply-form-${postId}-${commentId}`);
+  if (!form) return;
+  const isOpen = form.classList.contains('open');
+  // Close all other open reply forms
+  document.querySelectorAll('.reply-form.open').forEach(f => f.classList.remove('open'));
+  if (!isOpen) {
+    form.classList.add('open');
+    const inp = form.querySelector('input');
+    if (inp) setTimeout(() => inp.focus(), 80);
+  }
+}
+
+// Submit reply — reads post_id and comment_id from form data attributes
+function submitReply(e) {
+  e.preventDefault();
+  const form     = e.target;
+  const postId   = form.dataset.postId;
+  const commentId = form.dataset.commentId;
+  const inp      = form.querySelector('input');
+  const reply    = inp ? inp.value.trim() : '';
+  if (!reply) return;
+
+  const btn = form.querySelector('button');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  btn.disabled = true;
+
+  fetch('/reply_comment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ post_id: postId, comment_id: commentId, reply })
+  })
+  .then(r => r.json())
+  .then(d => {
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+    btn.disabled = false;
+    if (d.success) {
+      inp.value = '';
+      form.classList.remove('open');  // hide reply box
+      const repliesBlock = document.getElementById(`replies-${postId}-${commentId}`);
+      if (repliesBlock) {
+        repliesBlock.style.display = 'block';
+        const name = CURRENT_USER.split('@')[0];
+        const displayName = name.charAt(0).toUpperCase() + name.slice(1);
+        const replyDiv = document.createElement('div');
+        replyDiv.className = 'reply-item';
+        replyDiv.innerHTML = `
+          <div class="reply-avatar">${CURRENT_USER[0].toUpperCase()}</div>
+          <div class="reply-bubble">
+            <div class="r-author">${displayName}</div>
+            <div class="r-text">${escapeHTML(reply)}</div>
+            <div style="font-size:0.65em;color:var(--text3);margin-top:2px;">just now</div>
+          </div>`;
+        repliesBlock.appendChild(replyDiv);
+      }
+      showToast('Reply posted! 💬', 'success');
+    } else {
+      showToast(d.error || 'Failed to post reply. Try again.', 'error');
+    }
+  })
+  .catch(() => {
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+    btn.disabled = false;
+    showToast('Network error. Try again.', 'error');
+  });
+}
+
+// Sanitize user input before inserting into DOM
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
 }
 
 // ===== DELETE POST =====
@@ -1942,39 +2541,71 @@ function countUserLikes() {
 }
 
 // ===== EVENTS =====
+function selectCategory(btn) {
+  document.querySelectorAll('.event-category-selector .ecat-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('event-category').value = btn.dataset.cat;
+}
+
+function filterEvents(cat, btn) {
+  document.querySelectorAll('#event-filter-tabs .ecat-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.querySelectorAll('#events-modal-list .event-card-modal').forEach(card => {
+    if (cat === 'all' || card.dataset.category === cat) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+function toggleEditForm(id) {
+  const form = document.getElementById('edit-form-' + id);
+  form.classList.toggle('open');
+}
+
+function saveEditEvent(id) {
+  const title = document.getElementById('ef-title-' + id).value.trim();
+  const desc  = document.getElementById('ef-desc-' + id).value.trim();
+  const dt    = document.getElementById('ef-dt-' + id).value;
+  const venue = document.getElementById('ef-venue-' + id).value.trim();
+  const cat   = document.getElementById('ef-cat-' + id).value;
+  if (!title) { showToast('Title is required', 'error'); return; }
+  fetch('/edit_event', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event_id: id, title, desc, datetime: dt, venue, category: cat })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) { showToast('Event updated! ✅', 'success'); setTimeout(() => location.reload(), 700); }
+    else showToast(d.msg || 'Failed to update', 'error');
+  });
+}
+
 function addEvent() {
-  const title = document.getElementById('event-title').value.trim();
-  const desc = document.getElementById('event-desc').value.trim();
+  const title    = document.getElementById('event-title').value.trim();
+  const desc     = document.getElementById('event-desc').value.trim();
   const datetime = document.getElementById('event-datetime').value;
-  const venue = document.getElementById('event-venue').value.trim();
-  if (!title || !datetime || !venue) { showToast('Fill all required fields', 'error'); return; }
+  const venue    = document.getElementById('event-venue').value.trim();
+  const category = document.getElementById('event-category').value;
+  if (!title || !datetime || !venue) { showToast('Title, Date & Venue are required', 'error'); return; }
+  const btn = document.querySelector('.add-event-section .form-submit');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
   fetch('/add_event', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, desc, datetime, venue })
+    body: JSON.stringify({ title, desc, datetime, venue, category })
   })
   .then(r => r.json())
   .then(d => {
     if (d.success) { showToast('Event added! 🎉', 'success'); setTimeout(() => location.reload(), 800); }
-    else showToast(d.msg || 'Failed', 'error');
+    else { showToast(d.msg || 'Failed', 'error'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus"></i> Add Event'; }
   });
 }
-function editEvent(id, title, desc, datetime, venue) {
-  const newTitle = prompt('Title:', title);
-  if (!newTitle) return;
-  const newDesc = prompt('Description:', desc);
-  const newDT = prompt('Date & Time (YYYY-MM-DDTHH:MM):', datetime);
-  const newVenue = prompt('Venue:', venue);
-  fetch('/edit_event', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ event_id: id, title: newTitle, desc: newDesc, datetime: newDT, venue: newVenue })
-  })
-  .then(r => r.json())
-  .then(d => { if (d.success) { showToast('Event updated!', 'success'); setTimeout(() => location.reload(), 600); } });
-}
+
 function deleteEvent(id) {
-  if (!confirm('Delete this event?')) return;
+  if (!confirm('Delete this event? This cannot be undone.')) return;
   fetch('/delete_event', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1983,6 +2614,32 @@ function deleteEvent(id) {
   .then(r => r.json())
   .then(d => { if (d.success) { showToast('Event deleted', 'info'); setTimeout(() => location.reload(), 600); } });
 }
+
+// Countdown timers
+function updateCountdowns() {
+  document.querySelectorAll('.ecountdown[data-eventdt]').forEach(el => {
+    const dtStr = el.dataset.eventdt;
+    if (!dtStr) { el.textContent = ''; return; }
+    const now = new Date();
+    const evDate = new Date(dtStr);
+    if (isNaN(evDate)) { el.textContent = ''; return; }
+    const diff = evDate - now;
+    if (diff < 0) {
+      el.textContent = '✅ Concluded';
+      el.style.background = 'rgba(134,142,150,0.12)';
+      el.style.color = '#868e96';
+    } else {
+      const days  = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins  = Math.floor((diff % 3600000) / 60000);
+      if (days > 0)       el.textContent = `⏳ ${days}d ${hours}h away`;
+      else if (hours > 0) el.textContent = `⏳ ${hours}h ${mins}m away`;
+      else                el.textContent = `🔴 Starting in ${mins}m!`;
+    }
+  });
+}
+updateCountdowns();
+setInterval(updateCountdowns, 30000);
 
 // ===== BIO SAVE =====
 function saveBio() {
@@ -2161,46 +2818,40 @@ async function fetchCampusPulse() {
 }
 
 // ===================================================
-// INNOVATION 6: STUDY ROOM
+// INNOVATION 6: STUDY ROOM + AI QUIZ ENGINE
 // ===================================================
-let isStudying = false;
+let isStudying   = false;
+let _studyJoinedMs = null;
+
+const STUDY_TIPS = [
+  "Join the room, pick a subject, then hit Generate Quiz to test yourself! 🧠",
+  "Pomodoro tip: Study 25 min, break 5 min 🍅",
+  "You retain 90% more when you teach what you learn! 🧠",
+  "Studying with peers increases accountability by 65% 📈",
+  "Take a short walk between sessions — it boosts memory! 🚶",
+  "Turn off notifications for deep focus mode 🔕",
+  "Quiz yourself after reading — it doubles retention! 📖",
+];
+
+// ---- Fetch & render study room state ----
 async function fetchStudyRoom() {
   try {
     const res = await fetch('/study_room');
-    const d = await res.json();
+    const d   = await res.json();
     renderStudyRoom(d.students || []);
-  } catch {}
+  } catch(e) { console.warn('Study room fetch failed:', e); }
 }
 
-function renderStudyRoom(students) {
-  const list = document.getElementById('study-list');
-  const dot  = document.getElementById('study-status-dot');
-  const txt  = document.getElementById('study-status-txt');
-  if (!list) return;
-
-  // Check if current user is studying
-  const meStudying = students.find(s => s.email === CURRENT_USER);
-  isStudying = !!meStudying;
-  const btn = document.getElementById('study-btn');
-  if (btn) {
-    btn.textContent = isStudying ? 'Leave' : 'Join';
-    btn.className = 'study-join-btn' + (isStudying ? ' leave' : '');
-  }
-  if (dot) { dot.className = 'study-dot' + (isStudying ? ' active' : ''); }
-  if (txt) { txt.textContent = isStudying ? ('Studying: ' + (meStudying.subject || 'something')) : 'You are not studying'; }
-
-  const others = students.filter(s => s.email !== CURRENT_USER);
-  if (others.length === 0) {
-    list.innerHTML = '<div style="font-size:0.8em;color:var(--text3);text-align:center;padding:8px;">' +
-      (isStudying ? '📖 Studying solo for now...' : 'No one is studying right now 🌙') + '</div>';
-    return;
-  }
-  list.innerHTML = others.map(s => {
-    const name = s.email ? s.email.split('@')[0] : '?';
-    return `<div class="study-item">
-      <div class="study-avatar-sm">${name[0].toUpperCase()}</div>
-      <div>
-        <div class="study-name">${name.charAt(0).toUpperCase() + name.slice(1)}</div>
+function buildStudentHTML(students) {
+  if (!students.length) return '<div style="font-size:0.85em;color:var(--text3);text-align:center;padding:16px 0;">No one is studying right now 🌙<br><span style="font-size:0.9em;opacity:0.7;">Be the first to join!</span></div>';
+  return students.map(s => {
+    const isMe = s.email === CURRENT_USER;
+    const name = (s.email || '?').split('@')[0];
+    const dn   = name.charAt(0).toUpperCase() + name.slice(1);
+    return `<div class="study-item" style="${isMe ? 'background:var(--primary-light);border-radius:8px;padding:7px 8px;margin:0 -4px;' : ''}">
+      <div class="study-avatar-sm" style="${isMe ? 'background:linear-gradient(135deg,var(--accent3),#20c997);' : ''}">${name[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="study-name">${dn}${isMe ? ' <span style="font-size:0.7em;color:var(--primary);">(you)</span>' : ''}</div>
         <div style="font-size:0.7em;color:var(--text3);">${s.duration || 'just joined'}</div>
       </div>
       <span class="study-subject-tag">${s.subject || 'General'}</span>
@@ -2208,26 +2859,453 @@ function renderStudyRoom(students) {
   }).join('');
 }
 
-async function toggleStudyRoom() {
-  const subject = document.getElementById('study-subject').value;
-  if (!isStudying && !subject) { showToast('Please pick a subject first!', 'info'); return; }
+function updateStudyTimer(joinedMs) {
+  const elapsed = Math.floor((Date.now() - joinedMs) / 1000);
+  const h = Math.floor(elapsed / 3600);
+  const m = Math.floor((elapsed % 3600) / 60);
+  const s = elapsed % 60;
+  const t = h > 0
+    ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+    : `${m}:${String(s).padStart(2,'0')}`;
+  ['study-timer-display','modal-timer-display'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t;
+  });
+}
+
+function startStudyTimer(joinedAt) {
+  let ms = joinedAt ? new Date(joinedAt.replace(' ','T')).getTime() : Date.now();
+  if (isNaN(ms)) ms = Date.now();
+  _studyJoinedMs = ms;
+  if (window._studyTimerInterval) clearInterval(window._studyTimerInterval);
+  updateStudyTimer(ms);
+  window._studyTimerInterval = setInterval(() => updateStudyTimer(ms), 1000);
+}
+
+function stopStudyTimer() {
+  if (window._studyTimerInterval) { clearInterval(window._studyTimerInterval); window._studyTimerInterval = null; }
+  _studyJoinedMs = null;
+  ['study-timer-display','modal-timer-display'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '0:00'; });
+}
+
+function renderStudyRoom(students) {
+  const me = students.find(s => s.email === CURRENT_USER);
+  isStudying = !!me;
+
+  // Sidebar
+  const dot   = document.getElementById('study-status-dot');
+  const txt   = document.getElementById('study-status-txt');
+  const badge = document.getElementById('study-count-badge');
+  const list  = document.getElementById('study-list');
+  const timer = document.getElementById('study-my-timer');
+  const btn   = document.getElementById('study-btn');
+
+  if (dot)   dot.className   = 'study-dot' + (isStudying ? ' active' : '');
+  if (txt)   txt.textContent = isStudying ? (students.length > 1 ? `📖 Studying with ${students.length-1} other${students.length>2?'s':''}` : `📖 Studying: ${me.subject||'something'}`) : 'You are not studying';
+  if (badge) { badge.textContent = students.length + ' online'; badge.style.display = students.length ? 'inline' : 'none'; }
+  if (list)  list.innerHTML = buildStudentHTML(students);
+  if (timer) timer.style.display = isStudying ? 'block' : 'none';
+  if (btn)   { btn.textContent = isStudying ? 'Leave' : 'Join'; btn.className = 'study-join-btn' + (isStudying ? ' leave' : ''); btn.disabled = false; }
+
+  // Modal
+  const mDot   = document.getElementById('modal-study-dot');
+  const mTxt   = document.getElementById('modal-study-txt');
+  const mCount = document.getElementById('modal-study-count');
+  const mList  = document.getElementById('modal-study-list');
+  const mTimer = document.getElementById('modal-study-timer');
+  const mBtn   = document.getElementById('modal-study-btn');
+  const mSubj  = document.getElementById('modal-study-subject');
+  const qArea  = document.getElementById('quiz-launch-area');
+  const tip    = document.getElementById('study-tip');
+
+  if (mDot)   mDot.className = 'study-dot' + (isStudying ? ' active' : '');
+  if (mTxt)   { mTxt.textContent = isStudying ? `📖 Studying: ${me.subject||'something'}` : 'You are not in the study room'; mTxt.style.color = isStudying ? 'var(--accent3)' : 'var(--text3)'; }
+  if (mCount) { mCount.textContent = students.length + ' online'; mCount.style.display = students.length ? 'inline' : 'none'; }
+  if (mList)  mList.innerHTML = buildStudentHTML(students);
+  if (mTimer) mTimer.style.display = isStudying ? 'block' : 'none';
+  if (mBtn)   { mBtn.textContent = isStudying ? 'Leave Room' : 'Join Room'; mBtn.className = 'study-join-btn' + (isStudying ? ' leave' : ''); mBtn.disabled = false; }
+  if (mSubj)  mSubj.disabled = isStudying;
+
+  // Show quiz launch area only when studying
+  if (qArea)  qArea.style.display = isStudying ? 'block' : 'none';
+  if (tip)    tip.textContent = STUDY_TIPS[Math.floor(Math.random() * STUDY_TIPS.length)];
+
+  // Timer
+  isStudying && me ? startStudyTimer(me.joined_at || '') : stopStudyTimer();
+}
+
+async function _doStudyToggle(subjectSelectId, btnId) {
+  const subj = document.getElementById(subjectSelectId)?.value || '';
+  if (!isStudying && !subj) { showToast('Pick a subject first! 📚', 'info'); return; }
+  const wasStudying = isStudying;
+  const btn = document.getElementById(btnId);
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
   try {
     const res = await fetch('/study_room', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: isStudying ? 'leave' : 'join', subject })
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: wasStudying ? 'leave' : 'join', subject: subj })
     });
     const d = await res.json();
     if (d.success) {
       await fetchStudyRoom();
-      showToast(isStudying ? 'Left the study room 👋' : 'Joined the study room 📚', 'success');
+      showToast(wasStudying ? 'Left the study room 👋' : 'Joined! Start studying 📚', 'success');
+      if (wasStudying) {
+        ['study-subject','modal-study-subject'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      }
+    } else {
+      showToast('Something went wrong. Try again.', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = wasStudying ? 'Leave' : 'Join'; }
     }
-  } catch {
-    showToast('Error connecting to study room', 'error');
+  } catch(e) {
+    showToast('Network error.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = wasStudying ? 'Leave' : 'Join'; }
   }
 }
 
+function toggleStudyRoom()      { _doStudyToggle('study-subject', 'study-btn'); }
+function toggleStudyRoomModal() { _doStudyToggle('modal-study-subject', 'modal-study-btn'); }
+function openStudyRoomModal()   { openModal('study-room-modal'); fetchStudyRoom(); }
+
 // ===================================================
+// QUIZ ENGINE
+// ===================================================
+let _quiz       = null;   // full quiz object {subject, questions:[]}
+let _qIndex     = 0;      // current question index
+let _score      = 0;      // correct answers so far
+let _answered   = false;  // has current Q been answered
+let _timerInt   = null;   // per-question countdown interval
+let _timeLeft   = 30;     // seconds remaining on current question
+let _userAnswers = [];    // track per-question: {correct, chosen, rightAnswer}
+
+const Q_TIME    = 30;     // seconds per question
+
+async function startQuiz() {
+  const subjEl  = document.getElementById('modal-study-subject');
+  const subject = subjEl ? subjEl.value : '';
+  const countEl = document.getElementById('quiz-count-select');
+  const count   = countEl ? parseInt(countEl.value) : 10;
+
+  if (!subject) { showToast('Pick a subject first! 📚', 'info'); return; }
+
+  // Show generating state
+  const genBtn = document.getElementById('generate-quiz-btn');
+  const genMsg = document.getElementById('quiz-generating-msg');
+  if (genBtn) { genBtn.disabled = true; genBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating…'; }
+  if (genMsg) genMsg.style.display = 'block';
+
+  // Animate dots
+  let dotCount = 0;
+  const dotsEl = document.getElementById('quiz-gen-dots');
+  const dotAnim = setInterval(() => { if (dotsEl) dotsEl.textContent = '.'.repeat(++dotCount % 4); }, 400);
+
+  try {
+    const res  = await fetch('/generate_quiz', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ subject, count })
+    });
+    const data = await res.json();
+    clearInterval(dotAnim);
+
+    if (!data.success || !data.quiz?.questions?.length) {
+      const errMsg = data.error ? `Quiz error: ${data.error}` : 'Quiz generation failed. Try again! ❌';
+      showToast(errMsg, 'error');
+      if (genBtn) { genBtn.disabled = false; genBtn.innerHTML = '<i class="fas fa-bolt"></i> Generate Quiz'; }
+      if (genMsg) genMsg.style.display = 'none';
+      return;
+    }
+
+    // Normalise questions — Gemini sometimes returns options as array instead of {A,B,C,D} object
+    const letters = ['A','B','C','D'];
+    data.quiz.questions = data.quiz.questions.map(q => {
+      // Fix options: convert array ["opt1","opt2",...] → {A:"opt1", B:"opt2", ...}
+      if (Array.isArray(q.options)) {
+        const obj = {};
+        q.options.forEach((val, i) => { if (letters[i]) obj[letters[i]] = val; });
+        q.options = obj;
+      }
+      // Fix answer: convert 0-based index → letter ("A","B","C","D")
+      if (typeof q.answer === 'number') {
+        q.answer = letters[q.answer] || 'A';
+      }
+      // Fix answer: sometimes Gemini returns "A)" or "a" — normalise to uppercase letter
+      if (typeof q.answer === 'string') {
+        q.answer = q.answer.replace(/[^A-Da-d]/g, '').toUpperCase().charAt(0) || 'A';
+      }
+      // Ensure question text exists under q.q
+      if (!q.q && q.question) q.q = q.question;
+      return q;
+    }).filter(q => q.q && q.options && Object.keys(q.options).length === 4);
+
+    if (!data.quiz.questions.length) {
+      showToast('Quiz response was malformed. Try again! ❌', 'error');
+      if (genBtn) { genBtn.disabled = false; genBtn.innerHTML = '<i class="fas fa-bolt"></i> Generate Quiz'; }
+      if (genMsg) genMsg.style.display = 'none';
+      return;
+    }
+
+    // Hide generating msg BEFORE switching panel
+    if (genMsg) genMsg.style.display = 'none';
+
+    // Init state
+    _quiz        = data.quiz;
+    _qIndex      = 0;
+    _score       = 0;
+    _userAnswers = [];
+    _answered    = false;
+
+    // Switch to quiz panel
+    showPanel('quiz');
+    document.getElementById('quiz-subject-label').textContent = subject;
+
+    renderQuestion();
+
+  } catch(e) {
+    clearInterval(dotAnim);
+    showToast('Network error generating quiz.', 'error');
+    if (genBtn) { genBtn.disabled = false; genBtn.innerHTML = '<i class="fas fa-bolt"></i> Generate Quiz'; }
+    if (genMsg) genMsg.style.display = 'none';
+  }
+}
+
+function showPanel(which) {
+  ['lobby','quiz','result'].forEach(p => {
+    const el = document.getElementById('sr-panel-' + p);
+    if (el) el.style.display = p === which ? 'block' : 'none';
+  });
+}
+
+function renderQuestion() {
+  if (!_quiz || _qIndex >= _quiz.questions.length) { showResults(); return; }
+
+  const q     = _quiz.questions[_qIndex];
+  const total = _quiz.questions.length;
+  _answered   = false;
+
+  // Header
+  document.getElementById('quiz-title').textContent = `📝 Quiz — Q${_qIndex+1}`;
+  document.getElementById('quiz-progress-label').textContent = `Question ${_qIndex+1} of ${total}`;
+  document.getElementById('quiz-score-live').textContent     = `Score: ${_score}`;
+  document.getElementById('quiz-progress-bar').style.width   = `${((_qIndex)/total)*100}%`;
+
+  // Question text — support both q.q and q.question field names
+  document.getElementById('quiz-q-number').textContent = `Q${_qIndex+1}`;
+  document.getElementById('quiz-q-text').textContent   = q.q || q.question || '';
+
+  // Clear explanation & next btn
+  const expEl  = document.getElementById('quiz-explanation');
+  const nextEl = document.getElementById('quiz-next-btn');
+  expEl.style.display  = 'none';
+  nextEl.style.display = 'none';
+
+  // Build options — normalise to {A,B,C,D} object regardless of what Gemini returned
+  const optsEl = document.getElementById('quiz-options');
+  optsEl.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  let opts = q.options;
+  if (Array.isArray(opts)) {
+    const tmp = {};
+    opts.forEach((val, i) => { if (letters[i]) tmp[letters[i]] = val; });
+    opts = tmp;
+  }
+  letters.forEach(letter => {
+    const text = opts[letter];
+    if (!text) return;
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.innerHTML = `<span class="opt-label">${letter}</span><span>${text}</span>`;
+    btn.onclick   = () => selectAnswer(letter, btn);
+    optsEl.appendChild(btn);
+  });
+
+  // Start timer
+  startQTimer();
+}
+
+function startQTimer() {
+  _timeLeft = Q_TIME;
+  updateTimerDisplay();
+  if (_timerInt) clearInterval(_timerInt);
+  _timerInt = setInterval(() => {
+    _timeLeft--;
+    updateTimerDisplay();
+    if (_timeLeft <= 0) {
+      clearInterval(_timerInt);
+      if (!_answered) timeOut();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('quiz-timer');
+  if (!el) return;
+  el.textContent = _timeLeft;
+  const box = document.getElementById('quiz-timer-box');
+  if (box) {
+    box.style.color     = _timeLeft <= 10 ? 'var(--accent)' : 'var(--text2)';
+    box.style.background= _timeLeft <= 10 ? 'rgba(240,62,62,0.12)' : 'var(--surface2)';
+  }
+}
+
+function selectAnswer(chosen, clickedBtn) {
+  if (_answered) return;
+  _answered = true;
+  clearInterval(_timerInt);
+
+  const q      = _quiz.questions[_qIndex];
+  // Normalise options in case they slipped through as array
+  let _opts = q.options;
+  if (Array.isArray(_opts)) {
+    const _tmp = {}; ['A','B','C','D'].forEach((l,i) => { if (_opts[i]) _tmp[l]=_opts[i]; }); _opts = _tmp;
+  }
+  // Normalise answer to uppercase letter
+  let correct = typeof q.answer === 'number' ? ['A','B','C','D'][q.answer] || 'A' : String(q.answer).replace(/[^A-Da-d]/g,'').toUpperCase().charAt(0) || 'A';
+  const isRight= chosen === correct;
+
+  if (isRight) _score++;
+  _userAnswers.push({ correct: isRight, chosen, rightAnswer: correct, q: q.q });
+
+  // Style all buttons
+  document.querySelectorAll('.quiz-option').forEach(btn => {
+    btn.disabled = true;
+    const lbl = btn.querySelector('.opt-label').textContent.trim();
+    if (lbl === correct)     btn.classList.add(isRight && lbl === chosen ? 'correct' : 'reveal');
+    else if (lbl === chosen) btn.classList.add('wrong');
+    if (lbl === correct)     btn.classList.remove('wrong');
+  });
+  // Override: always show correct green
+  document.querySelectorAll('.quiz-option').forEach(btn => {
+    const lbl = btn.querySelector('.opt-label').textContent.trim();
+    if (lbl === correct) { btn.classList.remove('reveal'); btn.classList.add('correct'); }
+  });
+
+  // Explanation
+  const expEl = document.getElementById('quiz-explanation');
+  expEl.style.display = 'block';
+  expEl.style.background  = isRight ? 'rgba(47,184,110,0.1)'  : 'rgba(240,62,62,0.08)';
+  expEl.style.border      = `1px solid ${isRight ? 'rgba(47,184,110,0.3)' : 'rgba(240,62,62,0.25)'}`;
+  expEl.style.borderRadius= 'var(--radius-sm)';
+  expEl.style.color       = isRight ? 'var(--accent3)' : 'var(--accent)';
+  expEl.innerHTML = (isRight ? '✅ Correct! ' : `❌ Wrong. Correct answer: <b>${correct}</b>. `) +
+    (q.explanation ? `<span style="color:var(--text2);">${q.explanation}</span>` : '');
+
+  // Update live score
+  document.getElementById('quiz-score-live').textContent = `Score: ${_score}`;
+
+  // Show next / finish button
+  const nextEl = document.getElementById('quiz-next-btn');
+  nextEl.style.display = 'block';
+  nextEl.textContent   = _qIndex + 1 >= _quiz.questions.length ? '🏆 See Results' : 'Next Question →';
+}
+
+function timeOut() {
+  _answered = true;
+  const q = _quiz.questions[_qIndex];
+  // Normalise answer
+  const _toCorrLtr = (a) => typeof a === 'number' ? (['A','B','C','D'][a]||'A') : String(a).replace(/[^A-Da-d]/g,'').toUpperCase().charAt(0)||'A';
+  const _corrAns = _toCorrLtr(q.answer);
+  _userAnswers.push({ correct: false, chosen: null, rightAnswer: _corrAns, q: q.q || q.question || '' });
+
+  document.querySelectorAll('.quiz-option').forEach(btn => {
+    btn.disabled = true;
+    if (btn.querySelector('.opt-label').textContent.trim() === _corrAns) btn.classList.add('correct');
+  });
+
+  const expEl = document.getElementById('quiz-explanation');
+  expEl.style.display    = 'block';
+  expEl.style.background = 'rgba(245,159,0,0.1)';
+  expEl.style.border     = '1px solid rgba(245,159,0,0.3)';
+  expEl.style.color      = 'var(--accent2,#e67700)';
+  expEl.innerHTML        = `⏰ Time's up! Correct answer: <b>${_corrAns}</b>. ${q.explanation ? `<span style="color:var(--text2);">${q.explanation}</span>` : ''}`;
+
+  const nextEl = document.getElementById('quiz-next-btn');
+  nextEl.style.display = 'block';
+  nextEl.textContent   = _qIndex + 1 >= _quiz.questions.length ? '🏆 See Results' : 'Next Question →';
+}
+
+function nextQuestion() {
+  _qIndex++;
+  if (_qIndex >= _quiz.questions.length) { showResults(); return; }
+  renderQuestion();
+}
+
+function showResults() {
+  clearInterval(_timerInt);
+  const total   = _quiz.questions.length;
+  const pct     = Math.round((_score / total) * 100);
+
+  showPanel('result');
+
+  // Score display
+  document.getElementById('result-score-display').textContent = `${pct}%`;
+  document.getElementById('result-fraction').textContent      = `${_score} / ${total} correct`;
+
+  // Grade + emoji
+  let grade, emoji, msg, gradeStyle;
+  if (pct >= 90)      { grade='A+'; emoji='🏆'; msg='Outstanding! You mastered this topic!'; gradeStyle='background:rgba(47,184,110,0.15);color:var(--accent3);'; }
+  else if (pct >= 75) { grade='A';  emoji='🌟'; msg='Great job! You have a strong grasp of the subject.'; gradeStyle='background:rgba(47,184,110,0.1);color:var(--accent3);'; }
+  else if (pct >= 60) { grade='B';  emoji='👍'; msg='Good effort! A little more revision will get you to the top.'; gradeStyle='background:rgba(59,91,219,0.1);color:var(--primary);'; }
+  else if (pct >= 40) { grade='C';  emoji='📖'; msg='Keep practicing! Review the topics you missed.'; gradeStyle='background:rgba(245,159,0,0.1);color:#e67700;'; }
+  else                { grade='D';  emoji='💪'; msg='Don\'t give up! Try again and you\'ll improve.'; gradeStyle='background:rgba(240,62,62,0.1);color:var(--accent);'; }
+
+  document.getElementById('result-emoji').textContent = emoji;
+  const gradeEl = document.getElementById('result-grade');
+  gradeEl.textContent = `Grade: ${grade}`;
+  gradeEl.style.cssText += gradeStyle + 'padding:5px 18px;border-radius:99px;';
+  document.getElementById('result-msg').textContent = msg;
+
+  // Per-question breakdown
+  const breakEl = document.getElementById('result-breakdown');
+  breakEl.innerHTML = _userAnswers.map((a, i) => `
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--surface2);border:1px solid ${a.correct ? 'rgba(47,184,110,0.25)' : 'rgba(240,62,62,0.2)'};">
+      <span style="font-size:1em;flex-shrink:0;margin-top:1px;">${a.correct ? '✅' : '❌'}</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.8em;font-weight:600;line-height:1.4;color:var(--text);">${i+1}. ${a.q}</div>
+        ${!a.correct ? `<div style="font-size:0.72em;color:var(--accent);margin-top:2px;">Correct: ${a.rightAnswer}${a.chosen ? ` · Your answer: ${a.chosen}` : ' · Timed out'}</div>` : ''}
+      </div>
+    </div>`).join('');
+
+  // Save result to Firebase silently
+  fetch('/save_quiz_result', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ subject: _quiz.subject, score: _score, total })
+  }).catch(() => {});
+}
+
+function retakeQuiz() {
+  // Reset state and regenerate same subject
+  _quiz = null; _qIndex = 0; _score = 0; _userAnswers = [];
+  showPanel('lobby');
+  const genBtn = document.getElementById('generate-quiz-btn');
+  const genMsg = document.getElementById('quiz-generating-msg');
+  if (genBtn) { genBtn.disabled = false; genBtn.innerHTML = '<i class="fas fa-bolt"></i> Generate Quiz'; }
+  if (genMsg) genMsg.style.display = 'none';
+  // Auto-trigger new quiz
+  setTimeout(startQuiz, 100);
+}
+
+function closeQuizResult() {
+  _quiz = null; _qIndex = 0; _score = 0; _userAnswers = [];
+  clearInterval(_timerInt);
+  showPanel('lobby');
+  fetchStudyRoom();
+  const genBtn = document.getElementById('generate-quiz-btn');
+  const genMsg = document.getElementById('quiz-generating-msg');
+  if (genBtn) { genBtn.disabled = false; genBtn.innerHTML = '<i class="fas fa-bolt"></i> Generate Quiz'; }
+  if (genMsg) genMsg.style.display = 'none';
+}
+
+function quitQuiz() {
+  if (!confirm('Quit the quiz? Your progress will be lost.')) return;
+  clearInterval(_timerInt);
+  _quiz = null; _qIndex = 0; _score = 0; _userAnswers = [];
+  showPanel('lobby');
+  fetchStudyRoom();
+  const genBtn = document.getElementById('generate-quiz-btn');
+  if (genBtn) { genBtn.disabled = false; genBtn.innerHTML = '<i class="fas fa-bolt"></i> Generate Quiz'; }
+  document.getElementById('quiz-generating-msg').style.display = 'none';
+}
+
+
 // INNOVATION 7: MOOD CHECK-IN
 // ===================================================
 function restoreMoodCheckin() {

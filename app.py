@@ -7,9 +7,6 @@ import firebase_admin
 from firebase_admin import credentials, db, auth
 import re
 
-# 2026 Gemini SDK
-from google import genai
-from google.genai import types
 
 app = Flask(__name__)
 app.secret_key = 'srec_demo_secret_2025'
@@ -29,9 +26,24 @@ FIREBASE_API_KEY = "AIzaSyCS_00jpLwOXDuSoPK8pRhJL9jbzwC5-wc"
 CSE_API_KEY = "AIzaSyDnA4mSjKF3fNZJIkKwqVkjmcmomc0uNmc"
 CSE_CX = "22ebcf6c51cdb481d"
 
-# ------------------ Gemini AI Setup ------------------
-GEMINI_API_KEY = "AIzaSyDxtMVWQERZ3sxURK8EVevOA6dWQ_mzf40"
-client = genai.Client(api_key=GEMINI_API_KEY)
+# ------------------ Groq AI Setup ------------------
+# GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "YOUR_GROQ_KEY_HERE")
+GROQ_API_KEY="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"
+
+from groq import Groq
+groq_client = Groq(api_key=GROQ_API_KEY)
+
+def gemini_generate(prompt):
+    """Call Groq LLM. Returns object with .text like Gemini did."""
+    completion = groq_client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7,
+        max_tokens=2048,
+    )
+    class _R:
+        def __init__(self, t): self.text = t
+    return _R(completion.choices[0].message.content)
 
 # ------------------ Cloudinary Setup ------------------
 import cloudinary
@@ -47,15 +59,14 @@ cloudinary.config(
 def upload_to_cloudinary(base64_data):
     """Upload a base64 image to Cloudinary and return the secure URL."""
     try:
-        # Cloudinary accepts base64 directly with the data URI prefix
         result = cloudinary.uploader.upload(
             base64_data,
-            folder="srec_campusconnect",   # Organizes images in a folder
+            folder="srec_campusconnect",
             resource_type="image",
             transformation=[
-                {"width": 900, "crop": "limit"},  # Max width 900px
-                {"quality": "auto:good"},          # Auto compress quality
-                {"fetch_format": "auto"}           # Auto best format (webp etc)
+                {"width": 900, "crop": "limit"},
+                {"quality": "auto:good"},
+                {"fetch_format": "auto"}
             ]
         )
         return result.get("secure_url")
@@ -64,7 +75,7 @@ def upload_to_cloudinary(base64_data):
         return None
 
 # =====================================================================
-# RICH SREC KNOWLEDGE BASE (scraped from srec.ac.in)
+# RICH SREC KNOWLEDGE BASE — Verified from AICTE Disclosure 2024-25
 # =====================================================================
 SREC_KNOWLEDGE = {
 
@@ -340,11 +351,387 @@ SREC_KNOWLEDGE = {
     # === ANTI RAGGING & POLICIES ===
     'ragging': (
         "🚫 SREC has a strict anti-ragging policy. Any form of ragging is completely prohibited. "
+        "Anti-Ragging Committee is chaired by Principal Dr. A. Soundarrajan (99420 69911). "
+        "Nodal Officer: Dr. J. Selvakumar, Professor/CSE (99942 66855). "
         "Details: <a href='https://srec.ac.in/aboutus/antiragging' target='_blank'>Anti-Ragging Policy</a>"
     ),
     'wec': (
         "👩 SREC has a Women Empowerment Cell (WEC) / POSH committee for women's safety and empowerment.\n"
         "Details: <a href='https://srec.ac.in/facilities/wec' target='_blank'>WEC at SREC</a>"
+    ),
+
+    # ===================================================================
+    # FACULTY & LEADERSHIP — Verified from AICTE Disclosure 2024-25
+    # ===================================================================
+
+    # PRINCIPAL
+    'principal': (
+        "👨‍💼 <b>Principal of SREC: Dr. A. Soundarrajan</b><br>"
+        "📧 Email: <a href='mailto:principal@srec.ac.in'>principal@srec.ac.in</a><br>"
+        "📞 Mobile: 99420 69911<br>"
+        "He also serves as Chairperson of the Academic Council and the Anti-Ragging Committee.<br>"
+        "More: <a href='https://srec.ac.in/aboutus/principal' target='_blank'>srec.ac.in/aboutus/principal</a>"
+    ),
+
+    # DIRECTOR ACADEMICS
+    'director': (
+        "🎓 <b>Director (Academics) of SREC: Dr. N. R. Alamelu</b><br>"
+        "She serves as Director (Academics) for the entire Sri Ramakrishna Group of Institutions under SNR Sons Charitable Trust.<br>"
+        "She is also the Managing Trustee of SREC Alumni Association Charitable Trust and a member of the Governing Council and Academic Council."
+    ),
+    'director academics': (
+        "🎓 <b>Director (Academics): Dr. N. R. Alamelu</b><br>"
+        "She heads academics for Sri Ramakrishna Group of Institutions and is a Governing Council & Academic Council member at SREC."
+    ),
+
+    # GOVERNING COUNCIL
+    'chairman': (
+        "🏛️ <b>Chairman (Governing Council): Sri. R. Sundar</b><br>"
+        "Managing Trustee, S.N.R Sons Charitable Trust, Coimbatore – 641 044."
+    ),
+    'vice chairman': (
+        "🏛️ <b>Vice Chairman (Governing Council): Sri. S. Narendran</b><br>"
+        "Joint Managing Trustee, S.N.R Sons Charitable Trust, Coimbatore."
+    ),
+    'governing council': (
+        "🏛️ <b>SREC Governing Council (2024-25):</b><br>"
+        "• <b>Chairman:</b> Sri. R. Sundar (Managing Trustee, SNR Sons Charitable Trust)<br>"
+        "• <b>Vice Chairman:</b> Sri. S. Narendran (Joint Managing Trustee)<br>"
+        "• <b>Director (Academics):</b> Dr. N. R. Alamelu<br>"
+        "• <b>Principal / Secretary:</b> Dr. A. Soundarrajan<br>"
+        "• <b>HOD Mech (Internal):</b> Dr. P. Karuppuswamy<br>"
+        "• <b>HOD Nanoscience (Internal):</b> Dr. P. Moorthi<br>"
+        "Governing Council meets twice a year. Last meetings: 27 GC on 09.04.2024, 28 GC on 27.12.2024."
+    ),
+
+    # ACADEMIC COUNCIL
+    'academic council': (
+        "📋 <b>SREC Academic Council 2024-25:</b><br>"
+        "Chairperson: Dr. A. Soundarrajan (Principal)<br>"
+        "Dept. Chairpersons in the Council:<br>"
+        "• CSE: Dr. M. S. Geetha Devasena | IT: Dr. M. Senthamil Selvi<br>"
+        "• ECE: Dr. M. Jagadeeswari | EEE: Dr. S. Allirani<br>"
+        "• Mech: Dr. P. Karuppuswamy | Aero: Dr. P. Chandramohan<br>"
+        "• BME: Dr. B. Sharmila | Civil: Dr. E. Sarojini<br>"
+        "• EIE: Dr. K. Srinivasan | AI&DS: Dr. V. Karpagam<br>"
+        "• MBA: Dr. R. Mary Metilda | Nano: Dr. P. Moorthi<br>"
+        "• Maths: Dr. A. Sekar | Chemistry: Dr. L. Ragunath<br>"
+        "• English: Dr. Vichitra Sivaji | Physics: Dr. K. Uthayarani<br>"
+        "Last meeting: 21st meeting on 13.12.2024"
+    ),
+    'academic coordinator': (
+        "📋 The Academic leadership at SREC is structured as follows:<br><br>"
+        "🎓 <b>Director (Academics):</b> Dr. N. R. Alamelu<br>"
+        "👨‍💼 <b>Principal / Academic Council Chair:</b> Dr. A. Soundarrajan<br><br>"
+        "Each department has a <b>Chairperson</b> who oversees academics for that department. "
+        "For SREC's academic calendar and regulations, visit: "
+        "<a href='https://srec.ac.in/academics' target='_blank'>srec.ac.in/academics</a>"
+    ),
+
+    # =====================  HODs  =====================
+    'hod cse': (
+        "💻 <b>HOD of CSE (Computer Science & Engineering):</b><br>"
+        "👩‍💼 <b>Dr. M. S. GEETHA DEVASENA</b><br>"
+        "Designation: Professor & Head, CSE<br>"
+        "Qualification: M.E (CSE), Ph.D | Specialization: Image Processing<br>"
+        "Also serves as Controller of Examinations (CoE) at SREC.<br>"
+        "More: <a href='https://srec.ac.in/department/cse/faculty' target='_blank'>CSE Faculty</a>"
+    ),
+    'hod it': (
+        "💡 <b>HOD of IT (Information Technology):</b><br>"
+        "👩‍💼 <b>Dr. N. Susila</b><br>"
+        "Designation: Professor & Head, IT<br>"
+        "Qualification: B.E (CSE), M.E (CSE), Ph.D | Experience: 24+ years<br>"
+        "📧 susila.n@srec.ac.in<br>"
+        "More: <a href='https://srec.ac.in/department/it/faculty' target='_blank'>IT Faculty</a>"
+    ),
+    'hod ece': (
+        "📡 <b>HOD of ECE (Electronics & Communication Engineering):</b><br>"
+        "👩‍💼 <b>Dr. M. Jagadeeswari</b><br>"
+        "Designation: Professor & Head, ECE<br>"
+        "📞 94863 55965<br>"
+        "More: <a href='https://srec.ac.in/department/ece/faculty' target='_blank'>ECE Faculty</a>"
+    ),
+    'hod eee': (
+        "⚡ <b>HOD of EEE (Electrical & Electronics Engineering):</b><br>"
+        "👩‍💼 <b>Dr. S. Allirani</b><br>"
+        "Designation: Associate Professor & Chairperson/EEE (Academic Council)<br>"
+        "More: <a href='https://srec.ac.in/department/eee' target='_blank'>EEE Department</a>"
+    ),
+    'hod mech': (
+        "🔧 <b>HOD of Mechanical Engineering:</b><br>"
+        "👨‍💼 <b>Dr. P. Karuppuswamy</b><br>"
+        "Designation: Professor & Head, Mechanical Engineering<br>"
+        "Member of both Governing Council and Academic Council.<br>"
+        "More: <a href='https://srec.ac.in/department/mech' target='_blank'>Mech Department</a>"
+    ),
+    'hod aero': (
+        "✈️ <b>HOD of Aeronautical Engineering:</b><br>"
+        "👨‍💼 <b>Dr. P. Chandramohan</b><br>"
+        "Designation: Professor & Chairperson/AERO (Academic Council)<br>"
+        "More: <a href='https://srec.ac.in/department/aero' target='_blank'>Aero Department</a>"
+    ),
+    'hod bme': (
+        "🏥 <b>HOD of Biomedical Engineering:</b><br>"
+        "👩‍💼 <b>Dr. B. Sharmila</b><br>"
+        "Designation: Chairperson/BME (Academic Council)<br>"
+        "More: <a href='https://srec.ac.in/department/bme' target='_blank'>BME Department</a>"
+    ),
+    'hod eie': (
+        "🔌 <b>HOD of Electronics & Instrumentation Engineering:</b><br>"
+        "👨‍💼 <b>Dr. K. Srinivasan</b><br>"
+        "Designation: Professor & Chairperson/EIE (Academic Council)<br>"
+        "More: <a href='https://srec.ac.in/department/eie' target='_blank'>EIE Department</a>"
+    ),
+    'hod civil': (
+        "🏗️ <b>HOD of Civil Engineering:</b><br>"
+        "👩‍💼 <b>Dr. E. Sarojini</b><br>"
+        "Designation: Chairperson/CIVIL (Academic Council)<br>"
+        "More: <a href='https://srec.ac.in/department/civil' target='_blank'>Civil Department</a>"
+    ),
+    'hod aids': (
+        "🤖 <b>HOD of AI & Data Science:</b><br>"
+        "👩‍💼 <b>Dr. V. Karpagam</b><br>"
+        "Designation: Chairperson/AI&DS (Academic Council)<br>"
+        "More: <a href='https://srec.ac.in/department/btech' target='_blank'>AI&DS Department</a>"
+    ),
+    'hod ra': (
+        "🦾 <b>HOD of Robotics & Automation:</b><br>"
+        "👨‍💼 <b>Dr. A. Murugarajan</b><br>"
+        "Designation: Chairperson/RAE (Academic Council)<br>"
+        "More: <a href='https://srec.ac.in/department/robotics' target='_blank'>R&A Department</a>"
+    ),
+    'hod mba': (
+        "📊 <b>HOD of MBA:</b><br>"
+        "👩‍💼 <b>Dr. R. Mary Metilda</b><br>"
+        "Designation: Professor & Head, MBA<br>"
+        "Also serves as Online Grievance Redressal Convener at SREC.<br>"
+        "More: <a href='https://srec.ac.in/department/mba' target='_blank'>MBA Department</a>"
+    ),
+    'hod maths': (
+        "🔢 <b>HOD of Mathematics:</b><br>"
+        "👨‍💼 <b>Dr. A. Sekar</b><br>"
+        "Designation: Professor & Head, Mathematics | Also Transport In-charge<br>"
+        "📞 99652 26824"
+    ),
+    'hod chemistry': (
+        "🧪 <b>HOD of Chemistry:</b><br>"
+        "👨‍💼 <b>Dr. L. Raghunath</b><br>"
+        "Designation: Professor & Head, Chemistry | Also Senior Deputy Warden (Men's Hostel 2)<br>"
+        "📞 98944 02345"
+    ),
+    'hod physics': (
+        "⚛️ <b>HOD of Physics:</b><br>"
+        "👩‍💼 <b>Dr. K. Uthayarani</b><br>"
+        "Designation: Professor & Head, Physics (Senior Faculty)<br>"
+        "Also member of IQAC and Online Grievance Redressal Committee."
+    ),
+    'hod english': (
+        "📝 <b>HOD of English:</b><br>"
+        "👩‍💼 <b>Dr. Vichitra Sivaji</b><br>"
+        "Designation: Head, English Department"
+    ),
+    'hod nano': (
+        "🔬 <b>HOD of Nanoscience & Technology:</b><br>"
+        "👨‍💼 <b>Dr. P. Moorthi</b><br>"
+        "Designation: Professor & Head, Nanoscience and Technology<br>"
+        "Member of Governing Council and Academic Council."
+    ),
+    'all hods': (
+        "👥 <b>All Heads of Departments at SREC (2024-25):</b><br><br>"
+        "• <b>CSE:</b> Dr. A. Grace Selvarani (also CoE)<br>"
+        "• <b>IT:</b> Dr. N. Susila<br>"
+        "• <b>ECE:</b> Dr. M. Jagadeeswari<br>"
+        "• <b>EEE:</b> Dr. S. Allirani<br>"
+        "• <b>Mechanical:</b> Dr. P. Karuppuswamy<br>"
+        "• <b>Aeronautical:</b> Dr. P. Chandramohan<br>"
+        "• <b>BME:</b> Dr. B. Sharmila<br>"
+        "• <b>Civil:</b> Dr. E. Sarojini<br>"
+        "• <b>EIE:</b> Dr. K. Srinivasan<br>"
+        "• <b>AI & DS:</b> Dr. V. Karpagam<br>"
+        "• <b>Robotics & Automation:</b> Dr. A. Murugarajan<br>"
+        "• <b>MBA:</b> Dr. R. Mary Metilda<br>"
+        "• <b>Nanoscience:</b> Dr. P. Moorthi<br>"
+        "• <b>Maths:</b> Dr. A. Sekar<br>"
+        "• <b>Chemistry:</b> Dr. L. Raghunath<br>"
+        "• <b>Physics:</b> Dr. K. Uthayarani<br>"
+        "• <b>English:</b> Dr. Vichitra Sivaji<br>"
+        "• <b>Director (Academics):</b> Dr. N. R. Alamelu"
+    ),
+
+    # CONTROLLER OF EXAMINATIONS
+    'coe': (
+        "📋 <b>Controller of Examinations (CoE): Dr. A. Grace Selvarani</b><br>"
+        "She is also Professor & Head of the CSE department.<br>"
+        "For exam-related queries: <a href='https://srec.ac.in/controllerofexaminations' target='_blank'>COE Page</a>"
+    ),
+    'controller of examinations': (
+        "📋 <b>Controller of Examinations (CoE): Dr. A. Grace Selvarani</b><br>"
+        "She is also Professor & Head of the CSE department at SREC.<br>"
+        "Exam info: <a href='https://srec.ac.in/controllerofexaminations' target='_blank'>COE Page</a>"
+    ),
+
+    # IQAC
+    'iqac': (
+        "🏆 <b>IQAC (Internal Quality Assurance Cell) at SREC</b><br>"
+        "Key IQAC members include:<br>"
+        "• Dr. M. Jagadeeswari (Prof & Head, ECE)<br>"
+        "• Dr. K. Uthayarani (Prof & Head, Physics)<br>"
+        "• Dr. N. Sathish Kumar (Professor, ECE & Head CCE)<br>"
+        "• Dr. V. Rukkumani (Assoc. Professor, EIE)<br>"
+        "More: <a href='https://srec.ac.in/iqac' target='_blank'>IQAC Page</a>"
+    ),
+
+    # CCE (Centre for Continuing Education)
+    'cce': (
+        "📚 <b>CCE (Centre for Continuing Education) Head: Dr. N. Sathish Kumar</b><br>"
+        "Designation: Professor/ECE and Head, CCE<br>"
+        "Also Organizing Secretary of the Governing Council."
+    ),
+
+    # KEY FACULTY
+    'faculty count': (
+        "👨‍🏫 SREC has <b>271+ faculty members</b> as of 2024-25.<br>"
+        "• 104 faculty hold Ph.D degrees<br>"
+        "• 105 are pursuing Ph.D<br>"
+        "• Faculty-to-student ratio: approximately 1:20 to 1:30<br>"
+        "Full list: <a href='https://srec.ac.in/department' target='_blank'>Department Pages</a>"
+    ),
+    'how many teachers': (
+        "👨‍🏫 SREC has <b>271+ faculty members</b> (2024-25 data).<br>"
+        "• 104 hold Ph.D | 105 are pursuing Ph.D<br>"
+        "• Faculty-to-student ratio: ~1:20 to 1:30<br>"
+        "The college also has a strong team of non-teaching and administrative staff."
+    ),
+    'how many students': (
+        "👩‍🎓 SREC has <b>4,400+ students</b> enrolled across all programmes (2024-25).<br>"
+        "• UG intake: 180 seats each in CSE, ECE; 90 in Mech, EEE, others<br>"
+        "• Hostel capacity: 1,900 students across 4 hostel blocks<br>"
+        "• Total alumni: 18,700+"
+    ),
+
+    # HOSTEL WARDENS
+    'warden': (
+        "🏠 <b>Hostel Wardens at SREC:</b><br>"
+        "• <b>Men's Hostel 2 (Senior Deputy Warden):</b> Dr. L. Raghunath (Prof & Head, Chemistry) — 📞 98944 02345<br>"
+        "• <b>Women's Hostel (Senior Deputy Warden):</b> Dr. R. Brindha (Asst. Prof, English) — 📞 97897 46897<br>"
+        "• <b>Boys' Deputy Warden:</b> Mr. R. Rajesh<br>"
+        "• <b>Boys' Deputy Warden:</b> Mr. M. Nagarajapandian<br>"
+        "Hostel info: <a href='https://srec.ac.in/facilities/hostel' target='_blank'>Hostel Details</a>"
+    ),
+
+    # TRANSPORT IN-CHARGE
+    'transport incharge': (
+        "🚌 <b>Transport In-charge: Dr. A. Sekar</b><br>"
+        "Designation: Professor & Head, Mathematics | 📞 99652 26824<br>"
+        "Bus route info: <a href='https://srec.ac.in/facilities/transport' target='_blank'>Transport Details</a>"
+    ),
+
+    # PHYSICAL DIRECTOR
+    'physical director': (
+        "⚽ <b>Physical Director: Mr. S. Nithyanandan</b><br>"
+        "📞 98421 17374<br>"
+        "Sports facilities: <a href='https://srec.ac.in/beyondclassrooms/sports' target='_blank'>Sports at SREC</a>"
+    ),
+
+    # KEY PROFESSORS
+    'selvakumar': (
+        "👨‍💼 <b>Dr. J. Selvakumar</b> — Professor, CSE Department<br>"
+        "Roles: Anti-Ragging Nodal Officer, IQAC Member, Academic Council Member<br>"
+        "📞 99942 66855"
+    ),
+    'grace selvarani': (
+        "👩‍💼 <b>Dr. A. Grace Selvarani</b> — Professor & Head, CSE + Controller of Examinations<br>"
+        "Qualification: M.E (CSE), Ph.D | Specialization: Image Processing<br>"
+        "Member of Academic Council and Online Grievance Committee<br>"
+        "Recipient of <b>Best Faculty Award 2017-18</b> from Cognizant (CTS)"
+    ),
+    'sathish kumar': (
+        "👨‍💼 <b>Dr. N. Sathish Kumar</b> — Professor, ECE & Head of CCE (Centre for Continuing Education)<br>"
+        "Organizing Secretary of the Governing Council | IQAC Member"
+    ),
+
+    # TIMINGS
+    'office hours': (
+        "🕗 <b>SREC Office Hours:</b> 8:30 AM to 5:00 PM<br>"
+        "📚 <b>Academic Hours:</b> 8:45 AM to 4:40 PM<br>"
+        "📞 Phone: <a href='tel:04222460088'>0422-2460088</a>"
+    ),
+    'college timings': (
+        "🕗 <b>SREC Timings:</b><br>"
+        "• Office Hours: 8:30 AM – 5:00 PM<br>"
+        "• Academic Hours: 8:45 AM – 4:40 PM<br>"
+        "• 📞 0422-2460088 | 📠 0422-2461089"
+    ),
+    'fax': "📠 SREC Fax: 0422-2461089",
+    'landline': "📞 SREC Phone: <a href='tel:04222460088'>0422-2460088</a>",
+
+    # NIRF RANKING
+    'nirf': (
+        "🏆 <b>SREC NIRF Ranking 2025:</b> Ranked in the <b>151–200 band</b> in Engineering category nationally!<br>"
+        "Previous: 151-200 in NIRF 2024 also. Consistently improving!<br>"
+        "Also ranked <b>550 under B.Tech</b> by Collegedunia 2025."
+    ),
+    'ranking': (
+        "🏅 <b>SREC Rankings (2024-25):</b><br>"
+        "• <b>NIRF 2025:</b> 151-200 band (Engineering category)<br>"
+        "• <b>Careers 360:</b> AAA rated — 'India's Best Engineering Institute 2024'<br>"
+        "• <b>The Week:</b> Top 28 Best Engineering Colleges<br>"
+        "• <b>Times of India:</b> Top 10 Engineering Colleges (region)"
+    ),
+
+    # PLACEMENTS (Updated NIRF 2024-25 data)
+    'placement': (
+        "💼 <b>SREC Placements 2024 (NIRF Data):</b><br>"
+        "• <b>UG students placed:</b> 745 | <b>PG placed:</b> 34<br>"
+        "• <b>UG Median Salary:</b> ₹4.80 LPA | <b>PG Median:</b> ₹5.00 LPA<br>"
+        "• <b>Highest Package:</b> ₹28 LPA (CSE/IT/ECE)<br>"
+        "• <b>Placement Rate:</b> ~86% (NIRF 2024)<br>"
+        "• 78 UG + 3 PG students opted for higher studies<br>"
+        "Top Recruiters: Zoho, Capgemini, Amazon, PayPal, Cognizant, DBS, TCS, Accenture, L&T<br>"
+        "Contact: <a href='https://srec.ac.in/placement/contact' target='_blank'>Placement Cell</a>"
+    ),
+    'salary': (
+        "💰 <b>SREC Salary Packages (2024 NIRF data):</b><br>"
+        "• UG Median: ₹4.80 LPA | PG Median: ₹5.00 LPA<br>"
+        "• Highest: ₹28 LPA (common in CSE, IT, ECE)<br>"
+        "• Average: ~₹4 LPA across all branches"
+    ),
+    'recruiters': (
+        "🏢 <b>Top Recruiters at SREC:</b><br>"
+        "Zoho, Capgemini, Amazon, PayPal, Cognizant (CTS), DBS Bank, TCS, Infosys, "
+        "Wipro, Accenture, Tech Mahindra, L&T, Saint Gobain, Sanmar Group, "
+        "Inmovidu Technologies, Softtek, Dhyan Infotech, Ford India, TVS, Ashok Leyland, "
+        "TAFE, Mahindra & Mahindra, Pricol, Murugappa Group and 100+ more!<br>"
+        "MoUs signed with 100+ companies.<br>"
+        "See all: <a href='https://srec.ac.in/placement/recruiters' target='_blank'>All Recruiters</a>"
+    ),
+
+    # CAMPUS DETAILS
+    'campus': (
+        "🏫 <b>SREC Campus Details:</b><br>"
+        "• Area: 45–49 acres<br>"
+        "• Location: Vattamalaipalayam, N.G.G.O Colony, Coimbatore – 641 022<br>"
+        "• Nearest Railway Station: Coimbatore Junction (16 km)<br>"
+        "• Nearest Airport: Coimbatore International Airport (16 km)<br>"
+        "• 30 college buses for transport<br>"
+        "• ATM, cafeteria, health centre, sports complex on campus"
+    ),
+    'area': "📐 SREC campus is spread across <b>45–49 acres</b> in Vattamalaipalayam, Coimbatore.",
+    'distance': (
+        "📍 SREC is about <b>16 km from Coimbatore Railway Station</b> and "
+        "<b>16 km from Coimbatore International Airport</b>."
+    ),
+
+    # HOSTEL
+    'hostel': (
+        "🏠 <b>SREC Hostels:</b><br>"
+        "• 4 hostel blocks total — 3 for boys, 1 for girls<br>"
+        "• Total capacity: 1,900 students<br>"
+        "• Facilities: Internet, power backup, 24hr water, health support<br>"
+        "• 24-hour ambulance available on campus (connected to Sri Ramakrishna Hospital)<br>"
+        "• Warden (Boys): Dr. L. Raghunath | Warden (Girls): Dr. R. Brindha<br>"
+        "Details: <a href='https://srec.ac.in/facilities/hostel' target='_blank'>Hostel Info</a>"
     ),
 }
 
@@ -390,12 +777,147 @@ def get_emotion_response(msg):
 # SMART KEYWORD MATCHING
 # =====================================================================
 def find_knowledge_response(msg):
-    """Try to find the best matching knowledge base entry for a message."""
     msg_lower = msg.lower()
 
-    # Direct keyword matches (order matters - more specific first)
+    # ---------------------------------------------------------------
+    # PRIORITY PASS 1 — HOD / Head of Department queries
+    # Must come first so "hod cse" doesn't accidentally match generic 'cse' key
+    # ---------------------------------------------------------------
+    hod_patterns = [
+        # CSE
+        (['hod cse', 'head of cse', 'head cse', 'hod computer science',
+          'who is hod cse', 'who is head of cse', 'hod of cse',
+          'head of computer science', 'cse hod', 'cse head',
+          'computer science hod', 'who heads cse'], 'hod cse'),
+        # IT
+        (['hod it', 'head of it', 'head it', 'hod information technology',
+          'who is hod it', 'who is head of it', 'hod of it', 'it hod',
+          'information technology hod', 'who heads it', 'it head',
+          'head of information technology'], 'hod it'),
+        # ECE
+        (['hod ece', 'head of ece', 'head ece', 'hod electronics',
+          'who is hod ece', 'who is head of ece', 'hod of ece', 'ece hod',
+          'electronics hod', 'ece head', 'head of electronics',
+          'who heads ece'], 'hod ece'),
+        # EEE
+        (['hod eee', 'head of eee', 'head eee', 'hod electrical',
+          'who is hod eee', 'who is head of eee', 'hod of eee', 'eee hod',
+          'electrical hod', 'eee head'], 'hod eee'),
+        # MECH
+        (['hod mech', 'head of mech', 'head mech', 'hod mechanical',
+          'who is hod mech', 'who is head of mechanical', 'hod of mech',
+          'mech hod', 'mechanical hod', 'mech head', 'mechanical head',
+          'who heads mechanical'], 'hod mech'),
+        # AERO
+        (['hod aero', 'head of aero', 'hod aeronautical',
+          'who is hod aero', 'who is head of aero', 'hod of aero',
+          'aero hod', 'aeronautical hod', 'aero head', 'aeronautical head'], 'hod aero'),
+        # BME
+        (['hod bme', 'head of bme', 'hod biomedical',
+          'who is hod bme', 'who is head of bme', 'hod of bme',
+          'bme hod', 'biomedical hod', 'bme head', 'biomedical head'], 'hod bme'),
+        # EIE
+        (['hod eie', 'head of eie', 'hod instrumentation',
+          'who is hod eie', 'hod of eie', 'eie hod', 'eie head',
+          'instrumentation hod'], 'hod eie'),
+        # CIVIL
+        (['hod civil', 'head of civil', 'hod civil engineering',
+          'who is hod civil', 'hod of civil', 'civil hod', 'civil head'], 'hod civil'),
+        # AI&DS
+        (['hod ai', 'head of ai', 'hod aids', 'hod ai&ds', 'hod data science',
+          'who is hod ai', 'ai hod', 'aids hod', 'ai ds hod',
+          'head of ai and data science', 'data science hod'], 'hod aids'),
+        # RA
+        (['hod robotics', 'head of robotics', 'hod ra', 'hod automation',
+          'who is hod robotics', 'robotics hod', 'ra hod', 'automation hod'], 'hod ra'),
+        # MBA
+        (['hod mba', 'head of mba', 'hod management',
+          'who is hod mba', 'mba hod', 'mba head', 'management hod'], 'hod mba'),
+        # MATHS
+        (['hod maths', 'hod math', 'head of maths', 'hod mathematics',
+          'who is hod maths', 'maths hod', 'math hod', 'mathematics hod'], 'hod maths'),
+        # CHEMISTRY
+        (['hod chemistry', 'head of chemistry', 'hod chem',
+          'who is hod chemistry', 'chemistry hod', 'chem hod'], 'hod chemistry'),
+        # PHYSICS
+        (['hod physics', 'head of physics',
+          'who is hod physics', 'physics hod'], 'hod physics'),
+        # ENGLISH
+        (['hod english', 'head of english',
+          'who is hod english', 'english hod'], 'hod english'),
+        # NANO
+        (['hod nano', 'head of nano', 'hod nanoscience',
+          'nano hod', 'nanoscience hod'], 'hod nano'),
+        # ALL HODs
+        (['all hod', 'list of hod', 'all heads', 'list of heads',
+          'hod list', 'all department heads', 'department heads',
+          'who are the hods', 'names of hods'], 'all hods'),
+    ]
+    for keywords, key in hod_patterns:
+        if any(kw in msg_lower for kw in keywords):
+            if key in SREC_KNOWLEDGE:
+                return SREC_KNOWLEDGE[key]
+
+    # ---------------------------------------------------------------
+    # PRIORITY PASS 2 — Faculty / staff role queries
+    # ---------------------------------------------------------------
+    role_patterns = [
+        # Principal
+        (['who is the principal', 'who is principal', 'name of principal',
+          'principal name', 'principal of srec', 'who is dr soundarrajan',
+          'soundarrajan', 'head of college', 'who runs srec'], 'principal'),
+        # Director Academics
+        (['director academics', 'director of academics', 'who is the director',
+          'academic director', 'dr alamelu', 'n.r. alamelu', 'nr alamelu'], 'director academics'),
+        # Academic Coordinator / Council
+        (['academic coordinator', 'academic council', 'who coordinates academics',
+          'coordinator academics', 'who is the academic coordinator'], 'academic coordinator'),
+        # COE
+        (['controller of examination', 'controller of exam', 'coe srec',
+          'who is coe', 'who is controller', 'grace selvarani',
+          'head of examinations'], 'coe'),
+        # Chairman
+        (['chairman of srec', 'who is chairman', 'managing trustee',
+          'r sundar', 'trust chairman'], 'chairman'),
+        # Vice Chairman
+        (['vice chairman', 'joint managing trustee', 'narendran'], 'vice chairman'),
+        # Governing Council
+        (['governing council', 'governing body', 'gc members'], 'governing council'),
+        # Warden
+        (['warden', 'hostel warden', 'hostel incharge', 'hostel in-charge',
+          'who is warden', 'girls warden', 'boys warden'], 'warden'),
+        # Transport
+        (['transport incharge', 'transport in charge', 'bus incharge',
+          'who manages transport', 'transport head'], 'transport incharge'),
+        # Physical Director
+        (['physical director', 'sports director', 'sports incharge',
+          'who is physical director', 'nithyanandan'], 'physical director'),
+        # IQAC
+        (['iqac', 'quality assurance', 'internal quality'], 'iqac'),
+        # CCE
+        (['cce', 'centre for continuing education', 'continuing education'], 'cce'),
+        # Key professors
+        (['selvakumar', 'dr selvakumar', 'j selvakumar'], 'selvakumar'),
+        (['grace selvarani', 'a grace selvarani', 'dr grace'], 'grace selvarani'),
+        (['sathish kumar', 'n sathish kumar', 'dr sathish'], 'sathish kumar'),
+        # HOW MANY TEACHERS / FACULTY
+        (['how many teacher', 'how many faculty', 'how many professor',
+          'number of teacher', 'number of faculty', 'total teacher',
+          'total faculty', 'faculty count', 'faculty strength',
+          'staff count', 'how many staff'], 'faculty count'),
+        # HOW MANY STUDENTS
+        (['how many student', 'total student', 'student strength',
+          'student count', 'number of student'], 'how many students'),
+    ]
+    for keywords, key in role_patterns:
+        if any(kw in msg_lower for kw in keywords):
+            if key in SREC_KNOWLEDGE:
+                return SREC_KNOWLEDGE[key]
+
+    # ---------------------------------------------------------------
+    # PRIORITY PASS 3 — General knowledge map
+    # ---------------------------------------------------------------
     keyword_map = [
-        # Specific queries
         (['counselling code', 'counseling code', '2719'], 'counselling code'),
         (['anti ragging', 'ragging'], 'ragging'),
         (['women empowerment', 'wec', 'posh'], 'wec'),
@@ -410,73 +932,77 @@ def find_knowledge_response(msg):
         (['research'], 'research'),
         (['internship', 'intern'], 'internship'),
         (['salary', 'package', 'ctc', 'lpa'], 'salary'),
-        (['recruiter', 'company', 'companies'], 'recruiters'),
-        (['placement', 'placed', 'campus drive', 'job'], 'placement'),
+        (['recruiter', 'company', 'companies', 'top companies'], 'recruiters'),
+        (['placement', 'placed', 'campus drive', 'job', 'campus recruitment'], 'placement'),
         (['fee', 'fees', 'tuition', 'cost'], 'fees'),
         (['international', 'foreign', 'nri'], 'international'),
         (['tnea', 'tancet', 'gate admission'], 'tnea'),
         (['admission', 'apply', 'application', 'join srec', 'how to join'], 'admission'),
-        (['eligibility', 'cutoff', 'cut off', 'marks'], 'eligibility'),
-        (['timetable', 'time table', 'exam schedule', 'schedule'], 'timetable'),
-        (['result', 'results', 'grade', 'marks'], 'result'),
-        (['exam', 'examination', 'semester exam', 'end sem'], 'exam'),
-        (['coe', 'controller of exam'], 'exam'),
-        (['ai data science', 'artificial intelligence', 'data science', 'btech ai'], 'ai'),
-        (['robotics', 'automation'], 'robotics'),
-        (['aeronautical', 'aero'], 'aeronautical'),
-        (['biomedical', 'bme'], 'biomedical'),
-        (['civil'], 'civil'),
-        (['mechanical', 'mech'], 'mechanical'),
-        (['eee', 'electrical'], 'eee'),
-        (['ece', 'electronics communication'], 'ece'),
-        (['it department', 'information technology'], 'it'),
-        (['cse', 'computer science'], 'cse'),
-        (['mba', 'management'], 'mba'),
-        (['pg programme', 'pg program', 'postgraduate', 'm.tech', 'mtech', 'me programme'], 'pg'),
-        (['ug programme', 'ug program', 'undergraduate', 'be programme', 'btech programme', 'b.e', 'b.tech'], 'ug'),
-        (['department', 'departments'], 'departments'),
-        (['course', 'courses', 'programme', 'programs'], 'courses'),
+        (['eligibility', 'cutoff', 'cut off'], 'eligibility'),
+        (['timetable', 'time table', 'exam schedule', 'exam time'], 'timetable'),
+        (['result', 'results', 'grade', 'mark sheet'], 'result'),
+        (['exam', 'examination', 'semester exam', 'end sem', 'internal exam'], 'exam'),
+        (['controller of exam', 'controller of examination'], 'coe'),
+        (['nirf', 'nirf ranking', 'nirf 2025'], 'nirf'),
+        (['ranking', 'rank', 'careers 360', 'rated', 'rating', 'best college rank'], 'ranking'),
+        (['ai data science', 'btech ai', 'aids department'], 'ai'),
+        (['robotics', 'automation', 'rae department'], 'robotics'),
+        (['aeronautical', 'aero department'], 'aeronautical'),
+        (['biomedical', 'bme department'], 'biomedical'),
+        (['civil engineering', 'civil department'], 'civil'),
+        (['mechanical engineering', 'mech department'], 'mechanical'),
+        (['eee department', 'electrical engineering'], 'eee'),
+        (['ece department', 'electronics and communication'], 'ece'),
+        (['it department', 'information technology department'], 'it'),
+        (['cse department', 'computer science department'], 'cse'),
+        (['mba department', 'management department'], 'mba'),
+        (['pg programme', 'pg program', 'postgraduate', 'm.tech', 'mtech'], 'pg'),
+        (['ug programme', 'ug program', 'undergraduate', 'b.e', 'b.tech', 'be programme'], 'ug'),
+        (['departments', 'all departments'], 'departments'),
+        (['courses', 'programmes', 'programs offered'], 'courses'),
         (['yoga', 'meditation', 'wellness'], 'yoga'),
         (['ncc'], 'ncc'),
         (['nss', 'national service'], 'nss'),
         (['csi', 'computer society'], 'csi'),
-        (['club', 'clubs', 'student activities', 'extracurricular'], 'clubs'),
-        (['sports', 'basketball', 'cricket', 'football', 'volleyball', 'games'], 'sports'),
+        (['clubs', 'student club', 'student activities', 'extracurricular'], 'clubs'),
+        (['sports', 'basketball', 'cricket', 'football', 'volleyball', 'games', 'badminton'], 'sports'),
         (['atm', 'bank', 'south indian bank'], 'atm'),
         (['cafeteria', 'canteen', 'food', 'mess'], 'cafeteria'),
         (['wifi', 'wi-fi', 'internet', 'network'], 'wifi'),
-        (['healthcare', 'medical', 'health center', 'health centre', 'doctor'], 'healthcare'),
-        (['transport', 'bus', 'college bus', 'route'], 'transport'),
-        (['hostel', 'accommodation', 'stay', 'room'], 'hostel'),
+        (['healthcare', 'medical', 'health center', 'health centre', 'doctor', 'ambulance'], 'healthcare'),
+        (['transport', 'bus', 'college bus', 'bus route'], 'transport'),
+        (['hostel', 'accommodation', 'stay', 'room', 'dormitory'], 'hostel'),
         (['library', 'books', 'digital resources', 'e-library', 'opac'], 'library'),
-        (['infrastructure', 'facilities', 'campus facility'], 'infrastructure'),
+        (['infrastructure', 'campus facility', 'facilities'], 'infrastructure'),
+        (['campus', 'campus area', 'campus size'], 'campus'),
+        (['distance', 'how far', 'km from', 'nearest railway', 'nearest airport'], 'distance'),
+        (['office hours', 'office time', 'working hours'], 'office hours'),
+        (['college timing', 'college time', 'class time', 'academic hours'], 'college timings'),
+        (['fax', 'fax number'], 'fax'),
+        (['landline', 'telephone', 'std'], 'landline'),
         (['news', 'latest news', 'announcement'], 'news'),
-        (['event', 'events', 'upcoming', 'fest'], 'events'),
+        (['event', 'events', 'upcoming event', 'fest'], 'events'),
         (['gallery', 'photos', 'pictures'], 'gallery'),
         (['magazine'], 'magazine'),
-        (['alumni', 'old students', 'alumnus'], 'alumni'),
-        (['how many students', 'student count', 'total students', 'strength'], 'students'),
-        (['faculty', 'professor', 'staff', 'teacher'], 'faculty'),
-        (['partners', 'global partners', 'partner'], 'partners'),
-        (['nba accreditation', 'nba'], 'nba'),
-        (['naac', 'a+ grade', 'accreditation'], 'naac'),
-        (['ranking', 'rank', 'careers 360', 'rated', 'rating'], 'ranking'),
+        (['alumni', 'old students', 'alumnus', 'pass out'], 'alumni'),
+        (['global partner', 'partners'], 'partners'),
+        (['nba accreditation', 'nba approved'], 'nba'),
+        (['naac', 'a+ grade', 'naac accreditation'], 'naac'),
         (['vision'], 'vision'),
         (['mission'], 'mission'),
-        (['affiliation', 'anna university', 'affiliated'], 'affiliation'),
-        (['autonomous'], 'autonomous'),
+        (['affiliation', 'anna university', 'affiliated to'], 'affiliation'),
+        (['autonomous', 'autonomous college'], 'autonomous'),
         (['principal', 'head of college'], 'principal'),
-        (['phone', 'mobile', 'hotline', 'call srec'], 'phone'),
-        (['email', 'mail'], 'email'),
-        (['website', 'official site', 'link'], 'website'),
-        (['contact', 'reach srec', 'reach out'], 'contact'),
-        (['where is', 'location', 'address', 'how to reach', 'directions', 'map'], 'location'),
-        (['established', 'founded', 'when was srec', 'start'], 'established'),
-        (['founder', 'trust', 'snr', 'managed by'], 'founder'),
-        (['about srec', 'what is srec', 'tell me about srec', 'srec info'], 'about'),
+        (['phone', 'hotline', 'call srec', 'contact number'], 'phone'),
+        (['email', 'mail srec'], 'email'),
+        (['website', 'official site', 'official link'], 'website'),
+        (['contact', 'reach srec', 'reach out', 'contact details'], 'contact'),
+        (['location', 'address', 'how to reach', 'directions', 'map', 'where is srec'], 'location'),
+        (['established', 'founded', 'when was srec', 'year founded'], 'established'),
+        (['founder', 'trust', 'snr sons', 'managed by'], 'founder'),
+        (['about srec', 'what is srec', 'tell me about srec', 'about college'], 'about'),
         (['srec'], 'srec'),
     ]
-
     for keywords, key in keyword_map:
         if any(kw in msg_lower for kw in keywords):
             if key in SREC_KNOWLEDGE:
@@ -493,7 +1019,7 @@ def verify_password(email, password):
     return resp.json()
 
 # =====================================================================
-# SENTIMENT ANALYSIS (server-side)
+# SENTIMENT ANALYSIS
 # =====================================================================
 def analyze_sentiment(text):
     text = text.lower()
@@ -538,17 +1064,13 @@ def forgot_password():
     if not email.endswith('@srec.ac.in'):
         return jsonify({'success': False, 'msg': 'Invalid SREC email.'})
     try:
-        # Firebase sends a password reset email automatically
         reset_link = auth.generate_password_reset_link(email)
-        # In production, send via your email service (SMTP/SendGrid etc.)
-        # For now Firebase handles it if you use the client SDK on frontend
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'msg': 'Email not found or error occurred.'})
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    # Role access codes — keep these secret, change regularly
     ROLE_CODES = {
         'faculty': 'SREC@FAC2025',
         'admin':   'SREC@ADM2025'
@@ -559,11 +1081,9 @@ def signup():
         role        = request.form.get('role', 'student')
         access_code = request.form.get('access_code', '').strip()
 
-        # Server-side email domain check
         if not userid.endswith('@srec.ac.in'):
             return render_template('signup.html', error='Only @srec.ac.in emails are allowed.')
 
-        # Server-side password strength
         import re as _re
         if (len(password) < 8 or
             not _re.search(r'[A-Z]', password) or
@@ -571,7 +1091,6 @@ def signup():
             not _re.search(r'[^A-Za-z0-9]', password)):
             return render_template('signup.html', error='Password must be 8+ chars with uppercase, number & special character.')
 
-        # Server-side role access code check
         if role in ('faculty', 'admin'):
             if access_code != ROLE_CODES.get(role, ''):
                 return render_template('signup.html', error='Invalid access code for selected role.')
@@ -582,7 +1101,6 @@ def signup():
         try:
             user = auth.create_user(email=userid, password=password)
             auth.set_custom_user_claims(user.uid, {'role': role})
-            # Store user profile in DB
             db.reference(f'/users/{user.uid}').set({
                 'email': userid,
                 'role': role,
@@ -616,7 +1134,7 @@ def dashboard():
                            user_bio=user_bio)
 
 # =====================================================================
-# CHATBOT ROUTE - FRIENDLY, SMART & RESPONSIVE
+# CHATBOT ROUTE
 # =====================================================================
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -624,106 +1142,173 @@ def chat():
     if not user_msg:
         return jsonify({'response': "Hey! Send me a message and I'll help you out 😊"})
 
-    msg_lower = user_msg.lower()
+    msg_lower = user_msg.lower().strip()
 
-    # ------ GREETINGS ------
-    greetings = ['hi', 'hello', 'hii', 'hiii', 'hey', 'heyy', 'yo', 'sup', 'what\'s up', 'howdy', 'greetings']
-    if msg_lower in greetings or msg_lower.startswith('hi ') or msg_lower.startswith('hello ') or msg_lower.startswith('hey '):
+    # ── BUG FIX: Clear stale QP session if user types something unrelated ──
+    if session.get('awaiting_qp_subject'):
+        is_subject = any(s.lower() in msg_lower for s in ['mad','beee','sensors'])
+        is_unrelated = (
+            len(msg_lower) > 15 or
+            any(w in msg_lower for w in ['who','what','how','where','when','why','tell','is ','are ']) or
+            any(c in msg_lower for c in ['!','?'])
+        )
+        if not is_subject and is_unrelated:
+            session.pop('awaiting_qp_subject', None)
+
+    # ── 1. PROFANITY / ABUSE ─────────────────────────────────────────
+    abuse_words = ['fuck','fck','fuk','bitch','bastard','shit','wtf','wth',
+                   'idiot','stupid','dumb','crap','cock','dick','sex','porn',
+                   'hate you','useless','worthless','asshole']
+    if any(w in msg_lower for w in abuse_words):
         session.pop('awaiting_qp_subject', None)
-        return jsonify({
-            'response': (
-                "Hey there! 👋 Welcome to SREC Bot — your friendly campus assistant! 😊<br><br>"
-                "I can help you with:<br>"
-                "📚 Courses & Departments<br>"
-                "🎓 Admissions & Eligibility<br>"
-                "💼 Placements & Internships<br>"
-                "🏫 Campus Facilities<br>"
-                "📄 Question Papers<br>"
-                "🎉 Clubs & Events<br><br>"
-                "Just ask me anything about SREC!"
-            )
-        })
+        return jsonify({'response': (
+            "Hey, let's keep things respectful here 😊<br>"
+            "I'm here to help with SREC queries — what would you like to know?"
+        )})
 
-    # ------ THANKS / BYE ------
-    thanks = ['ok', 'okay', 'thanks', 'thank you', 'thx', 'ty', 'thank u', 'thankyou', 'tysm', 'tq']
+    # ── 2. GREETINGS ─────────────────────────────────────────────────
+    greetings = {'hi','hello','hii','hiii','hey','heyy','yo','sup','howdy',
+                 'greetings','hola','namaste','vanakkam','hai','helo','hiya'}
+    if msg_lower in greetings or any(msg_lower.startswith(g+' ') for g in ['hi','hello','hey','hii']):
+        session.pop('awaiting_qp_subject', None)
+        return jsonify({'response': (
+            "Hey there! 👋 Welcome to <b>SREC Bot</b> — your campus assistant! 😊<br><br>"
+            "Ask me about:<br>"
+            "👨‍💼 HODs & Faculty &nbsp;·&nbsp; 📚 Courses &nbsp;·&nbsp; 💼 Placements<br>"
+            "🏫 Facilities &nbsp;·&nbsp; 📄 Question Papers &nbsp;·&nbsp; 🎉 Clubs<br><br>"
+            "Try: <i>'Who is the HOD of CSE?'</i> 😊"
+        )})
+
+    # ── 3. THANKS ────────────────────────────────────────────────────
+    thanks = {'ok','okay','thanks','thank you','thx','ty','thank u',
+              'thankyou','tysm','tq','nice','cool','great','got it','sure','alright'}
     if msg_lower in thanks:
         session.pop('awaiting_qp_subject', None)
-        return jsonify({'response': "You're welcome! 😊 Feel free to ask me anything else anytime!"})
+        return jsonify({'response': "You're welcome! 😊 Anything else about SREC?"})
 
-    bye_words = ['bye', 'goodbye', 'see you', 'see ya', 'later', 'cya']
-    if msg_lower in bye_words:
+    # ── 4. GOODBYE ───────────────────────────────────────────────────
+    bye_words = {'bye','goodbye','see you','see ya','later','cya','tata','gn','good night'}
+    if msg_lower in bye_words or msg_lower.startswith('bye') or msg_lower.startswith('good night'):
         session.pop('awaiting_qp_subject', None)
-        return jsonify({'response': "Bye bye! 👋 Take care and all the best! Come back anytime 😊"})
+        return jsonify({'response': "Bye! 👋 Take care and all the best!"})
 
-    # ------ BOT IDENTITY ------
-    identity_q = ['who are you', 'what are you', 'are you a bot', 'are you human', 'are you ai', 'your name', 'what is your name']
-    if any(q in msg_lower for q in identity_q):
-        return jsonify({'response': "I'm SREC Bot 🤖 — your friendly AI assistant for Sri Ramakrishna Engineering College! I'm here to help you with anything about SREC. Ask away! 😊"})
+    # ── 5. IDENTITY ──────────────────────────────────────────────────
+    identity_triggers = ['who are you','what are you','are you a bot','are you human',
+                         'your name','what is your name','introduce yourself','who r u',
+                         'wat r u','what r u']
+    if any(q in msg_lower for q in identity_triggers):
+        return jsonify({'response': (
+            "I'm <b>SREC Bot</b> 🤖 — your campus FAQ assistant for "
+            "Sri Ramakrishna Engineering College!<br>"
+            "Ask me anything about SREC 😊"
+        )})
 
-    # ------ EMOTION DETECTION ------
+    # ── 6. WHO CREATED YOU ───────────────────────────────────────────
+    created_triggers = ['who created you','who made you','who built you','who made u',
+                        'who developed you','who coded you','who is your creator','who made this']
+    if any(q in msg_lower for q in created_triggers):
+        return jsonify({'response': (
+            "I was built by Second year SREC students Pitambar, Sowmya and Sivabalan as part of the <b>CampusConnect</b> project 🚀<br>"
+            "I run on a custom NLP engine trained on SREC data 😊"
+        )})
+
+    # ── 7. WHAT IS CAMPUSCONNECT ─────────────────────────────────────
+    platform_triggers = ['what is this platform','what is campusconnect','about this app',
+                         'about campusconnect','what is this website']
+    if any(q in msg_lower for q in platform_triggers):
+        return jsonify({'response': (
+            "🎓 <b>CampusConnect</b> is an AI-driven social platform exclusively for SREC students!<br>"
+            "Post updates, view club events, access question papers, and chat with me for any SREC query 😊"
+        )})
+
+    # ── 8. HELP ──────────────────────────────────────────────────────
+    help_triggers = ['help','what can you do','options','menu','what do you know','features']
+    if any(t in msg_lower for t in help_triggers):
+        return jsonify({'response': (
+            "Here's what I can do! 😊<br><br>"
+            "👨‍💼 <b>Faculty</b> — Principal, HODs of all 17 depts, wardens<br>"
+            "🏫 <b>College info</b> — history, NAAC A+, NIRF ranking, accreditation<br>"
+            "📚 <b>Courses</b> — 12 UG + 7 PG + MBA<br>"
+            "💼 <b>Placements</b> — stats, top recruiters, packages<br>"
+            "🏠 <b>Facilities</b> — hostel, library, transport, sports<br>"
+            "📄 <b>Question Papers</b> — MAD, BEEE, SENSORS<br>"
+            "🎉 <b>Clubs</b> — NCC, NSS, AI Club, CSI<br><br>"
+            "Example: <i>Who is the HOD of IT?</i> | <i>What's the placement rate?</i>"
+        )})
+
+    # ── 9. EMOTION SUPPORT ───────────────────────────────────────────
     emotion_response = get_emotion_response(user_msg)
     if emotion_response:
         return jsonify({'response': emotion_response})
 
-    # ------ QUESTION PAPER INTENT ------
-    qp_triggers = ['question paper', 'previous year', 'pyq', 'past paper', 'old question', 'model paper', 'previous question']
+    # ── 10. QUESTION PAPERS (role-secured) ───────────────────────────
+    qp_triggers = ['question paper','previous year','pyq','past paper',
+                   'old question','model paper','previous question']
     if any(t in msg_lower for t in qp_triggers):
+        if 'user' not in session:
+            return jsonify({'response': "You need to be logged in to access question papers 🔒"})
+        if session.get('role') not in ['student','faculty','admin']:
+            return jsonify({'response': "Question papers are only for SREC students and faculty ❌"})
         session['awaiting_qp_subject'] = True
-        if 'user' not in session:
-            session.pop('awaiting_qp_subject', None)
-            return jsonify({'response': "Oops! You need to be logged in to access question papers 🔒 Please login first!"})
-        if session.get('role') not in ['student', 'faculty', 'admin']:
-            session.pop('awaiting_qp_subject', None)
-            return jsonify({'response': "Sorry! Question papers are only available for SREC students and faculty ❌"})
-        return jsonify({'response': "Sure! 📚 Which subject's question papers do you need?<br>Available subjects: <b>MAD, BEEE, SENSORS</b><br>Just type the subject name!"})
+        return jsonify({'response': (
+            "Sure! 📚 Which subject do you need?<br>"
+            "<b>MAD</b> &nbsp;·&nbsp; <b>BEEE</b> &nbsp;·&nbsp; <b>SENSORS</b>"
+        )})
 
-    # ------ SUBJECT HANDLING ------
-    if session.get('awaiting_qp_subject'):
-        if 'user' not in session:
-            session.pop('awaiting_qp_subject', None)
-            return jsonify({'response': "Please login to access question papers 🔒"})
-        if session.get('role') not in ['student', 'faculty', 'admin']:
-            session.pop('awaiting_qp_subject', None)
-            return jsonify({'response': "Access restricted ❌ Only students and faculty can access question papers."})
+    if session.get('awaiting_qp_subject') and 'user' in session:
         for subject in SUBJECTS.keys():
             if msg_lower == subject.lower() or subject.lower() in msg_lower:
                 session.pop('awaiting_qp_subject', None)
                 return jsonify({'response': format_qp_links(subject)})
-        return jsonify({'response': "Hmm, I didn't catch that subject 🤔 Please type one of these: <b>MAD, BEEE, SENSORS</b>"})
 
-    # ------ KNOWLEDGE BASE MATCH ------
+    # ── 11. KNOWLEDGE BASE LOOKUP ────────────────────────────────────
+    session.pop('awaiting_qp_subject', None)
     kb_response = find_knowledge_response(user_msg)
     if kb_response:
         return jsonify({'response': kb_response})
 
-    # ------ HELP MENU ------
-    help_triggers = ['help', 'what can you do', 'options', 'menu', 'what do you know']
-    if any(t in msg_lower for t in help_triggers):
-        return jsonify({
-            'response': (
-                "Here's what I can help you with! 😊<br><br>"
-                "🏫 <b>About SREC</b> — history, accreditation, rankings<br>"
-                "📚 <b>Courses</b> — UG, PG, MBA programmes<br>"
-                "📝 <b>Admissions</b> — TNEA, eligibility, fees<br>"
-                "💼 <b>Placements</b> — recruiters, placement stats<br>"
-                "🏠 <b>Facilities</b> — hostel, library, transport, WiFi<br>"
-                "🎉 <b>Clubs</b> — NCC, NSS, AI Club, Sports<br>"
-                "🔬 <b>Research</b> — incubation, innovation, MoUs<br>"
-                "📄 <b>Question Papers</b> — past exam papers<br>"
-                "📞 <b>Contact</b> — phone, email, location<br><br>"
-                "Just type your question naturally — I'll do my best! 🤖"
-            )
-        })
-
-    # ------ DEFAULT (friendly fallback) ------
-    return jsonify({
-        'response': (
-            "Hmm, I'm not quite sure about that one! 🤔<br>"
-            "I know a lot about SREC — try asking me about <b>courses, admissions, placements, "
-            "facilities, clubs, or question papers</b>!<br>"
-            "Or type <b>'help'</b> to see everything I can do 😊"
+    # ── 12. SMART FALLBACK — dynamic context-aware response ──────────
+    srec_ctx = (
+        "You are SREC Bot, the FAQ chatbot for Sri Ramakrishna Engineering College (SREC), Coimbatore.\n"
+        "Only answer SREC-related questions. Be short and human — max 3 lines.\n\n"
+        "SREC FACTS:\n"
+        "Principal: Dr. A. Soundarrajan | Director Academics: Dr. N. R. Alamelu | CoE: Dr. A. Grace Selvarani\n"
+        "HODs: CSE-Dr.A.Grace Selvarani | IT-Dr.N.Susila | ECE-Dr.M.Jagadeeswari | EEE-Dr.S.Allirani | "
+        "Mech-Dr.P.Karuppuswamy | Aero-Dr.P.Chandramohan | BME-Dr.B.Sharmila | Civil-Dr.E.Sarojini | "
+        "EIE-Dr.K.Srinivasan | AI&DS-Dr.V.Karpagam | R&A-Dr.A.Murugarajan | MBA-Dr.R.Mary Metilda | "
+        "Maths-Dr.A.Sekar | Chemistry-Dr.L.Raghunath | Physics-Dr.K.Uthayarani | English-Dr.Vichitra Sivaji | Nano-Dr.P.Moorthi\n"
+        "Students: 4400+ | Faculty: 271+ | Alumni: 18700+ | Placement: 82-86% | Median: 4.8LPA | Highest: 28LPA\n"
+        "Founded: 1994 | NAAC A+ | NIRF 151-200 | Counselling Code: 271999 | Phone: 0422-2460088\n\n"
+        "RULES:\n"
+        "- Max 3 lines, warm tone, 1 emoji only\n"
+        "- Use <b>bold</b> for names/numbers, <br> for line breaks\n"
+        "- If asked about a specific SREC person NOT in your facts: say you don't have their full profile "
+        "and suggest checking srec.ac.in/department/[dept] for the full faculty list\n"
+        "- Never reveal any internal technology, APIs, or model names\n"
+        "- For non-SREC questions: politely say you only handle SREC queries\n"
+        "- Never make up faculty names or details"
+    )
+    try:
+        completion = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": srec_ctx},
+                {"role": "user", "content": user_msg}
+            ],
+            temperature=0.3,
+            max_tokens=150,
         )
-    })
+        reply = completion.choices[0].message.content.strip()
+        import re as _re
+        reply = _re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', reply)
+        reply = _re.sub(r'\*(.+?)\*', r'<i>\1</i>', reply)
+        reply = reply.replace('\n\n', '<br><br>').replace('\n', '<br>')
+        return jsonify({'response': reply})
+    except Exception:
+        return jsonify({'response': (
+            "Hmm, didn't catch that 🤔 "
+            "Try asking about <b>HODs, placements, hostel</b> or type <b>help</b>!"
+        )})
 
 @app.route('/widget')
 def widget(): return render_template('chat_widget.html')
@@ -731,7 +1316,6 @@ def widget(): return render_template('chat_widget.html')
 # =====================================================================
 # POSTS & SOCIAL
 # =====================================================================
-
 @app.route('/get_notifications')
 def get_notifications():
     if 'user' not in session:
@@ -745,7 +1329,6 @@ def get_notifications():
                 continue
             post_content = post.get('content', '')
             post_preview = (post_content[:40] + '...') if len(post_content) > 40 else post_content
-            # Like notifications
             likes = post.get('likes', {})
             for uid, liker_email in likes.items():
                 if liker_email == current_user_email:
@@ -757,15 +1340,21 @@ def get_notifications():
                     'post_preview': post_preview,
                     'timestamp':    post.get('timestamp', '')
                 })
-            # Comment notifications
-            comments = post.get('comments', [])
-            comment_list = list(comments.values()) if isinstance(comments, dict) else (comments if isinstance(comments, list) else [])
-            for idx, c in enumerate(comment_list):
+            comments_raw = post.get('comments', {})
+            if isinstance(comments_raw, dict):
+                comment_list = list(comments_raw.values())
+            elif isinstance(comments_raw, list):
+                comment_list = comments_raw
+            else:
+                comment_list = []
+            for c in comment_list:
+                if not isinstance(c, dict): continue
                 commenter = c.get('user', '')
                 if commenter == current_user_email:
                     continue
+                cid = c.get('id', commenter)
                 notifs.append({
-                    'key':       f"comment_{post_id}_{idx}_{commenter}",
+                    'key':       f"comment_{post_id}_{cid}",
                     'type':      'comment',
                     'by':        commenter,
                     'comment':   c.get('comment', ''),
@@ -782,7 +1371,7 @@ def add_post():
     if 'user' not in session: return jsonify({'success': False}), 401
     data = request.get_json() or {}
     content = data.get('content', '').strip()
-    image = data.get('image', None)  # base64 image from frontend
+    image = data.get('image', None)
     if not content: return jsonify({'success': False}), 400
     sentiment = analyze_sentiment(content)
     post_id = str(uuid.uuid4())
@@ -797,7 +1386,7 @@ def add_post():
         'likes': {}, 'comments': [],
         'sentiment': sentiment, 'pinned': False
     }
-    if image and len(image) < 10 * 1024 * 1024:  # 10MB base64 limit
+    if image and len(image) < 10 * 1024 * 1024:
         image_url = upload_to_cloudinary(image)
         if image_url:
             post_data['image'] = image_url
@@ -820,13 +1409,46 @@ def like_post():
 def comment_post():
     if 'user' not in session: return jsonify({'success': False}), 401
     data = request.get_json() or {}
-    post_id, comment = data.get('post_id'), data.get('comment', '').strip()
-    ref = db.reference(f'/posts/{post_id}/comments')
-    comments = ref.get() or []
-    comments.append({'user': session.get('email'), 'comment': comment,
-                     'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M')})
-    ref.set(comments)
-    return jsonify({'success': True})
+    post_id = data.get('post_id', '').strip()
+    comment = data.get('comment', '').strip()
+    if not post_id or not comment:
+        return jsonify({'success': False, 'error': 'Missing fields'}), 400
+    try:
+        comment_id = str(uuid.uuid4())
+        db.reference(f'/posts/{post_id}/comments/{comment_id}').set({
+            'id':        comment_id,
+            'user':      session.get('email'),
+            'comment':   comment,
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M'),
+            'replies':   {}
+        })
+        return jsonify({'success': True, 'comment_id': comment_id})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/reply_comment', methods=['POST'])
+def reply_comment():
+    if 'user' not in session: return jsonify({'success': False}), 401
+    data = request.get_json() or {}
+    post_id    = data.get('post_id', '').strip()
+    comment_id = data.get('comment_id', '').strip()
+    reply_text = data.get('reply', '').strip()
+    if not post_id or not comment_id or not reply_text:
+        return jsonify({'success': False, 'error': 'Missing fields'}), 400
+    try:
+        comment_ref = db.reference(f'/posts/{post_id}/comments/{comment_id}')
+        if not comment_ref.get():
+            return jsonify({'success': False, 'error': 'Comment not found'}), 404
+        reply_id = str(uuid.uuid4())
+        db.reference(f'/posts/{post_id}/comments/{comment_id}/replies/{reply_id}').set({
+            'id':        reply_id,
+            'user':      session.get('email'),
+            'reply':     reply_text,
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M')
+        })
+        return jsonify({'success': True, 'reply_id': reply_id})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/delete_post', methods=['POST'])
 def delete_post():
@@ -886,12 +1508,13 @@ def add_event():
     desc = data.get('desc', '').strip()
     dt = data.get('datetime', '')
     venue = data.get('venue', '').strip()
+    category = data.get('category', 'other').strip()
     if not title:
         return jsonify({'success': False, 'msg': 'Title required'}), 400
     event_id = str(uuid.uuid4())
     db.reference('/events').child(event_id).set({
         'id': event_id, 'title': title, 'desc': desc,
-        'datetime': dt, 'venue': venue,
+        'datetime': dt, 'venue': venue, 'category': category,
         'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M')
     })
     return jsonify({'success': True})
@@ -909,7 +1532,8 @@ def edit_event():
         'title': data.get('title', ''),
         'desc': data.get('desc', ''),
         'datetime': data.get('datetime', ''),
-        'venue': data.get('venue', '')
+        'venue': data.get('venue', ''),
+        'category': data.get('category', 'other')
     })
     return jsonify({'success': True})
 
@@ -936,7 +1560,6 @@ if not events_ref.get():
 # =====================================================================
 # INNOVATION ROUTES
 # =====================================================================
-
 @app.route('/enhance_post', methods=['POST'])
 def enhance_post():
     if 'user' not in session: return jsonify({'success': False}), 401
@@ -945,11 +1568,11 @@ def enhance_post():
     try:
         prompt = f"""You are helping a college student improve their social media post.
 Enhance the following post to make it clearer, more engaging and friendly.
-Keep the meaning exactly the same. Keep it under 500 characters. 
+Keep the meaning exactly the same. Keep it under 500 characters.
 Return ONLY the improved post text, nothing else.
 
 Original post: {text}"""
-        response = client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+        response = gemini_generate(prompt)
         enhanced = response.text.strip().strip('"').strip("'")
         return jsonify({'enhanced': enhanced})
     except Exception as e:
@@ -975,7 +1598,7 @@ Today's posts:
 {posts_text}
 
 Write only the 2-sentence summary:"""
-        response = client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+        response = gemini_generate(prompt)
         return jsonify({'summary': response.text.strip()})
     except Exception as e:
         return jsonify({'summary': 'Campus pulse unavailable right now. Try again later!'})
@@ -1000,21 +1623,19 @@ def study_room():
         elif action == 'leave':
             ref.child(uid).delete()
         return jsonify({'success': True})
-    # GET — return all current studying users
     students_raw = ref.get() or {}
     students = []
     now = datetime.now()
     for suid, s in students_raw.items():
-        # Auto-expire after 4 hours
         try:
             joined = datetime.strptime(s.get('joined_at',''), '%Y-%m-%d %H:%M:%S')
             diff_mins = int((now - joined).total_seconds() / 60)
             if diff_mins > 240:
                 ref.child(suid).delete()
                 continue
-            if diff_mins < 1:   dur = 'just joined'
+            if diff_mins < 1:    dur = 'just joined'
             elif diff_mins < 60: dur = f'{diff_mins} min ago'
-            else:               dur = f'{diff_mins//60}h {diff_mins%60}m'
+            else:                dur = f'{diff_mins//60}h {diff_mins%60}m'
         except:
             dur = ''
         students.append({'email': s.get('email',''), 'subject': s.get('subject',''), 'duration': dur})
@@ -1034,9 +1655,9 @@ def react_post():
         ref = db.reference(f'/posts/{post_id}/reactions/{reaction}')
         existing = ref.get() or {}
         if uid in existing:
-            ref.child(uid).delete()  # Toggle off
+            ref.child(uid).delete()
         else:
-            ref.child(uid).set(user_email)  # Toggle on
+            ref.child(uid).set(user_email)
         all_reactions = db.reference(f'/posts/{post_id}/reactions').get() or {}
         return jsonify({'success': True, 'reactions': all_reactions})
     except Exception as e:
@@ -1083,6 +1704,87 @@ def get_users():
     except:
         return jsonify({'users': []})
 
+
+# =====================================================================
+# STUDY ROOM QUIZ — Gemini-powered AI quiz generation
+# =====================================================================
+QUIZ_SUBJECT_CONTEXT = {
+    'MAD':             'Mobile Application Development for Android: Activities, Intents, UI layouts, RecyclerView, SQLite, JSON, Retrofit, Material Design',
+    'BEEE':            'Basics of Electrical and Electronics Engineering: DC circuits, Ohm Law, Kirchhoff Laws, AC circuits, transformers, motors, PN junction, BJT, Op-Amp',
+    'SENSORS':         'Sensors and Applications: temperature, pressure, proximity, IR, ultrasonic sensors, transducers, signal conditioning, ADC, IoT sensor interfacing',
+    'Mathematics':     'Engineering Mathematics: limits, differentiation, integration, differential equations, matrices, Laplace transforms, Fourier series',
+    'Physics':         'Engineering Physics: wave optics, laser, fibre optics, quantum mechanics, semiconductor physics, superconductivity, nanomaterials',
+    'Chemistry':       'Engineering Chemistry: corrosion, electrochemistry, polymers, water treatment, fuel cells, spectroscopy, green chemistry',
+    'Programming':     'C Programming: data types, operators, control flow, functions, arrays, pointers, structures, file IO',
+    'Data Structures': 'Data Structures: arrays, linked lists, stacks, queues, binary trees, BST, graphs, BFS DFS, sorting algorithms, time complexity',
+    'Networks':        'Computer Networks: OSI model, TCP IP stack, IP addressing, subnetting, routing protocols, DNS, HTTP, network security',
+    'DBMS':            'Database Management Systems: ER model, relational algebra, SQL, normalization, transactions, ACID, indexing, concurrency control',
+    'Machine Learning':'Machine Learning: supervised unsupervised learning, regression, SVM, decision trees, neural networks, overfitting, evaluation metrics',
+    'Operating Systems':'Operating Systems: process management, CPU scheduling, deadlocks, memory management, virtual memory, paging, file systems',
+    'Other':           'General Engineering fundamentals of electronics, programming, mathematics, core engineering concepts for 2nd year B.E B.Tech',
+}
+
+@app.route('/generate_quiz', methods=['POST'])
+def generate_quiz():
+    if 'user' not in session:
+        return jsonify({'success': False, 'error': 'Login required'}), 401
+    data    = request.get_json() or {}
+    subject = data.get('subject', 'Other').strip()
+    n       = max(5, min(int(data.get('count', 10)), 15))
+    context = QUIZ_SUBJECT_CONTEXT.get(subject,
+                  subject + ' core 2nd year B.E B.Tech engineering concepts')
+
+    prompt = (
+        "You are an engineering professor creating an MCQ quiz.\n"
+        "Generate exactly " + str(n) + " multiple-choice questions for: " + subject + "\n"
+        "Context: " + context + "\n\n"
+        "Rules:\n"
+        "1. Appropriate for 2nd year B.E/B.Tech students\n"
+        "2. Each question has exactly 4 options (A, B, C, D), only ONE correct\n"
+        "3. Vary difficulty: mix easy, medium, hard\n"
+        "4. Be specific and factual\n"
+        "5. No duplicate questions\n\n"
+        "Return ONLY valid compact JSON, no markdown, no extra text:\n"
+        '{"subject":"' + subject + '","questions":[{"q":"Question?","options":{"A":"...","B":"...","C":"...","D":"..."},"answer":"A","explanation":"Why A is correct"}]}'
+    )
+
+    try:
+        resp = gemini_generate(prompt)
+        raw  = resp.text.strip()
+        if raw.startswith('```'):
+            lines = raw.split('\n')
+            raw = '\n'.join(lines[1:])
+            if raw.rstrip().endswith('```'):
+                raw = raw.rstrip()[:-3]
+        import json as _json
+        quiz = _json.loads(raw.strip())
+        qs   = [q for q in quiz.get('questions', [])
+                if all(k in q for k in ('q', 'options', 'answer'))]
+        quiz['questions'] = qs[:n]
+        if not qs:
+            raise ValueError('No valid questions parsed from Gemini response')
+        return jsonify({'success': True, 'quiz': quiz})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/save_quiz_result', methods=['POST'])
+def save_quiz_result():
+    if 'user' not in session: return jsonify({'success': False}), 401
+    data = request.get_json() or {}
+    uid  = session.get('user', '')
+    try:
+        rid = str(uuid.uuid4())
+        db.reference('/quiz_results/' + uid + '/' + rid).set({
+            'user':      session.get('email', ''),
+            'subject':   data.get('subject', ''),
+            'score':     int(data.get('score', 0)),
+            'total':     int(data.get('total', 0)),
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M')
+        })
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)

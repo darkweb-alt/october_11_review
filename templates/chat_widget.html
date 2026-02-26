@@ -4,172 +4,341 @@
   <meta charset="UTF-8">
   <title>SREC Bot Chat Widget</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      margin: 0; background: #eef2fb;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #eef2fb;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
     }
+
     .chatbot-window {
-      width: 350px;
-      height: 440px;
+      width: 380px;
+      height: 580px;
       background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 7px 28px #c2d4fd99;
-      margin: 24px auto 0 auto;
+      border-radius: 20px;
+      box-shadow: 0 12px 48px rgba(33, 98, 199, 0.18);
       display: flex; flex-direction: column;
-      position: relative;
+      overflow: hidden;
       border: 1.5px solid #d4e0f6;
     }
+
+    /* HEADER */
     .chatbot-header {
-      display: flex; align-items: center;
-      background: #2162c7;
-      color: #fff;
-      padding: 15px 16px;
-      border-radius: 17px 17px 0 0;
-      font-size: 1.14em;
-      font-weight: 600;
+      background: linear-gradient(135deg, #1a4fc4 0%, #2d6ef5 100%);
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      flex-shrink: 0;
     }
-    .chatbot-avatar {
-      background: #fff;
-      width: 37px; height: 37px; border-radius: 50%;
+    .bot-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: rgba(255,255,255,0.2);
       display: flex; align-items: center; justify-content: center;
-      margin-right: 12px;
-      box-shadow: 0 1px 7px #90caf9;
+      font-size: 1.3em;
+      border: 2px solid rgba(255,255,255,0.4);
+      flex-shrink: 0;
     }
-    .chatbot-avatar img {
-      width: 26px; height: 26px;
+    .header-info { flex: 1; }
+    .header-info .bot-name { color: #fff; font-weight: 700; font-size: 1em; }
+    .header-info .bot-status {
+      font-size: 0.72em; color: rgba(255,255,255,0.8);
+      display: flex; align-items: center; gap: 5px; margin-top: 2px;
     }
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #4ade80;
+      animation: pulse-green 2s infinite;
+    }
+    @keyframes pulse-green { 0%,100%{opacity:1} 50%{opacity:0.4} }
     .chatbot-close {
-      margin-left: auto; font-size: 1.24em; color: #fff; background: transparent;
-      border: none; cursor: pointer;
-      opacity: 0.82; transition: opacity 0.21s;
+      background: rgba(255,255,255,0.15); border: none;
+      width: 30px; height: 30px; border-radius: 50%;
+      color: #fff; font-size: 1em; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
     }
-    .chatbot-close:hover { opacity: 1; color: #ebebec; }
+    .chatbot-close:hover { background: rgba(255,255,255,0.3); }
+
+    /* MESSAGES */
     .chat-body {
-      padding: 13px;
-      flex: 1;
-      overflow-y: auto;
-      background: #f6fafd;
-      display: flex; flex-direction: column;
+      flex: 1; overflow-y: auto;
+      padding: 16px 14px 8px;
+      background: #f6f9ff;
+      display: flex; flex-direction: column; gap: 10px;
+      scroll-behavior: smooth;
     }
+    .chat-body::-webkit-scrollbar { width: 4px; }
+    .chat-body::-webkit-scrollbar-thumb { background: #c5d5f0; border-radius: 99px; }
+
+    .msg-row { display: flex; align-items: flex-end; gap: 8px; animation: fadeUp 0.25s ease forwards; }
+    .msg-row.user { flex-direction: row-reverse; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    .msg-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      font-size: 0.85em; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .msg-avatar.bot { background: linear-gradient(135deg,#2162c7,#4a90e2); color:#fff; }
+    .msg-avatar.user { background: linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; }
+
     .bubble {
-      max-width: 77%;
-      padding: 11px 16px;
-      margin-bottom: 11px;
-      border-radius: 16px 16px 8px 16px;
-      box-shadow: 0 1.5px 7px #e6edfa68;
-      word-break:break-word;
-      font-size: 1em;
-      line-height: 1.55em;
-      position: relative;
+      max-width: 80%; padding: 10px 14px;
+      font-size: 0.875em; line-height: 1.65; word-break: break-word;
     }
-    .bot.bubble {
-      margin-left: 0;
-      margin-right: auto;
-      background: #dbe8fd;
-      color: #123c85;
-      font-weight: 540;
+    .bubble.bot {
+      background: #fff; color: #1a2a5e;
+      border-radius: 16px 16px 16px 4px;
+      border: 1px solid #dce8fb;
+      box-shadow: 0 2px 8px rgba(33,98,199,0.07);
     }
-    .user.bubble {
-      background: #f1f3f5;
-      color: #036;
-      margin-left: auto;
-      margin-right: 0;
-      border-radius: 16px 16px 16px 8px;
+    .bubble.user {
+      background: linear-gradient(135deg,#2162c7,#3b82f6);
+      color: #fff; border-radius: 16px 16px 4px 16px;
+      box-shadow: 0 2px 10px rgba(33,98,199,0.3);
     }
+    .bubble a { color: #2162c7; font-weight: 600; }
+    .bubble.user a { color: #bfdbfe; }
+    .bubble b { font-weight: 700; }
+
+    .msg-time { font-size: 0.62em; color: #aab5cc; text-align: center; }
+
+    /* TYPING */
+    .typing-bubble { display:flex; align-items:center; gap:4px; padding:12px 16px; }
+    .typing-dot {
+      width:7px; height:7px; border-radius:50%; background:#93b4e8;
+      animation: typingBounce 1.2s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(2){animation-delay:0.2s}
+    .typing-dot:nth-child(3){animation-delay:0.4s}
+    @keyframes typingBounce {
+      0%,60%,100%{transform:translateY(0);opacity:0.4}
+      30%{transform:translateY(-5px);opacity:1}
+    }
+
+    /* QUICK CHIPS */
+    .quick-chips {
+      padding: 8px 12px 6px;
+      display: flex; flex-wrap: wrap; gap: 6px;
+      flex-shrink: 0; background: #f6f9ff;
+      border-top: 1px solid #e4edf9;
+    }
+    .chip {
+      background: #fff; border: 1.5px solid #c5d8f8; color: #2162c7;
+      font-size: 0.7em; font-weight: 600; padding: 5px 10px; border-radius: 99px;
+      cursor: pointer; transition: all 0.18s; white-space: nowrap;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .chip:hover { background:#2162c7; color:#fff; border-color:#2162c7; transform:translateY(-1px); }
+
+    /* INPUT */
     .chat-form-area {
-      background: #f9fafd;
-      border-top: 1.5px solid #e2eaf4;
-      display: flex; align-items: center;
-      padding: 10px 14px;
-      border-radius: 0 0 18px 18px;
-      gap: 8px;
+      padding: 10px 12px; background: #fff;
+      border-top: 1.5px solid #e4edf9;
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0;
     }
     .input-box {
-      flex: 1;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.06em;
-      background: #eef2fb;
-      padding: 11px 11px;
-      margin-right: 8px;
-      outline: none;
+      flex: 1; background: #f0f4fd; border: 1.5px solid #dce8fb;
+      border-radius: 12px; padding: 10px 12px; font-size: 0.875em;
+      color: #1a2a5e; font-family: 'Plus Jakarta Sans',sans-serif;
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+      resize: none; max-height: 80px; line-height: 1.4;
+    }
+    .input-box::placeholder { color: #a0b0cc; }
+    .input-box:focus {
+      border-color: #2162c7; background: #fff;
+      box-shadow: 0 0 0 3px rgba(33,98,199,0.1);
     }
     .send-btn {
-      background: #2162c7;
-      color: #fff;
-      border: none;
-      border-radius: 16px;
-      font-size: 1em;
-      font-weight: 600;
-      padding: 7px 22px;
-      cursor: pointer;
-      transition: background 0.13s;
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg,#1a4fc4,#3b82f6);
+      border: none; border-radius: 12px; color: #fff; font-size: 0.95em;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 2px 8px rgba(33,98,199,0.3);
     }
-    .send-btn:hover { background: #1456ad; }
-    @media (max-width: 500px) {
-      .chatbot-window { width: 96vw; height: 92vw; }
+    .send-btn:hover { transform:scale(1.08); box-shadow:0 4px 14px rgba(33,98,199,0.45); }
+    .send-btn:active { transform:scale(0.95); }
+    .send-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+    .powered-by {
+      text-align: center; font-size: 0.6em; color: #b0bdd8;
+      padding: 4px 0 6px; background: #fff; flex-shrink: 0;
     }
-    .typing-dot {
-      display:inline-block; width:7px; height:7px; margin-right:3px; background:#bbb; border-radius:50%; animation: blink 1s infinite alternate;}
-    .typing-dot:nth-child(2) { animation-delay: .2s; }
-    .typing-dot:nth-child(3) { animation-delay: .4s; }
-    @keyframes blink { from { opacity:.3 } to { opacity:1 } }
+
+    @media(max-width:420px){
+      .chatbot-window { width:96vw; height:90vh; border-radius:14px; }
+    }
   </style>
 </head>
 <body>
-<div class="chatbot-window" id="chat-root">
+<div class="chatbot-window">
+
   <div class="chatbot-header">
-    <div class="chatbot-avatar"><img src="https://cdn-icons-png.flaticon.com/512/4712/4712024.png" alt="Bot"></div>
-    SREC Bot
-    <button class="chatbot-close" title="Close chat" onclick="window.parent.document.getElementById('chatbot-popup').style.display='none';">×</button>
+    <div class="bot-avatar">🤖</div>
+    <div class="header-info">
+      <div class="bot-name">SREC Assistant</div>
+      <div class="bot-status"><span class="status-dot"></span>Online · Always ready to help</div>
+    </div>
+    <button class="chatbot-close" title="Close"
+      onclick="window.parent.document.getElementById('chatbot-popup').style.display='none';">
+      <i class="fa fa-times"></i>
+    </button>
   </div>
-  <div class="chat-body" id="chatbox">
-    <div class="bubble bot"><b>SREC Bot:</b> Welcome! Ask me about SREC.</div>
+
+  <div class="chat-body" id="chatbox"></div>
+
+  <div class="quick-chips">
+    <button class="chip" onclick="sendQuick('Who is the principal of SREC?')">👤 Principal</button>
+    <button class="chip" onclick="sendQuick('MAD question paper')">📄 MAD</button>
+    <button class="chip" onclick="sendQuick('BEEE question paper')">📄 BEEE</button>
+    <button class="chip" onclick="sendQuick('SENSORS question paper')">📄 Sensors</button>
+    <button class="chip" onclick="sendQuick('Placement details')">💼 Placements</button>
+    <button class="chip" onclick="sendQuick('Clubs at SREC')">🎉 Clubs</button>
+    <button class="chip" onclick="sendQuick('Fee structure')">💰 Fees</button>
+    <button class="chip" onclick="sendQuick('Hostel details')">🏠 Hostel</button>
   </div>
-  <form class="chat-form-area" autocomplete="off" onsubmit="sendMsg(event)">
-    <input id="userInput" class="input-box" type="text" placeholder="Type here..." required />
-    <button type="submit" class="send-btn">Send</button>
+
+  <form class="chat-form-area" autocomplete="off" onsubmit="handleSubmit(event)">
+    <textarea id="userInput" class="input-box" placeholder="Ask me anything about SREC…" rows="1"
+      onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+    <button type="submit" class="send-btn" id="send-btn">
+      <i class="fa fa-paper-plane"></i>
+    </button>
   </form>
+
+  <div class="powered-by">⚡ Powered by SREC AI · CampusConnect</div>
 </div>
+
 <script>
-function addMsg(txt, isUser=false) {
-  let cbox=document.getElementById('chatbox'), div=document.createElement('div');
-  div.className=(isUser?'user':'bot')+" bubble";
-  div.innerHTML=isUser?`<b>You:</b> ${txt}`:`<b>SREC Bot:</b> ${txt}`;
-  cbox.appendChild(div); cbox.scrollTop=cbox.scrollHeight;
-}
-function showTyping(){
-  let cbox=document.getElementById('chatbox');
-  let dotDiv=document.createElement('div');
-  dotDiv.className='bot bubble';
-  dotDiv.innerHTML='<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
-  dotDiv.id='typing-ind';
-  cbox.appendChild(dotDiv);
-  cbox.scrollTop=cbox.scrollHeight;
-}
-function removeTyping(){
-  let d=document.getElementById('typing-ind');
-  if(d) d.remove();
-}
-function sendMsg(e){
-  e.preventDefault();
-  let inp=document.getElementById('userInput'), msg=inp.value;
-  if (!msg.trim()) return;
-  addMsg(msg,true); inp.value='';
-  showTyping();
-  fetch('/chat', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({message:msg})
-  })
-  .then(r=>r.json())
-  .then(data=>{
-    removeTyping();
-    addMsg(data.response,false);
-  })
-  .catch(()=>{ removeTyping(); addMsg('Sorry, I encountered an error.',false); });
-}
+  let isWaiting = false;
+
+  function getTime() {
+    return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+  }
+
+  function scrollToBottom() {
+    const box = document.getElementById('chatbox');
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function addMessage(html, isUser=false, time=null) {
+    const chatbox = document.getElementById('chatbox');
+
+    const row = document.createElement('div');
+    row.className = 'msg-row' + (isUser ? ' user' : '');
+
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar ' + (isUser ? 'user' : 'bot');
+    avatar.textContent = isUser ? '👤' : '🤖';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble ' + (isUser ? 'user' : 'bot');
+    bubble.innerHTML = html;
+
+    if (isUser) { row.appendChild(bubble); row.appendChild(avatar); }
+    else         { row.appendChild(avatar); row.appendChild(bubble); }
+    chatbox.appendChild(row);
+
+    if (time) {
+      const t = document.createElement('div');
+      t.className = 'msg-time'; t.textContent = time;
+      chatbox.appendChild(t);
+    }
+    scrollToBottom();
+  }
+
+  function showTyping() {
+    const chatbox = document.getElementById('chatbox');
+    const row = document.createElement('div');
+    row.className = 'msg-row'; row.id = 'typing-row';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar bot'; avatar.textContent = '🤖';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble bot typing-bubble';
+    bubble.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+
+    row.appendChild(avatar); row.appendChild(bubble);
+    chatbox.appendChild(row);
+    scrollToBottom();
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typing-row');
+    if (el) el.remove();
+  }
+
+  async function sendMessage(msg) {
+    if (!msg.trim() || isWaiting) return;
+    isWaiting = true;
+    document.getElementById('send-btn').disabled = true;
+    const input = document.getElementById('userInput');
+    input.value = ''; input.style.height = 'auto';
+
+    addMessage(msg, true, getTime());
+    showTyping();
+
+    try {
+      const resp = await fetch('/chat', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({message: msg})
+      });
+      const data = await resp.json();
+      removeTyping();
+      addMessage(data.response || "Sorry, I didn't get a response 😕", false, getTime());
+    } catch(err) {
+      removeTyping();
+      addMessage("⚠️ Couldn't reach the server. Check your connection!", false, getTime());
+    } finally {
+      isWaiting = false;
+      document.getElementById('send-btn').disabled = false;
+      input.focus();
+    }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    const val = document.getElementById('userInput').value.trim();
+    if (val) sendMessage(val);
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const val = document.getElementById('userInput').value.trim();
+      if (val) sendMessage(val);
+    }
+  }
+
+  function sendQuick(text) {
+    document.getElementById('userInput').value = text;
+    sendMessage(text);
+  }
+
+  // Welcome message on load
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      addMessage(
+        `👋 <b>Hello! I'm SREC Bot.</b><br><br>` +
+        `I can answer anything about <b>Sri Ramakrishna Engineering College</b> — ` +
+        `courses, admissions, placements, question papers, clubs & more!<br><br>` +
+        `Use the shortcut buttons below or just type your question 😊`,
+        false, getTime()
+      );
+    }, 300);
+  });
 </script>
 </body>
 </html>
